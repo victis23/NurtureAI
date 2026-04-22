@@ -16,26 +16,6 @@ struct FeedingLogView: View {
                 }
             }
             .navigationTitle("Feeding")
-            .toolbar {
-                if let vm = viewModel, let baby = babies.first {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button { vm.showingAddSheet = true } label: {
-                            Image(systemName: "plus")
-                        }
-                    }
-                    ToolbarItem(placement: .topBarLeading) {
-                        if vm.isTimerRunning {
-                            Button("Stop (\(vm.elapsedDisplay))") {
-                                vm.stopTimer()
-                                Task { await vm.saveLog(for: baby) }
-                            }
-                            .foregroundStyle(.red)
-                        } else {
-                            Button("Start Timer") { vm.startTimer() }
-                        }
-                    }
-                }
-            }
         }
         .task {
             guard let baby = babies.first else { return }
@@ -71,6 +51,24 @@ private struct FeedingContentView: View {
         }
         .sheet(isPresented: $viewModel.showingAddSheet) {
             AddFeedingSheet(viewModel: viewModel, baby: baby)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { viewModel.showingAddSheet = true } label: {
+                    Image(systemName: "plus")
+                }
+            }
+            ToolbarItem(placement: .topBarLeading) {
+                if viewModel.isTimerRunning {
+                    Button("Stop (\(viewModel.elapsedDisplay))") {
+                        viewModel.stopTimer()
+                        Task { await viewModel.saveLog(for: baby) }
+                    }
+                    .foregroundStyle(.red)
+                } else {
+                    Button("Start Timer") { viewModel.startTimer() }
+                }
+            }
         }
     }
 }

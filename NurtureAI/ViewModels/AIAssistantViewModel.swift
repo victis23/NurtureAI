@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class AIAssistantViewModel {
     var messages: [DisplayMessage] = []
     var inputText: String = ""
@@ -33,6 +34,7 @@ final class AIAssistantViewModel {
     private let safetyFilter: SafetyFilter
     private let responseParser: ResponseParser
     private let conversationRepo: any ConversationRepositoryProtocol
+    private var streamTask: Task<Void, Never>?
 
     init(
         aiService: any AIServiceProtocol,
@@ -66,11 +68,21 @@ final class AIAssistantViewModel {
         }
     }
 
-    func send(for baby: Baby) async {
-        let text = inputText.trimmingCharacters(in: .whitespaces)
-        guard !text.isEmpty, !isStreaming else { return }
+    func send(for baby: Baby) {
+        guard !inputText.trimmingCharacters(in: .whitespaces).isEmpty, !isStreaming else { return }
+        streamTask = Task { await performSend(for: baby) }
+    }
 
-        // Input safety screen
+    func cancelStreaming() {
+        streamTask?.cancel()
+        streamTask = nil
+        streamingResponse = ""
+        isStreaming = false
+    }
+
+    private func performSend(for baby: Baby) async {
+        let text = inputText.trimmingCharacters(in: .whitespaces)
+
         switch safetyFilter.screenInput(text) {
         case .blocked(let reason):
             appendSystemMessage(reason, urgency: .urgent)
@@ -100,6 +112,7 @@ final class AIAssistantViewModel {
 
             let stream = try await aiService.send(messages: chatMessages, stream: true)
             for try await chunk in stream {
+                try Task.checkCancellation()
                 streamingResponse += chunk
             }
 
@@ -116,6 +129,8 @@ final class AIAssistantViewModel {
                 urgency: parsed.urgencyLevel,
                 actions: parsed.suggestedActions
             ))
+        } catch is CancellationError {
+            // User tapped stop — discard partial response silently
         } catch AIError.missingAPIKey {
             errorMessage = "OpenAI API key not configured. Go to Settings to add it."
         } catch {
@@ -124,6 +139,7 @@ final class AIAssistantViewModel {
 
         streamingResponse = ""
         isStreaming = false
+        streamTask = nil
     }
 
     func clearConversation(for baby: Baby) async {

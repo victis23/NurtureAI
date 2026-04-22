@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class DiaperLogViewModel {
     var logs: [DiaperLog] = []
     var selectedType: DiaperLog.DiaperType = .wet

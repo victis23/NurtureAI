@@ -16,15 +16,6 @@ struct DiaperLogView: View {
                 }
             }
             .navigationTitle("Diapers")
-            .toolbar {
-                if let vm = viewModel, let baby = babies.first {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button { vm.showingAddSheet = true } label: {
-                            Image(systemName: "plus")
-                        }
-                    }
-                }
-            }
         }
         .task {
             guard let baby = babies.first else { return }
@@ -71,6 +62,13 @@ private struct DiaperContentView: View {
         .overlay {
             if viewModel.logs.isEmpty && !viewModel.isLoading {
                 ContentUnavailableView("No diapers logged", systemImage: "bubbles.and.sparkles")
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { viewModel.showingAddSheet = true } label: {
+                    Image(systemName: "plus")
+                }
             }
         }
         .sheet(isPresented: $viewModel.showingAddSheet) {

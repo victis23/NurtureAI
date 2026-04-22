@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class OnboardingViewModel {
     var name: String = ""
     var birthDate: Date = Date()

@@ -98,17 +98,21 @@ private struct AIContentView: View {
                     .textFieldStyle(.roundedBorder)
                     .focused($isInputFocused)
                     .onSubmit {
-                        Task { await viewModel.send(for: baby) }
+                        viewModel.send(for: baby)
                     }
 
                 Button {
-                    Task { await viewModel.send(for: baby) }
+                    if viewModel.isStreaming {
+                        viewModel.cancelStreaming()
+                    } else {
+                        viewModel.send(for: baby)
+                    }
                 } label: {
                     Image(systemName: viewModel.isStreaming ? "stop.circle.fill" : "arrow.up.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(viewModel.inputText.isEmpty ? .secondary : .purple)
+                        .foregroundStyle(viewModel.isStreaming ? .red : viewModel.inputText.isEmpty ? .secondary : .purple)
                 }
-                .disabled(viewModel.inputText.isEmpty || viewModel.isStreaming)
+                .disabled(!viewModel.isStreaming && viewModel.inputText.isEmpty)
             }
             .padding(.horizontal)
             .padding(.vertical, 8)

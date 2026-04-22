@@ -51,19 +51,19 @@ final class SwiftDataDiaperLogRepository: DiaperLogRepositoryProtocol {
         log.baby = baby
         modelContext.insert(log)
         try modelContext.save()
-        contextBuilder.invalidate(for: baby)
+        contextBuilder?.invalidate(for: baby)
     }
 
     func delete(_ log: DiaperLog) async throws {
         let baby = log.baby
         modelContext.delete(log)
         try modelContext.save()
-        if let baby { contextBuilder.invalidate(for: baby) }
+        if let baby { contextBuilder?.invalidate(for: baby) }
     }
 
     func update(_ log: DiaperLog) async throws {
         let baby = log.baby
         try modelContext.save()
-        if let baby { contextBuilder.invalidate(for: baby) }
+        if let baby { contextBuilder?.invalidate(for: baby) }
     }
 }

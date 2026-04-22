@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class DashboardViewModel {
     var baby: Baby?
     var patterns: BabyPatterns = .empty

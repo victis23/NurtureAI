@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class FeedingLogViewModel {
     var logs: [FeedingLog] = []
     var selectedType: FeedingLog.FeedType = .breastLeft

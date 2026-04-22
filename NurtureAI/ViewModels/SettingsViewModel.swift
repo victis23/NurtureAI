@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class SettingsViewModel {
     var apiKeyInput: String = ""
     var isAPIKeySet: Bool = false

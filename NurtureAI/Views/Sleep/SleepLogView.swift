@@ -126,7 +126,10 @@ private struct AddSleepSheet: View {
                         set: { viewModel.endTime = $0 ? Date() : nil }
                     ))
                     if viewModel.endTime != nil {
-                        DatePicker("End", selection: Binding($viewModel.endTime)!, displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("End", selection: Binding(
+                            get: { viewModel.endTime ?? Date() },
+                            set: { viewModel.endTime = $0 }
+                        ), displayedComponents: [.date, .hourAndMinute])
                     }
                 }
                 Section("Quality (optional)") {
