@@ -16,17 +16,6 @@ struct AIAssistantView: View {
                 }
             }
             .navigationTitle("Ask AI")
-            .toolbar {
-                if let vm = viewModel, let baby = babies.first {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            Task { await vm.clearConversation(for: baby) }
-                        } label: {
-                            Image(systemName: "trash")
-                        }
-                    }
-                }
-            }
         }
         .task {
             guard let baby = babies.first else { return }
@@ -57,12 +46,12 @@ private struct AIContentView: View {
                             VStack(spacing: 12) {
                                 Image(systemName: "sparkles")
                                     .font(.system(size: 48))
-                                    .foregroundStyle(.purple)
+                                    .foregroundStyle(NurturColors.accent)
                                 Text("Ask anything about \(baby.name)")
-                                    .font(.headline)
+                                    .font(NurturTypography.headline)
                                 Text("Sleep schedules, feeding tips, development milestones — I'll answer based on \(baby.name)'s actual logged data.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                    .font(NurturTypography.subheadline)
+                                    .foregroundStyle(NurturColors.textSecondary)
                                     .multilineTextAlignment(.center)
                             }
                             .padding(.top, 60)
@@ -110,13 +99,23 @@ private struct AIContentView: View {
                 } label: {
                     Image(systemName: viewModel.isStreaming ? "stop.circle.fill" : "arrow.up.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(viewModel.isStreaming ? .red : viewModel.inputText.isEmpty ? .secondary : .purple)
+                        .foregroundStyle(viewModel.isStreaming ? NurturColors.danger : viewModel.inputText.isEmpty ? NurturColors.textFaint : NurturColors.accent)
                 }
                 .disabled(!viewModel.isStreaming && viewModel.inputText.isEmpty)
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
             .background(.regularMaterial)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    Task { await viewModel.clearConversation(for: baby) }
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .foregroundStyle(NurturColors.textSecondary)
+            }
         }
         .alert("Error", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
@@ -146,7 +145,7 @@ private struct MessageBubble: View {
 
                 if message.urgencyLevel == .urgent {
                     Label("This may be urgent", systemImage: "exclamationmark.triangle.fill")
-                        .font(.caption2).foregroundStyle(.red)
+                        .font(NurturTypography.caption2).foregroundStyle(NurturColors.danger)
                 }
             }
 
@@ -155,11 +154,11 @@ private struct MessageBubble: View {
     }
 
     var bubbleColor: Color {
-        if isUser { return .purple }
+        if isUser { return NurturColors.accent }
         switch message.urgencyLevel {
-        case .urgent: return Color.red.opacity(0.1)
-        case .advisory: return Color.orange.opacity(0.1)
-        case .normal: return Color(.secondarySystemBackground)
+        case .urgent:   return NurturColors.danger.opacity(0.1)
+        case .advisory: return NurturColors.warning.opacity(0.1)
+        case .normal:   return NurturColors.surfaceWarm
         }
     }
 }
@@ -171,7 +170,7 @@ private struct StreamingBubble: View {
         HStack {
             Text(text + " ●")
                 .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+                .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 16))
                 .animation(.easeInOut(duration: 0.3), value: text)
             Spacer(minLength: 48)
         }

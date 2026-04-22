@@ -39,18 +39,18 @@ private struct SleepContentView: View {
                         .font(.title2).fontWeight(.semibold)
                     Text(viewModel.elapsedDisplay)
                         .font(.system(size: 48, weight: .thin, design: .monospaced))
-                        .foregroundStyle(.indigo)
+                        .foregroundStyle(NurturColors.accent)
                     Button("End Sleep") {
                         Task { await viewModel.endSleep(for: baby) }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.indigo)
+                    .tint(NurturColors.accent)
                 } else {
                     Button("Start Sleep") {
                         Task { await viewModel.startSleep(for: baby) }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.indigo)
+                    .tint(NurturColors.accent)
 
                     Button("Log manually") { viewModel.showingAddSheet = true }
                         .font(.caption)

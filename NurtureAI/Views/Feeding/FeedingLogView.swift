@@ -64,7 +64,7 @@ private struct FeedingContentView: View {
                         viewModel.stopTimer()
                         Task { await viewModel.saveLog(for: baby) }
                     }
-                    .foregroundStyle(.red)
+                    .foregroundStyle(NurturColors.danger)
                 } else {
                     Button("Start Timer") { viewModel.startTimer() }
                 }

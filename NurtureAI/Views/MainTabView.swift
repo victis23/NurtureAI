@@ -20,6 +20,6 @@ struct MainTabView: View {
             AIAssistantView()
                 .tabItem { Label("Ask AI", systemImage: "sparkles") }
         }
-        .tint(.purple)
+        .tint(NurturColors.accent)
     }
 }

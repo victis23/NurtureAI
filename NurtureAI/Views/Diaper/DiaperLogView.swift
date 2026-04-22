@@ -35,13 +35,13 @@ private struct DiaperContentView: View {
             Section {
                 HStack(spacing: 24) {
                     VStack {
-                        Text("\(viewModel.wetCount24h)").font(.title).fontWeight(.bold).foregroundStyle(.blue)
-                        Text("Wet (24h)").font(.caption).foregroundStyle(.secondary)
+                        Text("\(viewModel.wetCount24h)").font(.title).fontWeight(.bold).foregroundStyle(NurturColors.info)
+                        Text("Wet (24h)").font(NurturTypography.caption).foregroundStyle(NurturColors.textSecondary)
                     }
                     Divider()
                     VStack {
-                        Text("\(viewModel.dirtyCount24h)").font(.title).fontWeight(.bold).foregroundStyle(.brown)
-                        Text("Dirty (24h)").font(.caption).foregroundStyle(.secondary)
+                        Text("\(viewModel.dirtyCount24h)").font(.title).fontWeight(.bold).foregroundStyle(NurturColors.warning)
+                        Text("Dirty (24h)").font(NurturTypography.caption).foregroundStyle(NurturColors.textSecondary)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -96,8 +96,8 @@ private struct DiaperLogRow: View {
             if let color = log.color {
                 Text(color.rawValue).font(.caption2)
                     .padding(.horizontal, 6).padding(.vertical, 3)
-                    .background(color.requiresDoctorAttention ? Color.red.opacity(0.15) : Color.secondary.opacity(0.1), in: Capsule())
-                    .foregroundStyle(color.requiresDoctorAttention ? .red : .secondary)
+                    .background(color.requiresDoctorAttention ? NurturColors.danger.opacity(0.15) : NurturColors.textFaint.opacity(0.15), in: Capsule())
+                    .foregroundStyle(color.requiresDoctorAttention ? NurturColors.danger : NurturColors.textSecondary)
             }
         }
         .padding(.vertical, 4)

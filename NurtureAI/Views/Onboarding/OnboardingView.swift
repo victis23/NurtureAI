@@ -38,7 +38,7 @@ private struct OnboardingContentView: View {
                 }
 
                 if let error = viewModel.errorMessage {
-                    Text(error).foregroundStyle(.red).font(.caption)
+                    Text(error).foregroundStyle(NurturColors.danger).font(NurturTypography.caption)
                 }
 
                 if viewModel.currentStep != .done {
@@ -68,11 +68,11 @@ private struct WelcomeStepView: View {
         VStack(spacing: 16) {
             Image(systemName: "heart.fill")
                 .font(.system(size: 72))
-                .foregroundStyle(.pink)
+                .foregroundStyle(NurturColors.accent)
             Text("Track sleep, feeding, and more — with AI-powered insights.")
-                .font(.title3)
+                .font(NurturTypography.title3)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(NurturColors.textSecondary)
         }
     }
 }

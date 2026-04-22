@@ -47,14 +47,14 @@ private struct DashboardContentView: View {
         ScrollView {
             VStack(spacing: 16) {
                 // Age card
-                DashboardCard(title: baby.ageDescription, subtitle: baby.birthDate.formatted(date: .long, time: .omitted), icon: "birthday.cake", color: .pink)
+                DashboardCard(title: baby.ageDescription, subtitle: baby.birthDate.formatted(date: .long, time: .omitted), icon: "birthday.cake", color: NurturColors.accent)
 
                 // Feeding status
                 DashboardCard(
                     title: viewModel.timeSinceLastFeedDisplay,
                     subtitle: "Last feeding",
                     icon: "drop.fill",
-                    color: .blue,
+                    color: NurturColors.info,
                     badge: viewModel.nextFeedDisplay
                 )
 
@@ -63,14 +63,14 @@ private struct DashboardContentView: View {
                     title: viewModel.timeSinceLastSleepDisplay,
                     subtitle: "Sleep status",
                     icon: "moon.fill",
-                    color: .indigo,
+                    color: NurturColors.accent,
                     badge: viewModel.isOvertired ? "Overtired?" : nil
                 )
 
-                // Diaper summary
+                // Stats row
                 HStack(spacing: 12) {
-                    DashboardCard(title: "\(viewModel.patterns.feedingsIn24h)", subtitle: "Feeds today", icon: "drop.fill", color: .cyan)
-                    DashboardCard(title: viewModel.patterns.avgNapDurationDisplay, subtitle: "Avg nap", icon: "moon.zzz.fill", color: .purple)
+                    DashboardCard(title: "\(viewModel.patterns.feedingsIn24h)", subtitle: "Feeds today", icon: "drop.fill", color: NurturColors.info)
+                    DashboardCard(title: viewModel.patterns.avgNapDurationDisplay, subtitle: "Avg nap", icon: "moon.zzz.fill", color: NurturColors.accent)
                 }
 
                 if viewModel.isLoading {
@@ -100,15 +100,15 @@ private struct DashboardCard: View {
                 .frame(width: 36)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.headline)
-                Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                Text(title).font(NurturTypography.headline)
+                Text(subtitle).font(NurturTypography.caption).foregroundStyle(NurturColors.textSecondary)
             }
 
             Spacer()
 
             if let badge {
                 Text(badge)
-                    .font(.caption2)
+                    .font(NurturTypography.caption2)
                     .padding(.horizontal, 8).padding(.vertical, 4)
                     .background(color.opacity(0.15), in: Capsule())
                     .foregroundStyle(color)
