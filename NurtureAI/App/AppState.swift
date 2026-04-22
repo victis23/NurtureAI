@@ -7,9 +7,14 @@ final class AppState {
     var isAuthenticated: Bool = false
     var firebaseUID: String?
 
+    private var _hasCompletedOnboarding: Bool = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+
     var hasCompletedOnboarding: Bool {
-        get { UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") }
-        set { UserDefaults.standard.set(newValue, forKey: "hasCompletedOnboarding") }
+        get { _hasCompletedOnboarding }
+        set {
+            _hasCompletedOnboarding = newValue
+            UserDefaults.standard.set(newValue, forKey: "hasCompletedOnboarding")
+        }
     }
 
     var isSubscribed: Bool = false
