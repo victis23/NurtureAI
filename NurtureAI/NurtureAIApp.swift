@@ -1,19 +1,2 @@
-import SwiftUI
-import SwiftData
-
-@main
-struct NurtureAIApp: App {
-    let container: DependencyContainer
-
-    init() {
-        container = DependencyContainer()
-    }
-
-    var body: some Scene {
-        WindowGroup {
-            RootView()
-                .environment(container)
-                .modelContainer(container.modelContainer)
-        }
-    }
-}
+// This file is intentionally left empty.
+// The app entry point has moved to App/NurturAIApp.swift

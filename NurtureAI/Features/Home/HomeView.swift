@@ -1,0 +1,206 @@
+import SwiftUI
+import SwiftData
+import Combine
+
+struct HomeView: View {
+    @Environment(AppState.self) private var appState
+    @Environment(\.appContainer) private var container
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Baby.createdAt) private var babies: [Baby]
+    @State private var viewModel: HomeViewModel?
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if let baby = babies.first, let vm = viewModel {
+                    HomeContentView(viewModel: vm, baby: baby, modelContext: modelContext)
+                } else if babies.isEmpty {
+                    ContentUnavailableView("No baby profile", systemImage: "sun.max")
+                } else {
+                    ProgressView()
+                }
+            }
+            .navigationTitle("Today")
+        }
+        .task {
+            guard let baby = babies.first, let container else { return }
+            let vm = HomeViewModel(
+                logRepository: container.logRepository,
+                patternService: container.patternService,
+                contextBuilder: container.contextBuilder
+            )
+            viewModel = vm
+            await vm.load(baby: baby)
+        }
+    }
+}
+
+private struct HomeContentView: View {
+    @Bindable var viewModel: HomeViewModel
+    let baby: Baby
+    let modelContext: ModelContext
+    @State private var showAssist: Bool = false
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Header
+                HStack(spacing: 12) {
+                    BabyAvatar(name: baby.name, size: 56)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(baby.name)
+                            .font(NurturTypography.title3)
+                            .foregroundStyle(NurturColors.textPrimary)
+                        Text(baby.displayAge)
+                            .font(NurturTypography.subheadline)
+                            .foregroundStyle(NurturColors.textSecondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(NurturColors.accentSoft, in: Capsule())
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+
+                // Active timer widget
+                if let timer = viewModel.activeTimer {
+                    ActiveTimerWidget(timer: timer) {
+                        Task { await viewModel.stopTimer(baby: baby, context: modelContext) }
+                    }
+                    .padding(.horizontal)
+                }
+
+                // Prediction card
+                if let patterns = viewModel.patterns,
+                   patterns.currentAwakeWindowMinutes > 0,
+                   patterns.currentAwakeWindowMinutes >= patterns.ageAppropriateMaxAwakeMinutes - 15 {
+                    PredictionCard(
+                        title: "Getting tired?",
+                        message: "\(baby.name) has been awake \(patterns.currentAwakeWindowMinutes) min — approaching the \(patterns.ageAppropriateMaxAwakeMinutes) min limit."
+                    ) {
+                        showAssist = true
+                    }
+                    .padding(.horizontal)
+                }
+
+                // Status cards
+                if let patterns = viewModel.patterns {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        NurturStatusCard(
+                            title: "Last Fed",
+                            value: patterns.lastFeedMinutesAgo.map { "\($0)m ago" } ?? "Not logged",
+                            subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) feedings today" : nil,
+                            icon: "drop.fill",
+                            iconColor: NurturColors.info
+                        )
+
+                        NurturStatusCard(
+                            title: "Awake",
+                            value: "\(patterns.currentAwakeWindowMinutes)m",
+                            subtitle: "Max \(patterns.ageAppropriateMaxAwakeMinutes)m recommended",
+                            icon: "sun.max.fill",
+                            iconColor: NurturColors.warning
+                        )
+
+                        NurturStatusCard(
+                            title: "Sleep Today",
+                            value: "\(patterns.totalSleepTodayMinutes / 60)h \(patterns.totalSleepTodayMinutes % 60)m",
+                            icon: "moon.fill",
+                            iconColor: NurturColors.accent
+                        )
+
+                        NurturStatusCard(
+                            title: "Last Diaper",
+                            value: patterns.lastDiaperMinutesAgo.map { "\($0)m ago" } ?? "Not logged",
+                            icon: "bubbles.and.sparkles",
+                            iconColor: NurturColors.success
+                        )
+                    }
+                    .padding(.horizontal)
+                }
+
+                // Quick-action row
+                HStack(spacing: 12) {
+                    LargeActionButton(title: "Feed", icon: "drop.fill", color: NurturColors.info) {
+                        viewModel.startTimer(type: .feed)
+                    }
+                    LargeActionButton(title: "Sleep", icon: "moon.fill", color: NurturColors.accent) {
+                        viewModel.startTimer(type: .sleep)
+                    }
+                    LargeActionButton(title: "Diaper", icon: "bubbles.and.sparkles", color: NurturColors.success) {
+                        viewModel.startTimer(type: .diaper)
+                    }
+                    LargeActionButton(title: "Ask AI", icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
+                        showAssist = true
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            }
+            .padding(.top, 8)
+        }
+        .background(NurturColors.background)
+        .refreshable { await viewModel.refresh(baby: baby) }
+        .errorAlert(error: $viewModel.error)
+        .sheet(isPresented: $showAssist) { AssistView() }
+    }
+}
+
+private struct ActiveTimerWidget: View {
+    let timer: HomeViewModel.ActiveTimer
+    let onStop: () -> Void
+    @State private var elapsed: TimeInterval = 0
+    @State private var pulseScale: CGFloat = 1.0
+
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(NurturColors.accent.opacity(0.15))
+                    .frame(width: 48, height: 48)
+                    .scaleEffect(pulseScale)
+                    .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: pulseScale)
+                Image(systemName: timer.type == .feed ? "drop.fill" : "moon.fill")
+                    .foregroundStyle(NurturColors.accent)
+                    .font(.title3)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(timer.type == .feed ? "Feeding in progress" : "Sleep in progress")
+                    .font(NurturTypography.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(NurturColors.textPrimary)
+                Text(formatElapsedTime(elapsed))
+                    .font(.system(size: 28, weight: .light, design: .monospaced))
+                    .foregroundStyle(NurturColors.accent)
+                    .contentTransition(.numericText())
+            }
+
+            Spacer()
+
+            Button("Stop") { onStop() }
+                .font(NurturTypography.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(NurturColors.danger, in: Capsule())
+        }
+        .padding(16)
+        .background(NurturColors.surface, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
+        .onAppear {
+            pulseScale = 1.12
+            elapsed = timer.elapsed
+        }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            elapsed = timer.elapsed
+        }
+    }
+
+    private func formatElapsedTime(_ interval: TimeInterval) -> String {
+        let minutes = Int(interval) / 60
+        let seconds = Int(interval) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+}

@@ -1,0 +1,80 @@
+import SwiftUI
+import Combine
+
+struct FeedTimerView: View {
+    @Bindable var viewModel: QuickLogViewModel
+    let baby: Baby
+    @State private var elapsed: TimeInterval = 0
+
+    var body: some View {
+        VStack(spacing: 24) {
+            // Side picker
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Side")
+                    .font(NurturTypography.subheadline)
+                    .foregroundStyle(NurturColors.textSecondary)
+                HStack(spacing: 10) {
+                    ForEach(FeedSide.allCases, id: \.self) { side in
+                        PillButton(title: side.rawValue.capitalized, isSelected: viewModel.feedSide == side) {
+                            viewModel.feedSide = side
+                        }
+                    }
+                }
+            }
+
+            // Timer display
+            VStack(spacing: 8) {
+                TimerDisplay(elapsed: elapsed, isRunning: viewModel.isFeedTimerRunning)
+                Text(viewModel.isFeedTimerRunning ? "Feeding in progress" : "Ready to start")
+                    .font(NurturTypography.caption)
+                    .foregroundStyle(NurturColors.textFaint)
+            }
+
+            // Start / Stop button
+            Button {
+                if viewModel.isFeedTimerRunning {
+                    Task { await viewModel.stopFeed(baby: baby) }
+                } else {
+                    viewModel.startFeed()
+                }
+            } label: {
+                Text(viewModel.isFeedTimerRunning ? "Stop Feed" : "Start Feed")
+                    .primaryButton()
+            }
+            .tint(viewModel.isFeedTimerRunning ? NurturColors.danger : NurturColors.accent)
+
+            // Bottle amount (optional)
+            if viewModel.feedSide == .bottle {
+                HStack {
+                    Text("Amount (ml)")
+                        .font(NurturTypography.subheadline)
+                        .foregroundStyle(NurturColors.textSecondary)
+                    Spacer()
+                    Stepper(
+                        value: Binding(
+                            get: { viewModel.bottleML ?? 0 },
+                            set: { viewModel.bottleML = $0 > 0 ? $0 : nil }
+                        ),
+                        in: 0...500,
+                        step: 10
+                    ) {
+                        Text(viewModel.bottleML.map { "\($0) ml" } ?? "—")
+                            .font(NurturTypography.subheadline)
+                    }
+                }
+                .padding(14)
+                .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            if let start = viewModel.feedStartTime {
+                elapsed = Date().timeIntervalSince(start)
+            }
+        }
+        .onAppear {
+            if let start = viewModel.feedStartTime {
+                elapsed = Date().timeIntervalSince(start)
+            }
+        }
+    }
+}

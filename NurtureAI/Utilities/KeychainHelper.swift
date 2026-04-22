@@ -1,44 +1,47 @@
 import Foundation
 import Security
 
-final class KeychainHelper {
-    static let shared = KeychainHelper()
-    private init() {}
+struct KeychainHelper {
 
-    @discardableResult
-    func save(_ value: String, service: String, account: String) -> Bool {
-        guard let data = value.data(using: .utf8) else { return false }
-        delete(service: service, account: account)
+    static func read(key: String) -> String? {
         let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-            kSecValueData: data,
-            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-        ]
-        return SecItemAdd(query as CFDictionary, nil) == errSecSuccess
-    }
-
-    func read(service: String, account: String) -> String? {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-            kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitOne,
+            kSecClass:       kSecClassGenericPassword,
+            kSecAttrAccount: key,
+            kSecReturnData:  true,
+            kSecMatchLimit:  kSecMatchLimitOne
         ]
         var result: AnyObject?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-              let data = result as? Data else { return nil }
-        return String(data: data, encoding: .utf8)
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let string = String(data: data, encoding: .utf8)
+        else { return nil }
+        return string
     }
 
     @discardableResult
-    func delete(service: String, account: String) -> Bool {
+    static func write(key: String, value: String) -> Bool {
+        let data = Data(value.utf8)
+        let deleteQuery: [CFString: Any] = [
+            kSecClass:       kSecClassGenericPassword,
+            kSecAttrAccount: key
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+
+        let addQuery: [CFString: Any] = [
+            kSecClass:          kSecClassGenericPassword,
+            kSecAttrAccount:    key,
+            kSecValueData:      data,
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        ]
+        return SecItemAdd(addQuery as CFDictionary, nil) == errSecSuccess
+    }
+
+    @discardableResult
+    static func delete(key: String) -> Bool {
         let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
+            kSecClass:       kSecClassGenericPassword,
+            kSecAttrAccount: key
         ]
         return SecItemDelete(query as CFDictionary) == errSecSuccess
     }
