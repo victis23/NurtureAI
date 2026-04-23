@@ -17,9 +17,22 @@
 		7D0B1F2F2F996AAB008EDA41 /* NurturAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NurturAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7D68864B2F9A59EE00196734 /* Exceptions for "NurturAI" folder in "NurturAI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 7D0B1F2E2F996AAB008EDA41 /* NurturAI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7D0B1F312F996AAB008EDA41 /* NurturAI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7D68864B2F9A59EE00196734 /* Exceptions for "NurturAI" folder in "NurturAI" target */,
+			);
 			path = NurturAI;
 			sourceTree = "<group>";
 		};
@@ -282,6 +295,7 @@
 				DEVELOPMENT_TEAM = 55P567K3FP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NurturAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -316,6 +330,7 @@
 				DEVELOPMENT_TEAM = 55P567K3FP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NurturAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
