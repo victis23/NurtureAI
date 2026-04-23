@@ -6,16 +6,16 @@ struct BabyBirthdayStepView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("When was your baby born?")
+                Text(Strings.Onboarding.Birthday.heading)
                     .font(NurturTypography.title2)
                     .foregroundStyle(NurturColors.textPrimary)
-                Text("We use this to personalise advice for their age and stage.")
+                Text(Strings.Onboarding.Birthday.subheading)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
             }
 
             DatePicker(
-                "Date of birth",
+                Strings.Onboarding.Birthday.pickerLabel,
                 selection: $birthDate,
                 in: ...Date(),
                 displayedComponents: .date

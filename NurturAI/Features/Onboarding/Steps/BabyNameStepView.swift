@@ -7,15 +7,15 @@ struct BabyNameStepView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("What's your baby's name?")
+                Text(Strings.Onboarding.Name.heading)
                     .font(NurturTypography.title2)
                     .foregroundStyle(NurturColors.textPrimary)
-                Text("You can always change this later.")
+                Text(Strings.Onboarding.Name.subheading)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
             }
 
-            TextField("Baby's name", text: $name)
+            TextField(Strings.Onboarding.Name.placeholder, text: $name)
                 .font(NurturTypography.title3)
                 .textContentType(.name)
                 .submitLabel(.continue)

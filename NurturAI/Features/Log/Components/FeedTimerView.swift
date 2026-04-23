@@ -10,7 +10,7 @@ struct FeedTimerView: View {
         VStack(spacing: 24) {
             // Side picker
             VStack(alignment: .leading, spacing: 10) {
-                Text("Side")
+                Text(Strings.Log.Feed.sideLabel)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
                 HStack(spacing: 10) {
@@ -25,7 +25,7 @@ struct FeedTimerView: View {
             // Timer display
             VStack(spacing: 8) {
                 TimerDisplay(elapsed: elapsed, isRunning: viewModel.isFeedTimerRunning)
-                Text(viewModel.isFeedTimerRunning ? "Feeding in progress" : "Ready to start")
+                Text(viewModel.isFeedTimerRunning ? Strings.Log.Feed.inProgress : Strings.Log.Feed.readyToStart)
                     .font(NurturTypography.caption)
                     .foregroundStyle(NurturColors.textFaint)
             }
@@ -38,7 +38,7 @@ struct FeedTimerView: View {
                     viewModel.startFeed()
                 }
             } label: {
-                Text(viewModel.isFeedTimerRunning ? "Stop Feed" : "Start Feed")
+                Text(viewModel.isFeedTimerRunning ? Strings.Log.Feed.stopFeed : Strings.Log.Feed.startFeed)
                     .primaryButton()
             }
             .tint(viewModel.isFeedTimerRunning ? NurturColors.danger : NurturColors.accent)
@@ -46,7 +46,7 @@ struct FeedTimerView: View {
             // Bottle amount (optional)
             if viewModel.feedSide == .bottle {
                 HStack {
-                    Text("Amount (ml)")
+                    Text(Strings.Log.Feed.amountLabel)
                         .font(NurturTypography.subheadline)
                         .foregroundStyle(NurturColors.textSecondary)
                     Spacer()

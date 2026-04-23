@@ -7,7 +7,7 @@ struct DiaperLogView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Diaper type")
+                Text(Strings.Log.Diaper.typeLabel)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
 
@@ -31,7 +31,7 @@ struct DiaperLogView: View {
                 }
             }
 
-            Button("Log Now") {
+            Button(Strings.Common.logNow) {
                 Task { await viewModel.logDiaper(baby: baby) }
             }
             .primaryButton()

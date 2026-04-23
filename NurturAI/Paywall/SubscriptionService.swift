@@ -14,17 +14,17 @@ enum NurturProduct: String, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .proMonthly:   return "Pro Monthly"
-        case .proAnnual:    return "Pro Annual"
-        case .familyAnnual: return "Family Annual"
+        case .proMonthly:   return Strings.Products.proMonthlyName
+        case .proAnnual:    return Strings.Products.proAnnualName
+        case .familyAnnual: return Strings.Products.familyAnnualName
         }
     }
 
     var price: String {
         switch self {
-        case .proMonthly:   return "$14.99/mo"
-        case .proAnnual:    return "$99.00/yr"
-        case .familyAnnual: return "$149.00/yr"
+        case .proMonthly:   return Strings.Products.proMonthlyPrice
+        case .proAnnual:    return Strings.Products.proAnnualPrice
+        case .familyAnnual: return Strings.Products.familyAnnualPrice
         }
     }
 }
@@ -37,10 +37,10 @@ enum SubscriptionError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .productNotFound:    return "Product not found. Please try again later."
-        case .verificationFailed: return "Purchase could not be verified."
-        case .pending:            return "Your purchase is pending approval."
-        case .unknown:            return "An unknown error occurred."
+        case .productNotFound:    return Strings.Errors.Subscription.productNotFound
+        case .verificationFailed: return Strings.Errors.Subscription.verificationFailed
+        case .pending:            return Strings.Errors.Subscription.pending
+        case .unknown:            return Strings.Errors.Subscription.unknown
         }
     }
 }

@@ -14,7 +14,7 @@ struct SettingsView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(Strings.Settings.navigationTitle)
 			.task {
 				guard let container else { return }
 				let vm = SettingsViewModel(babyRepository: container.babyRepository, authService: container.authService, appState: appState)
@@ -33,19 +33,19 @@ private struct SettingsContentView: View {
     var body: some View {
         List {
             // Baby profile
-            Section("Baby Profile") {
+            Section(Strings.Settings.BabyProfile.sectionTitle) {
                 if viewModel.isEditing {
                     VStack(alignment: .leading, spacing: 12) {
                         TextField("Name", text: $viewModel.editingName)
                             .textFieldStyle(.roundedBorder)
                         DatePicker("Birthday", selection: $viewModel.editingBirthDate, in: ...Date(), displayedComponents: .date)
                         HStack {
-                            Button("Cancel") {
+                            Button(Strings.Common.cancel) {
                                 viewModel.isEditing = false
                             }
                             .foregroundStyle(NurturColors.textSecondary)
                             Spacer()
-                            Button("Save") {
+                            Button(Strings.Common.save) {
                                 viewModel.saveEdits()
                             }
                             .fontWeight(.semibold)
@@ -65,7 +65,7 @@ private struct SettingsContentView: View {
                                 .foregroundStyle(NurturColors.textSecondary)
                         }
                         Spacer()
-                        Button("Edit") { viewModel.isEditing = true }
+                        Button(Strings.Common.edit) { viewModel.isEditing = true }
                             .font(NurturTypography.subheadline)
                             .foregroundStyle(NurturColors.accent)
                     }
@@ -73,19 +73,19 @@ private struct SettingsContentView: View {
             }
 
             // Subscription
-            Section("Subscription") {
+            Section(Strings.Settings.Subscription.sectionTitle) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(appState.isSubscribed ? "Pro Plan" : "Free Plan")
+                        Text(appState.isSubscribed ? Strings.Settings.Subscription.proPlan : Strings.Settings.Subscription.freePlan)
                             .font(NurturTypography.subheadline)
                             .fontWeight(.medium)
-                        Text(appState.isSubscribed ? "Unlimited AI queries" : "3 AI queries per day")
+                        Text(appState.isSubscribed ? Strings.Settings.Subscription.proDescription : Strings.Settings.Subscription.freeDescription)
                             .font(NurturTypography.caption)
                             .foregroundStyle(NurturColors.textSecondary)
                     }
                     Spacer()
                     if !appState.isSubscribed {
-                        Button("Upgrade to Pro") { showPaywall = true }
+                        Button(Strings.Settings.Subscription.upgradeToPro) { showPaywall = true }
                             .font(NurturTypography.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.white)
@@ -97,20 +97,20 @@ private struct SettingsContentView: View {
             }
 
             // Caregivers
-            Section("Caregivers") {
+            Section(Strings.Settings.Caregivers.sectionTitle) {
                 Button {
                     // Phase 2: Caregiver invite flow
                 } label: {
-                    Label("Add Caregiver", systemImage: "person.badge.plus")
+                    Label(Strings.Settings.Caregivers.addCaregiver, systemImage: "person.badge.plus")
                         .foregroundStyle(NurturColors.textPrimary)
                 }
             }
 
             // Links
-            Section("Legal") {
-                Link("Privacy Policy", destination: URL(string: "https://nurtur.ai/privacy")!)
+            Section(Strings.Settings.Legal.sectionTitle) {
+                Link(Strings.Settings.Legal.privacyPolicy, destination: URL(string: "https://nurtur.ai/privacy")!)
                     .foregroundStyle(NurturColors.textPrimary)
-                Link("Terms of Service", destination: URL(string: "https://nurtur.ai/terms")!)
+                Link(Strings.Settings.Legal.termsOfService, destination: URL(string: "https://nurtur.ai/terms")!)
                     .foregroundStyle(NurturColors.textPrimary)
             }
 
@@ -119,7 +119,7 @@ private struct SettingsContentView: View {
                 Button(role: .destructive) {
                     viewModel.signOut()
                 } label: {
-                    Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                    Label(Strings.Settings.Account.signOut, systemImage: "rectangle.portrait.and.arrow.right")
                 }
             }
 

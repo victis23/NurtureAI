@@ -18,10 +18,10 @@ struct EscalationBannerView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.title2)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("SEEK EMERGENCY CARE")
+                    Text(Strings.Assist.Escalation.emergencyHeading)
                         .font(NurturTypography.headline)
                         .fontWeight(.bold)
-                    Text("or call 911 immediately")
+                    Text(Strings.Assist.Escalation.emergencySubheading)
                         .font(NurturTypography.subheadline)
                 }
             }
@@ -37,7 +37,7 @@ struct EscalationBannerView: View {
             HStack(spacing: 8) {
                 Image(systemName: "stethoscope")
                     .foregroundStyle(NurturColors.warning)
-                Text("Consider calling your pediatrician if:")
+                Text(Strings.Assist.Escalation.doctorHeading)
                     .font(NurturTypography.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(NurturColors.textPrimary)

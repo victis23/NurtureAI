@@ -4,8 +4,12 @@ struct QuickPicksView: View {
     let onSelect: (String) -> Void
 
     private let picks = [
-        "Crying", "Won't sleep", "Feeding issue",
-        "Rash", "Fever", "Gas/Fussiness"
+        Strings.Assist.QuickPicks.crying,
+        Strings.Assist.QuickPicks.wontSleep,
+        Strings.Assist.QuickPicks.feedingIssue,
+        Strings.Assist.QuickPicks.rash,
+        Strings.Assist.QuickPicks.fever,
+        Strings.Assist.QuickPicks.gasFussiness
     ]
 
     var body: some View {

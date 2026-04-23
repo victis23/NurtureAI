@@ -6,10 +6,10 @@ struct FeedingMethodStepView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("How are you feeding?")
+                Text(Strings.Onboarding.Feeding.heading)
                     .font(NurturTypography.title2)
                     .foregroundStyle(NurturColors.textPrimary)
-                Text("NurturAI tailors feed tracking and AI responses to your method.")
+                Text(Strings.Onboarding.Feeding.subheading)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
             }

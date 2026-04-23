@@ -35,7 +35,7 @@ struct OnboardingView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 VStack(spacing: 12) {
-                    Button(viewModel.currentStep == .feedingMethod ? "Get Started" : "Continue") {
+                    Button(viewModel.currentStep == .feedingMethod ? Strings.Onboarding.getStarted : Strings.Onboarding.continueButton) {
                         if viewModel.currentStep == .feedingMethod {
                             Task { await viewModel.complete(context: modelContext, appState: appState) }
                         } else {
@@ -49,7 +49,7 @@ struct OnboardingView: View {
                     }
 
                     if viewModel.currentStep != .name {
-                        Button("Back") { viewModel.back() }
+                        Button(Strings.Common.back) { viewModel.back() }
                             .font(NurturTypography.subheadline)
                             .foregroundStyle(NurturColors.textSecondary)
                     }
@@ -65,7 +65,7 @@ struct OnboardingView: View {
 						.opacity(0.5)
 						.transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
 			})
-            .navigationTitle("Welcome to NurturAI")
+            .navigationTitle(Strings.Onboarding.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
         }
 	}

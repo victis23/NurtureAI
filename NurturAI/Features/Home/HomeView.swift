@@ -14,12 +14,12 @@ struct HomeView: View {
                 if let baby = babies.first, let vm = viewModel {
                     HomeContentView(viewModel: vm, baby: baby, modelContext: modelContext)
                 } else if babies.isEmpty {
-                    ContentUnavailableView("No baby profile", systemImage: "sun.max")
+                    ContentUnavailableView(Strings.Common.noBabyProfile, systemImage: "sun.max")
                 } else {
                     ProgressView()
                 }
             }
-            .navigationTitle("Today")
+            .navigationTitle(Strings.Home.navigationTitle)
 			.task {
 				guard let baby = babies.first, let container else { return }
 				let vm = HomeViewModel(
@@ -74,7 +74,7 @@ private struct HomeContentView: View {
                    patterns.currentAwakeWindowMinutes > 0,
                    patterns.currentAwakeWindowMinutes >= patterns.ageAppropriateMaxAwakeMinutes - 15 {
                     PredictionCard(
-                        title: "Getting tired?",
+                        title: Strings.Home.Prediction.title,
                         message: "\(baby.name) has been awake \(patterns.currentAwakeWindowMinutes) min — approaching the \(patterns.ageAppropriateMaxAwakeMinutes) min limit."
                     ) {
                         assistQuery = "\(baby.name) has been awake for \(patterns.currentAwakeWindowMinutes) minutes (max recommended is \(patterns.ageAppropriateMaxAwakeMinutes) min). What are some ways to help them wind down and fall asleep?"
@@ -87,31 +87,31 @@ private struct HomeContentView: View {
                 if let patterns = viewModel.patterns {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         NurturStatusCard(
-                            title: "Last Fed",
-                            value: patterns.lastFeedMinutesAgo.map { "\($0)m ago" } ?? "Not logged",
-                            subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) feedings today" : nil,
+                            title: Strings.Home.Status.lastFed,
+                            value: patterns.lastFeedMinutesAgo.map { "\($0)m ago" } ?? Strings.Home.notLogged,
+                            subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
                             icon: "drop.fill",
                             iconColor: NurturColors.info
                         )
 
                         NurturStatusCard(
-                            title: "Awake",
+                            title: Strings.Home.Status.awake,
                             value: "\(patterns.currentAwakeWindowMinutes)m",
-                            subtitle: "Max \(patterns.ageAppropriateMaxAwakeMinutes)m recommended",
+                            subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
                             icon: "sun.max.fill",
                             iconColor: NurturColors.warning
                         )
 
                         NurturStatusCard(
-                            title: "Sleep Today",
+                            title: Strings.Home.Status.sleepToday,
                             value: "\(patterns.totalSleepTodayMinutes / 60)h \(patterns.totalSleepTodayMinutes % 60)m",
                             icon: "moon.fill",
                             iconColor: NurturColors.accent
                         )
 
                         NurturStatusCard(
-                            title: "Last Diaper",
-                            value: patterns.lastDiaperMinutesAgo.map { "\($0)m ago" } ?? "Not logged",
+                            title: Strings.Home.Status.lastDiaper,
+                            value: patterns.lastDiaperMinutesAgo.map { "\($0)m ago" } ?? Strings.Home.notLogged,
                             icon: "bubbles.and.sparkles",
                             iconColor: NurturColors.success
                         )
@@ -121,16 +121,16 @@ private struct HomeContentView: View {
 
                 // Quick-action row
                 HStack(spacing: 12) {
-                    LargeActionButton(title: "Feed", icon: "drop.fill", color: NurturColors.info) {
+                    LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
                         viewModel.startTimer(type: .feed)
                     }
-                    LargeActionButton(title: "Sleep", icon: "moon.fill", color: NurturColors.accent) {
+                    LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
                         viewModel.startTimer(type: .sleep)
                     }
-                    LargeActionButton(title: "Diaper", icon: "bubbles.and.sparkles", color: NurturColors.success) {
+                    LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
                         viewModel.startTimer(type: .diaper)
                     }
-                    LargeActionButton(title: "Ask AI", icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
+                    LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
                         assistQuery = nil
                         showAssist = true
                     }
@@ -181,7 +181,7 @@ private struct ActiveTimerWidget: View {
 
             Spacer()
 
-            Button("Stop") { onStop() }
+            Button(Strings.Common.stop) { onStop() }
                 .font(NurturTypography.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.white)
@@ -210,9 +210,9 @@ private struct ActiveTimerWidget: View {
 	private func getTimerTextAndImage(_ timerType: LogType) -> (text: String, imageName: String) {
 		switch timerType {
 		case .feed:
-			return ("Feeding in progress", "drop.fill")
+			return (Strings.Home.Timer.feedInProgress, "drop.fill")
 		case .sleep:
-			return ("Sleep in progress", "moon.fill")
+			return (Strings.Home.Timer.sleepInProgress, "moon.fill")
 		case .diaper:
 			return ("Diaper in being changed", "bubbles.and.sparkles")
 		case .mood:

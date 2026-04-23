@@ -14,12 +14,12 @@ struct AssistView: View {
                 if let baby = babies.first, let vm = viewModel {
                     AssistContentView(viewModel: vm, baby: baby, container: container)
                 } else if babies.isEmpty {
-                    ContentUnavailableView("No baby profile", systemImage: "bubble.left.and.bubble.right")
+                    ContentUnavailableView(Strings.Common.noBabyProfile, systemImage: "bubble.left.and.bubble.right")
                 } else {
                     ProgressView()
                 }
             }
-            .navigationTitle("Ask NurturAI")
+            .navigationTitle(Strings.Assist.navigationTitle)
 			.task {
 				guard let baby = babies.first, let container else { return }
 				let vm = AssistViewModel(
@@ -60,7 +60,7 @@ private struct AssistContentView: View {
                 Spacer()
 
                 if !viewModel.appState.isSubscribed {
-                    Text("\(max(0, 3 - viewModel.dailyQueryCount)) free left")
+                    Text("\(max(0, 3 - viewModel.dailyQueryCount)) \(Strings.Assist.freeLeft)")
                         .font(NurturTypography.caption2)
                         .foregroundStyle(NurturColors.textFaint)
                 }
@@ -82,7 +82,7 @@ private struct AssistContentView: View {
                     if viewModel.showEscalationBanner && !viewModel.emergencyMode && viewModel.parsedResponse == nil {
                         EscalationBannerView(
                             isEmergency: false,
-                            callDoctorItems: ["This question may relate to a condition worth discussing with your pediatrician."]
+                            callDoctorItems: [Strings.Assist.doctorEscalation]
                         )
                         .padding(.horizontal)
                     }
@@ -101,7 +101,7 @@ private struct AssistContentView: View {
                         if viewModel.isStreaming {
                             HStack(spacing: 10) {
                                 ProgressView()
-                                Text("Looking into this…")
+                                Text(Strings.Assist.loadingMessage)
                                     .font(NurturTypography.subheadline)
                                     .foregroundStyle(NurturColors.textFaint)
                             }
@@ -118,7 +118,7 @@ private struct AssistContentView: View {
                             )
                             .padding(.horizontal)
 
-                            Button("Ask another question") {
+                            Button(Strings.Assist.askAnother) {
                                 viewModel.clearQuery()
                             }
                             .font(NurturTypography.subheadline)
@@ -128,7 +128,7 @@ private struct AssistContentView: View {
 
                         // Error
                         if let error = viewModel.error {
-                            Text(error.errorDescription ?? "An error occurred.")
+                            Text(error.errorDescription ?? Strings.Assist.errorFallback)
                                 .font(NurturTypography.subheadline)
                                 .foregroundStyle(NurturColors.danger)
                                 .padding(.horizontal)
@@ -142,7 +142,7 @@ private struct AssistContentView: View {
             if !viewModel.emergencyMode {
                 Divider()
                 HStack(spacing: 12) {
-                    TextField("Describe what's happening right now...", text: $viewModel.query, axis: .vertical)
+                    TextField(Strings.Assist.inputPlaceholder, text: $viewModel.query, axis: .vertical)
                         .lineLimit(1...4)
                         .textFieldStyle(.roundedBorder)
                         .focused($isInputFocused)

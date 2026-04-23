@@ -13,7 +13,7 @@ struct SleepTimerView: View {
                     .font(.system(size: 40))
                     .foregroundStyle(NurturColors.accent)
                 TimerDisplay(elapsed: elapsed, isRunning: viewModel.isSleepTimerRunning)
-                Text(viewModel.isSleepTimerRunning ? "Sleep in progress" : "Ready to start")
+                Text(viewModel.isSleepTimerRunning ? Strings.Log.Sleep.inProgress : Strings.Log.Sleep.readyToStart)
                     .font(NurturTypography.caption)
                     .foregroundStyle(NurturColors.textFaint)
             }
@@ -25,7 +25,7 @@ struct SleepTimerView: View {
                     viewModel.startSleep()
                 }
             } label: {
-                Text(viewModel.isSleepTimerRunning ? "Wake Up" : "Start Sleep")
+                Text(viewModel.isSleepTimerRunning ? Strings.Log.Sleep.wakeUp : Strings.Log.Sleep.startSleep)
                     .primaryButton()
             }
             .tint(viewModel.isSleepTimerRunning ? NurturColors.warning : NurturColors.accent)

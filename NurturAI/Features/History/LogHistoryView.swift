@@ -11,12 +11,12 @@ struct LogHistoryView: View {
                 if let baby = babies.first, let vm = viewModel {
                     HistoryContentView(viewModel: vm, baby: baby)
                 } else if babies.isEmpty {
-                    ContentUnavailableView("No baby profile", systemImage: "clock")
+                    ContentUnavailableView(Strings.Common.noBabyProfile, systemImage: "clock")
                 } else {
                     ProgressView()
                 }
             }
-            .navigationTitle("History")
+            .navigationTitle(Strings.History.navigationTitle)
 			.task {
 				guard let baby = babies.first, let container else { return }
 				let vm = LogHistoryViewModel(logRepository: container.logRepository)
@@ -37,7 +37,7 @@ private struct HistoryContentView: View {
                     .frame(maxWidth: .infinity)
                     .listRowBackground(Color.clear)
             } else if viewModel.sections.isEmpty {
-                ContentUnavailableView("No logs yet", systemImage: "clock", description: Text("Start logging feeds, sleep, and diapers."))
+                ContentUnavailableView(Strings.History.noLogsTitle, systemImage: "clock", description: Text(Strings.History.noLogsMessage))
                     .listRowBackground(Color.clear)
             } else {
                 ForEach(viewModel.sections, id: \.date) { section in
@@ -66,9 +66,9 @@ private struct HistoryContentView: View {
         let calendar = Calendar.current
         let label: String
         if calendar.isDateInToday(date) {
-            label = "Today"
+            label = Strings.History.today
         } else if calendar.isDateInYesterday(date) {
-            label = "Yesterday"
+            label = Strings.History.yesterday
         } else {
             label = date.formatted(date: .abbreviated, time: .omitted)
         }

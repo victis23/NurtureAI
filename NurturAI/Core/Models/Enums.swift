@@ -5,9 +5,9 @@ enum FeedingMethod: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .breast:  return "Breastfeeding"
-        case .formula: return "Formula"
-        case .combo:   return "Combo"
+        case .breast:  return Strings.FeedingMethod.breast
+        case .formula: return Strings.FeedingMethod.formula
+        case .combo:   return Strings.FeedingMethod.combo
         }
     }
 }
@@ -39,11 +39,11 @@ enum MoodState: String, Codable, CaseIterable {
 
     var label: String {
         switch self {
-        case .content:  return "Content"
-        case .fussy:    return "Fussy"
-        case .crying:   return "Crying"
-        case .settled:  return "Settled"
-        case .sleeping: return "Sleeping"
+        case .content:  return Strings.Mood.content
+        case .fussy:    return Strings.Mood.fussy
+        case .crying:   return Strings.Mood.crying
+        case .settled:  return Strings.Mood.settled
+        case .sleeping: return Strings.Mood.sleeping
         }
     }
 }

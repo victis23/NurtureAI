@@ -15,11 +15,11 @@ struct PaywallView: View {
                             .font(.system(size: 56))
                             .foregroundStyle(NurturColors.accent)
 
-                        Text("NurturAI Pro")
+                        Text(Strings.Paywall.title)
                             .font(NurturTypography.largeTitle)
                             .foregroundStyle(NurturColors.textPrimary)
 
-                        Text("Unlimited AI questions, priority responses,\nand caregiver sharing.")
+                        Text(Strings.Paywall.subtitle)
                             .font(NurturTypography.subheadline)
                             .foregroundStyle(NurturColors.textSecondary)
                             .multilineTextAlignment(.center)
@@ -54,24 +54,24 @@ struct PaywallView: View {
                             .foregroundStyle(NurturColors.danger)
                     }
 
-                    Button("Restore Purchases") {
+                    Button(Strings.Paywall.restorePurchases) {
                         Task { await restore() }
                     }
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
 
-                    Text("Prices shown in USD. Cancel anytime.")
+                    Text(Strings.Paywall.footer)
                         .font(NurturTypography.caption2)
                         .foregroundStyle(NurturColors.textFaint)
                         .padding(.bottom, 32)
                 }
             }
             .background(NurturColors.background)
-            .navigationTitle("Upgrade")
+            .navigationTitle(Strings.Paywall.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    Button(Strings.Common.close) { dismiss() }
                 }
             }
         }
@@ -113,7 +113,7 @@ private struct ProductCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     if isHighlighted {
-                        Text("BEST VALUE")
+                        Text(Strings.Paywall.bestValue)
                             .font(NurturTypography.caption2)
                             .foregroundStyle(NurturColors.accent)
                             .fontWeight(.bold)

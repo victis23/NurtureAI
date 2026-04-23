@@ -12,12 +12,12 @@ struct QuickLogView: View {
                 if let baby = babies.first, let vm = viewModel {
                     QuickLogContentView(viewModel: vm, baby: baby, selectedTab: $selectedTab)
                 } else if babies.isEmpty {
-                    ContentUnavailableView("No baby profile", systemImage: "plus.circle.fill")
+                    ContentUnavailableView(Strings.Common.noBabyProfile, systemImage: "plus.circle.fill")
                 } else {
                     ProgressView()
                 }
             }
-            .navigationTitle("Log")
+            .navigationTitle(Strings.Log.navigationTitle)
 			.task {
 				guard let container, babies.first != nil else { return }
 				if viewModel == nil {
@@ -41,10 +41,10 @@ private struct QuickLogContentView: View {
             VStack(spacing: 0) {
                 // 4-tab segmented control
                 Picker("Log type", selection: $selectedTab) {
-                    Text("Feed").tag(LogType.feed)
-                    Text("Sleep").tag(LogType.sleep)
-                    Text("Diaper").tag(LogType.diaper)
-                    Text("Mood").tag(LogType.mood)
+                    Text(Strings.Log.tabFeed).tag(LogType.feed)
+                    Text(Strings.Log.tabSleep).tag(LogType.sleep)
+                    Text(Strings.Log.tabDiaper).tag(LogType.diaper)
+                    Text(Strings.Log.tabMood).tag(LogType.mood)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -73,7 +73,7 @@ private struct QuickLogContentView: View {
 
             // Toast confirmation
             ToastOverlay(
-                message: "Logged \(viewModel.lastSavedLogType?.rawValue ?? "") ✓",
+                message: Strings.Log.savedConfirmation(viewModel.lastSavedLogType?.rawValue ?? ""),
                 isShowing: viewModel.showSaveConfirmation
             )
         }
@@ -88,7 +88,7 @@ private struct MoodLogView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("How is \(baby.name) feeling?")
+                Text(Strings.Log.moodHeading(baby.name))
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
 
@@ -121,7 +121,7 @@ private struct MoodLogView: View {
                 }
             }
 
-            Button("Log Now") {
+            Button(Strings.Common.logNow) {
                 Task { await viewModel.logMood(baby: baby) }
             }
             .primaryButton()

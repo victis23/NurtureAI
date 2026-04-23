@@ -55,7 +55,7 @@ struct CauseCardView: View {
             if let onFeedback {
                 HStack(spacing: 12) {
                     Spacer()
-                    Text("Did this help?")
+                    Text(Strings.Assist.Feedback.prompt)
                         .font(NurturTypography.caption)
                         .foregroundStyle(NurturColors.textFaint)
                     Button {

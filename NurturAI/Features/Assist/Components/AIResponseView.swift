@@ -24,7 +24,7 @@ struct AIResponseView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "info.circle")
                             .foregroundStyle(NurturColors.textFaint)
-                        Text("Lower confidence — there may be less information available for this situation.")
+                        Text(Strings.Assist.Response.lowConfidenceNote)
                             .font(NurturTypography.caption)
                             .foregroundStyle(NurturColors.textFaint)
                     }
@@ -49,7 +49,7 @@ struct AIResponseView: View {
                 // Monitor items
                 if !response.escalation.monitor.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Keep an eye on:")
+                        Text(Strings.Assist.Response.monitorHeading)
                             .font(NurturTypography.subheadline)
                             .fontWeight(.semibold)
                             .foregroundStyle(NurturColors.textPrimary)

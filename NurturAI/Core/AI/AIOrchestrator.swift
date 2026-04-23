@@ -38,13 +38,13 @@ enum AIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidResponse:
-            return "The AI service returned an unexpected response."
+            return Strings.Errors.AI.invalidResponse
         case .httpError(let code):
-            return "The AI service returned an error (HTTP \(code))."
+            return Strings.Errors.AI.httpError(code)
         case .parseError:
-            return "Could not understand the AI response. Please try again."
+            return Strings.Errors.AI.parseError
         case .contextUnavailable:
-            return "Baby context could not be loaded. Please try again."
+            return Strings.Errors.AI.contextUnavailable
         }
     }
 }

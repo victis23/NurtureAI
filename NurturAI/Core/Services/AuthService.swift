@@ -69,6 +69,6 @@ enum AuthError: LocalizedError {
     case invalidCredential
 
     var errorDescription: String? {
-        "Sign in failed. Please try again."
+        Strings.Errors.Auth.invalidCredential
     }
 }

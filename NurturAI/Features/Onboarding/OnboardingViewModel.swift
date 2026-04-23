@@ -60,7 +60,7 @@ final class OnboardingViewModel {
             appState.currentBaby = baby
             appState.hasCompletedOnboarding = true
         } catch {
-            self.error = "Could not save baby profile. Please try again."
+            self.error = Strings.Errors.Onboarding.saveFailed
         }
         isSaving = false
     }

@@ -36,14 +36,14 @@ extension View {
     }
 
     func errorAlert(error: Binding<AppError?>) -> some View {
-        self.alert("Something went wrong", isPresented: Binding(
+        self.alert(Strings.Common.somethingWrong, isPresented: Binding(
             get: { error.wrappedValue != nil },
             set: { if !$0 { error.wrappedValue = nil } }
         )) {
-            Button("OK", role: .cancel) {}
+            Button(Strings.Common.ok, role: .cancel) {}
         } message: {
             if let err = error.wrappedValue {
-                Text(err.errorDescription ?? "An unknown error occurred.")
+                Text(err.errorDescription ?? Strings.Common.unknownError)
             }
         }
     }

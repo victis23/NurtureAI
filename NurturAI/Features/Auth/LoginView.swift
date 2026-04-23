@@ -19,11 +19,11 @@ struct LoginView: View {
 					.cornerRadius(25)
 
                 VStack(spacing: 8) {
-                    Text("NurturAI")
+                    Text(Strings.Common.appName)
                         .font(NurturTypography.largeTitle)
                         .foregroundStyle(NurturColors.textPrimary)
 
-                    Text("Confident parenting,\none moment at a time.")
+                    Text(Strings.Auth.tagline)
                         .font(NurturTypography.subheadline)
                         .foregroundStyle(NurturColors.textSecondary)
                         .multilineTextAlignment(.center)
@@ -57,7 +57,7 @@ struct LoginView: View {
                     .padding(.horizontal, 32)
                 }
 
-                Text("By continuing, you agree to our Terms of Service and Privacy Policy.")
+                Text(Strings.Auth.legalDisclaimer)
                     .font(NurturTypography.caption2)
                     .foregroundStyle(NurturColors.textFaint)
                     .multilineTextAlignment(.center)

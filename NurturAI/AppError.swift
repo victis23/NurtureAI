@@ -11,24 +11,24 @@ enum AppError: LocalizedError {
         case .ai(let aiError):
             return aiError.errorDescription
         case .data:
-            return "A data error occurred. Please try again."
+            return Strings.Errors.App.dataError
         case .network:
-            return "A network error occurred. Check your connection and try again."
+            return Strings.Errors.App.networkError
         case .unknown:
-            return "An unexpected error occurred. Please try again."
+            return Strings.Errors.App.unknownError
         }
     }
 
     var recoverySuggestion: String? {
         switch self {
         case .ai:
-            return "Check your internet connection or try a different question."
+            return Strings.Errors.App.aiRecovery
         case .data:
-            return "Try restarting the app."
+            return Strings.Errors.App.dataRecovery
         case .network:
-            return "Check your internet connection."
+            return Strings.Errors.App.networkRecovery
         case .unknown:
-            return "If the problem persists, please restart the app."
+            return Strings.Errors.App.unknownRecovery
         }
     }
 }
