@@ -1,10 +1,10 @@
 import Foundation
 
+// Kept for local reference / future use — the actual OpenAI call is made server-side.
 struct AIRequest: Encodable {
     let model: String
     let messages: [Message]
     let temperature: Double
-    let stream: Bool
     let responseFormat: ResponseFormat
 
     struct Message: Encodable {
@@ -17,20 +17,7 @@ struct AIRequest: Encodable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case model, messages, temperature, stream
+        case model, messages, temperature
         case responseFormat = "response_format"
-    }
-}
-
-// Server-Sent Events chunk from the streaming API
-struct StreamChunk: Decodable {
-    let choices: [Choice]
-
-    struct Choice: Decodable {
-        let delta: Delta
-    }
-
-    struct Delta: Decodable {
-        let content: String?
     }
 }

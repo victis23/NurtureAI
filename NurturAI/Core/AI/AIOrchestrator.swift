@@ -1,66 +1,31 @@
 import Foundation
+import FirebaseFunctions
 
 protocol AIOrchestrating {
-    func stream(query: String, context: BabyContext) -> AsyncThrowingStream<String, Error>
+    func ask(query: String, context: BabyContext) async throws -> String
 }
 
 final class AIOrchestrator: AIOrchestrating {
 
-    private var apiKey: String { KeychainHelper.read(key: "openai_api_key") ?? "" }
-    private let endpoint = URL(string: "https://api.openai.com/v1/chat/completions")!
-    private let model = "gpt-4o"
+    private let functions = Functions.functions()
 
     init() {}
 
-    func stream(query: String, context: BabyContext) -> AsyncThrowingStream<String, Error> {
-        AsyncThrowingStream { continuation in
-            Task {
-                do {
-                    let key = self.apiKey
-                    guard !key.isEmpty else {
-                        throw AIError.missingAPIKey
-                    }
-                    var request = URLRequest(url: self.endpoint)
-                    request.httpMethod = "POST"
-                    request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
-                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                    request.timeoutInterval = 30
+    func ask(query: String, context: BabyContext) async throws -> String {
+        let payload: [String: Any] = [
+            "query": query,
+            "systemPrompt": context.buildSystemPrompt(),
+        ]
 
-                    let payload = AIRequest(
-                        model: model,
-                        messages: [
-                            AIRequest.Message(role: "system", content: context.buildSystemPrompt()),
-                            AIRequest.Message(role: "user",   content: query)
-                        ],
-                        temperature: 0.3,
-                        stream: true,
-                        responseFormat: AIRequest.ResponseFormat(type: "json_object")
-                    )
-                    request.httpBody = try JSONEncoder().encode(payload)
+        let result = try await functions.httpsCallable("askAI").call(payload)
 
-                    let (bytes, response) = try await URLSession.shared.bytes(for: request)
-                    guard let http = response as? HTTPURLResponse else {
-                        throw AIError.invalidResponse
-                    }
-                    guard http.statusCode == 200 else {
-                        throw AIError.httpError(http.statusCode)
-                    }
-
-                    for try await line in bytes.lines {
-                        guard line.hasPrefix("data: "),
-                              line != "data: [DONE]" else { continue }
-                        let jsonData = Data(line.dropFirst(6).utf8)
-                        guard let chunk = try? JSONDecoder().decode(StreamChunk.self, from: jsonData),
-                              let token = chunk.choices.first?.delta.content
-                        else { continue }
-                        continuation.yield(token)
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
-            }
+        guard let data = result.data as? [String: Any],
+              let responseJSON = data["responseJSON"] as? String
+        else {
+            throw AIError.invalidResponse
         }
+
+        return responseJSON
     }
 }
 
@@ -69,7 +34,6 @@ enum AIError: LocalizedError {
     case httpError(Int)
     case parseError
     case contextUnavailable
-    case missingAPIKey
 
     var errorDescription: String? {
         switch self {
@@ -81,8 +45,6 @@ enum AIError: LocalizedError {
             return "Could not understand the AI response. Please try again."
         case .contextUnavailable:
             return "Baby context could not be loaded. Please try again."
-        case .missingAPIKey:
-            return "No API key found. Add your OpenAI key in Settings → Developer."
         }
     }
 }

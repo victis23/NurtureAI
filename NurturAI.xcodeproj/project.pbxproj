@@ -11,6 +11,7 @@
 		7D6885A82F9A526200196734 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885A72F9A526200196734 /* FirebaseAuth */; };
 		7D6885AA2F9A527400196734 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885A92F9A527400196734 /* FirebaseFirestore */; };
 		7D6885AC2F9A527E00196734 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885AB2F9A527E00196734 /* FirebaseAppCheck */; };
+		7D6886E32F9A76D100196734 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6886E22F9A76D100196734 /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 			files = (
 				7D6885AC2F9A527E00196734 /* FirebaseAppCheck in Frameworks */,
 				7D6885A62F9A525D00196734 /* FirebaseCore in Frameworks */,
+				7D6886E32F9A76D100196734 /* FirebaseFunctions in Frameworks */,
 				7D6885A82F9A526200196734 /* FirebaseAuth in Frameworks */,
 				7D6885AA2F9A527400196734 /* FirebaseFirestore in Frameworks */,
 			);
@@ -101,6 +103,7 @@
 				7D6885A72F9A526200196734 /* FirebaseAuth */,
 				7D6885A92F9A527400196734 /* FirebaseFirestore */,
 				7D6885AB2F9A527E00196734 /* FirebaseAppCheck */,
+				7D6886E22F9A76D100196734 /* FirebaseFunctions */,
 			);
 			productName = NurturAI;
 			productReference = 7D0B1F2F2F996AAB008EDA41 /* NurturAI.app */;
@@ -409,6 +412,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
+		};
+		7D6886E22F9A76D100196734 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

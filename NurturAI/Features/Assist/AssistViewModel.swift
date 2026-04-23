@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 @MainActor
 @Observable
@@ -10,7 +11,6 @@ final class AssistViewModel {
     let appState: AppState
 
     var query: String = ""
-    var streamingText: String = ""
     var parsedResponse: AIResponse?
     var isStreaming: Bool = false
     var showEscalationBanner: Bool = false
@@ -52,7 +52,6 @@ final class AssistViewModel {
         }
 
         parsedResponse = nil
-        streamingText = ""
         isStreaming = true
         error = nil
         emergencyMode = false
@@ -65,14 +64,8 @@ final class AssistViewModel {
 
         do {
             let context = try await contextBuilder.context(for: baby)
-            var accumulated = ""
-
-            for try await token in orchestrator.stream(query: trimmedQuery, context: context) {
-                accumulated += token
-                streamingText = accumulated
-            }
-
-            let response = try AIResponseParser().parse(accumulated)
+            let responseJSON = try await orchestrator.ask(query: trimmedQuery, context: context)
+            let response = try AIResponseParser().parse(responseJSON)
             parsedResponse = response
 
             let isOffTopic = response.causes.isEmpty && response.confidence == 0
@@ -81,7 +74,7 @@ final class AssistViewModel {
                     id: UUID(),
                     createdAt: .now,
                     query: trimmedQuery,
-                    responseJSON: accumulated
+                    responseJSON: responseJSON
                 )
                 insight.baby = baby
                 try insightRepository.save(insight)
@@ -99,7 +92,6 @@ final class AssistViewModel {
     func clearQuery() {
         query = ""
         parsedResponse = nil
-        streamingText = ""
         emergencyMode = false
         showEscalationBanner = false
         error = nil
