@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import FirebaseFirestore
 
 struct AppContainer {
     let modelContext: ModelContext
@@ -21,7 +22,7 @@ struct AppContainer {
         let patterns    = PatternService()
         let builder     = BabyContextBuilder(logRepository: logRepo, patternService: patterns)
         let orchestrator = AIOrchestrator()
-        let syncService  = FirestoreSyncService(db: NSObject(), logRepository: logRepo)
+        let syncService  = FirestoreSyncService(db: Firestore.firestore(), logRepository: logRepo)
 
         return AppContainer(
             modelContext: modelContext,

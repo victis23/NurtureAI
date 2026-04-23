@@ -1,19 +1,12 @@
 import Foundation
-
-// FirestoreSyncService — requires Firebase iOS SDK (FirebaseFirestore)
-// Add the Firebase SDK via Swift Package Manager before building.
-// Import: FirebaseCore, FirebaseFirestore
-
-// Uncomment the import below once Firebase package is added:
-// import FirebaseFirestore
+import FirebaseFirestore
 
 actor FirestoreSyncService {
 
-    // Typed as Any to allow compilation without Firebase package present
-    private let db: Any
+    private let db: Firestore
     private let logRepository: LogRepositoryProtocol
 
-    init(db: Any, logRepository: LogRepositoryProtocol) {
+    init(db: Firestore, logRepository: LogRepositoryProtocol) {
         self.db = db
         self.logRepository = logRepository
     }
@@ -22,15 +15,14 @@ actor FirestoreSyncService {
     func syncPendingLogs(babyID: UUID, babyLogs: [BabyLog]) async throws {
         guard !babyLogs.isEmpty else { return }
 
-        // Phase 2: batch-write unsynced logs to Firestore
-        // let batch = db.batch()
-        // for log in babyLogs {
-        //     let ref = db
-        //         .collection("babies").document(babyID.uuidString)
-        //         .collection("logs").document(log.id.uuidString)
-        //     batch.setData(log.firestorePayload, forDocument: ref, merge: true)
-        // }
-        // try await batch.commit()
+        let batch = db.batch()
+        for log in babyLogs {
+            let ref = db
+                .collection("babies").document(babyID.uuidString)
+                .collection("logs").document(log.id.uuidString)
+            batch.setData(log.firestorePayload, forDocument: ref, merge: true)
+        }
+        try await batch.commit()
     }
 
     // Real-time listener for caregiver-shared updates
@@ -40,8 +32,28 @@ actor FirestoreSyncService {
         since: Date,
         onUpdate: @Sendable @escaping ([BabyLog]) -> Void
     ) -> SyncCancellable {
-        // Phase 2: attach Firestore snapshotListener and call onUpdate on main actor
-        return SyncCancellable {}
+        let listener = db
+            .collection("babies").document(babyID.uuidString)
+            .collection("logs")
+            .whereField("timestamp", isGreaterThan: since)
+            .addSnapshotListener { snapshot, _ in
+                guard let docs = snapshot?.documents else { return }
+                let logs = docs.compactMap { doc -> BabyLog? in
+                    guard
+                        let idStr = doc.data()["id"] as? String,
+                        let id = UUID(uuidString: idStr),
+                        let ts = (doc.data()["timestamp"] as? Timestamp)?.dateValue(),
+                        let typeStr = doc.data()["type"] as? String,
+                        let type = LogType(rawValue: typeStr)
+                    else { return nil }
+                    let log = BabyLog(id: id, timestamp: ts, type: type)
+                    log.metadataJSON = doc.data()["metadataJSON"] as? String ?? "{}"
+                    log.syncedToCloud = true
+                    return log
+                }
+                Task { @MainActor in onUpdate(logs) }
+            }
+        return SyncCancellable { listener.remove() }
     }
 }
 

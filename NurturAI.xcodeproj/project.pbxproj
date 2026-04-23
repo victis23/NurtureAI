@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7D6885A62F9A525D00196734 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885A52F9A525D00196734 /* FirebaseCore */; };
+		7D6885A82F9A526200196734 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885A72F9A526200196734 /* FirebaseAuth */; };
+		7D6885AA2F9A527400196734 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885A92F9A527400196734 /* FirebaseFirestore */; };
+		7D6885AC2F9A527E00196734 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885AB2F9A527E00196734 /* FirebaseAppCheck */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		7D0B1F2F2F996AAB008EDA41 /* NurturAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NurturAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +30,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D6885AC2F9A527E00196734 /* FirebaseAppCheck in Frameworks */,
+				7D6885A62F9A525D00196734 /* FirebaseCore in Frameworks */,
+				7D6885A82F9A526200196734 /* FirebaseAuth in Frameworks */,
+				7D6885AA2F9A527400196734 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +44,7 @@
 			isa = PBXGroup;
 			children = (
 				7D0B1F312F996AAB008EDA41 /* NurturAI */,
+				7D6885A42F9A525D00196734 /* Frameworks */,
 				7D0B1F302F996AAB008EDA41 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +55,13 @@
 				7D0B1F2F2F996AAB008EDA41 /* NurturAI.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		7D6885A42F9A525D00196734 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +84,10 @@
 			);
 			name = NurturAI;
 			packageProductDependencies = (
+				7D6885A52F9A525D00196734 /* FirebaseCore */,
+				7D6885A72F9A526200196734 /* FirebaseAuth */,
+				7D6885A92F9A527400196734 /* FirebaseFirestore */,
+				7D6885AB2F9A527E00196734 /* FirebaseAppCheck */,
 			);
 			productName = NurturAI;
 			productReference = 7D0B1F2F2F996AAB008EDA41 /* NurturAI.app */;
@@ -94,6 +117,9 @@
 			);
 			mainGroup = 7D0B1F262F996AAB008EDA41;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7D0B1F302F996AAB008EDA41 /* Products */;
 			projectDirPath = "";
@@ -261,6 +287,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -293,6 +320,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -332,6 +360,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.12.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7D6885A52F9A525D00196734 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		7D6885A72F9A526200196734 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		7D6885A92F9A527400196734 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		7D6885AB2F9A527E00196734 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7DAE7DD12F9A4C9E00458C5C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7D0B1F272F996AAB008EDA41 /* Project object */;
 }

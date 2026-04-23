@@ -1,9 +1,14 @@
 import SwiftUI
 import SwiftData
+import FirebaseCore
 
 @main
 struct NurturAIApp: App {
     @State private var appState = AppState.shared
+
+    init() {
+        FirebaseApp.configure()
+    }
 
     var body: some Scene {
         WindowGroup {
