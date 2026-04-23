@@ -9,5 +9,14 @@
 		<string>DMSans-Bold.ttf</string>
 		<string>DMSans-SemiBold.ttf</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>AccentOrange</string>
+		<key>UIImageName</key>
+		<string>nurturAi_icon</string>
+		<key>UIImageRespectsSafeAreaInsets</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
