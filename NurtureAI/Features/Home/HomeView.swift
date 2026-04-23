@@ -40,6 +40,7 @@ private struct HomeContentView: View {
     let baby: Baby
     let modelContext: ModelContext
     @State private var showAssist: Bool = false
+    @State private var assistQuery: String? = nil
 
     var body: some View {
         ScrollView {
@@ -78,6 +79,7 @@ private struct HomeContentView: View {
                         title: "Getting tired?",
                         message: "\(baby.name) has been awake \(patterns.currentAwakeWindowMinutes) min — approaching the \(patterns.ageAppropriateMaxAwakeMinutes) min limit."
                     ) {
+                        assistQuery = "\(baby.name) has been awake for \(patterns.currentAwakeWindowMinutes) minutes (max recommended is \(patterns.ageAppropriateMaxAwakeMinutes) min). What are some ways to help them wind down and fall asleep?"
                         showAssist = true
                     }
                     .padding(.horizontal)
@@ -131,6 +133,7 @@ private struct HomeContentView: View {
                         viewModel.startTimer(type: .diaper)
                     }
                     LargeActionButton(title: "Ask AI", icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
+                        assistQuery = nil
                         showAssist = true
                     }
                 }
@@ -142,7 +145,9 @@ private struct HomeContentView: View {
         .background(NurturColors.background)
         .refreshable { await viewModel.refresh(baby: baby) }
         .errorAlert(error: $viewModel.error)
-        .sheet(isPresented: $showAssist) { AssistView() }
+        .sheet(isPresented: $showAssist, onDismiss: { assistQuery = nil }) {
+            AssistView(initialQuery: assistQuery)
+        }
     }
 }
 

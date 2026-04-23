@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct AssistView: View {
+    var initialQuery: String? = nil
+
     @Environment(AppState.self) private var appState
     @Environment(\.appContainer) private var container
     @Query(sort: \Baby.createdAt) private var babies: [Baby]
@@ -22,13 +24,15 @@ struct AssistView: View {
         }
         .task {
             guard let baby = babies.first, let container else { return }
-            viewModel = AssistViewModel(
+            let vm = AssistViewModel(
                 orchestrator: container.orchestrator,
                 contextBuilder: container.contextBuilder,
                 safetyFilter: container.safetyFilter,
                 insightRepository: container.insightRepository,
                 appState: appState
             )
+            if let q = initialQuery { vm.query = q }
+            viewModel = vm
         }
         .sheet(isPresented: Binding(
             get: { viewModel?.showPaywall ?? false },
