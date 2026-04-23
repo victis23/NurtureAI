@@ -24,6 +24,8 @@ struct AppContainer {
         let builder     = BabyContextBuilder(logRepository: logRepo, patternService: patterns)
         let orchestrator = AIOrchestrator()
         let syncService  = FirestoreSyncService(db: Firestore.firestore(), logRepository: logRepo)
+        let subscriptionService = StoreKitSubscriptionService(appState: AppState.shared)
+        subscriptionService.start()
 
         return AppContainer(
             modelContext: modelContext,
@@ -35,7 +37,7 @@ struct AppContainer {
             orchestrator: orchestrator,
             safetyFilter: SafetyFilter(),
             syncService: syncService,
-            subscriptionService: StubSubscriptionService(),
+            subscriptionService: subscriptionService,
             authService: AuthService()
         )
     }

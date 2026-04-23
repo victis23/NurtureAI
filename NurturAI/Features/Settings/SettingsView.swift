@@ -28,6 +28,7 @@ struct SettingsView: View {
 private struct SettingsContentView: View {
     @Bindable var viewModel: SettingsViewModel
     @Binding var showPaywall: Bool
+    @Environment(AppState.self) private var appState
 
     var body: some View {
         List {
@@ -75,21 +76,23 @@ private struct SettingsContentView: View {
             Section("Subscription") {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Free Plan")
+                        Text(appState.isSubscribed ? "Pro Plan" : "Free Plan")
                             .font(NurturTypography.subheadline)
                             .fontWeight(.medium)
-                        Text("3 AI queries per day")
+                        Text(appState.isSubscribed ? "Unlimited AI queries" : "3 AI queries per day")
                             .font(NurturTypography.caption)
                             .foregroundStyle(NurturColors.textSecondary)
                     }
                     Spacer()
-                    Button("Upgrade to Pro") { showPaywall = true }
-                        .font(NurturTypography.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(NurturColors.accent, in: Capsule())
+                    if !appState.isSubscribed {
+                        Button("Upgrade to Pro") { showPaywall = true }
+                            .font(NurturTypography.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(NurturColors.accent, in: Capsule())
+                    }
                 }
             }
 
