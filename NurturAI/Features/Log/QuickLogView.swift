@@ -23,7 +23,8 @@ struct QuickLogView: View {
 				if viewModel == nil {
 					viewModel = QuickLogViewModel(
 						logRepository: container.logRepository,
-						contextBuilder: container.contextBuilder
+						contextBuilder: container.contextBuilder,
+						syncService: container.syncService
 					)
 				}
 			}

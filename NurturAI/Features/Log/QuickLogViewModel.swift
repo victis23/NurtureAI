@@ -6,6 +6,7 @@ import SwiftData
 final class QuickLogViewModel {
     private let logRepository: LogRepositoryProtocol
     private let contextBuilder: BabyContextBuilder
+    private let syncService: FirestoreSyncService
 
     // Feed
     var feedStartTime: Date?
@@ -29,9 +30,10 @@ final class QuickLogViewModel {
 
     var error: AppError?
 
-    init(logRepository: LogRepositoryProtocol, contextBuilder: BabyContextBuilder) {
+    init(logRepository: LogRepositoryProtocol, contextBuilder: BabyContextBuilder, syncService: FirestoreSyncService) {
         self.logRepository = logRepository
         self.contextBuilder = contextBuilder
+        self.syncService = syncService
     }
 
     func startFeed() {
@@ -54,6 +56,7 @@ final class QuickLogViewModel {
         do {
             try logRepository.save(log)
             contextBuilder.invalidate()
+            syncAfterSave(baby: baby)
         } catch {
             self.error = .data(error)
         }
@@ -75,6 +78,7 @@ final class QuickLogViewModel {
         do {
             try logRepository.save(log)
             contextBuilder.invalidate()
+            syncAfterSave(baby: baby)
         } catch {
             self.error = .data(error)
         }
@@ -89,6 +93,7 @@ final class QuickLogViewModel {
         do {
             try logRepository.save(log)
             contextBuilder.invalidate()
+            syncAfterSave(baby: baby)
         } catch {
             self.error = .data(error)
         }
@@ -102,10 +107,24 @@ final class QuickLogViewModel {
         do {
             try logRepository.save(log)
             contextBuilder.invalidate()
+            syncAfterSave(baby: baby)
         } catch {
             self.error = .data(error)
         }
         triggerConfirmation(for: .mood)
+    }
+
+    private func syncAfterSave(baby: Baby) {
+        Task {
+            do {
+                let unsynced = try logRepository.fetchUnsynced(for: baby)
+                guard !unsynced.isEmpty else { return }
+                try await syncService.syncPendingLogs(babyID: baby.id, babyLogs: unsynced)
+                try logRepository.markSynced(unsynced)
+            } catch {
+                // Non-fatal — will retry on next save or app foreground
+            }
+        }
     }
 
     private func triggerConfirmation(for type: LogType) {
