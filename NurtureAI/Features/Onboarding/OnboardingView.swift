@@ -22,12 +22,6 @@ struct OnboardingView: View {
                             ))
                             .id(viewModel.currentStep)
 
-                        if viewModel.currentStep == .name {
-                            Image("onboarding_name")
-                                .resizable()
-                                .scaledToFit()
-                        }
-
                         if let error = viewModel.error {
                             Text(error)
                                 .font(NurturTypography.caption)
@@ -63,11 +57,18 @@ struct OnboardingView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
             }
-            .background(NurturColors.background)
+			.background(alignment: .center, content: {
+					Image("onboarding_name")
+						.resizable()
+						.scaledToFill()
+						.ignoresSafeArea()
+						.opacity(0.5)
+						.transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
+			})
             .navigationTitle("Welcome to NurturAI")
             .navigationBarTitleDisplayMode(.inline)
         }
-    }
+	}
 
     @ViewBuilder
     private var stepContent: some View {
