@@ -7,9 +7,9 @@ protocol SubscriptionServiceProtocol {
 }
 
 enum NurturProduct: String {
-    case proMonthly   = "com.uathelp.NurturAI.pro.monthly"
-    case proAnnual    = "com.uathelp.NurturAI.pro.annual"
-    case familyAnnual = "com.uathelp.NurturAI.family.annual"
+    case proMonthly   = "com.uathelp.nurturAI.pro.monthly"
+    case proAnnual    = "com.uathelp.nurturAI.pro.annual"
+    case familyAnnual = "com.uathelp.nurturAI.family.annual"
 
     var displayName: String {
         switch self {

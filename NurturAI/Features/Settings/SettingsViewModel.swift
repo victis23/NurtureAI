@@ -5,6 +5,7 @@ import SwiftData
 @Observable
 final class SettingsViewModel {
     private let babyRepository: BabyRepositoryProtocol
+    private let authService: AuthServiceProtocol
     private let appState: AppState
 
     var baby: Baby?
@@ -13,8 +14,9 @@ final class SettingsViewModel {
     var isEditing: Bool = false
     var error: AppError?
 
-    init(babyRepository: BabyRepositoryProtocol, appState: AppState) {
+    init(babyRepository: BabyRepositoryProtocol, authService: AuthServiceProtocol, appState: AppState) {
         self.babyRepository = babyRepository
+        self.authService = authService
         self.appState = appState
     }
 
@@ -43,6 +45,7 @@ final class SettingsViewModel {
     }
 
     func signOut() {
+        try? authService.signOut()
         appState.hasCompletedOnboarding = false
         appState.isAuthenticated = false
         appState.firebaseUID = nil

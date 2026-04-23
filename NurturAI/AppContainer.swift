@@ -13,6 +13,7 @@ struct AppContainer {
     let safetyFilter: SafetyFilter
     let syncService: FirestoreSyncService
     let subscriptionService: SubscriptionServiceProtocol
+    let authService: AuthServiceProtocol
 
     @MainActor
     static func live(modelContext: ModelContext) -> AppContainer {
@@ -34,7 +35,8 @@ struct AppContainer {
             orchestrator: orchestrator,
             safetyFilter: SafetyFilter(),
             syncService: syncService,
-            subscriptionService: StubSubscriptionService()
+            subscriptionService: StubSubscriptionService(),
+            authService: AuthService()
         )
     }
 }

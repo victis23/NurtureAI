@@ -17,7 +17,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
 			.task {
 				guard let container else { return }
-				let vm = SettingsViewModel(babyRepository: container.babyRepository, appState: appState)
+				let vm = SettingsViewModel(babyRepository: container.babyRepository, authService: container.authService, appState: appState)
 				viewModel = vm
 				vm.load()
 			}

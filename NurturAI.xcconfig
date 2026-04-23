@@ -1,5 +1,5 @@
 // Xcode build configuration supplement
 SWIFT_VERSION = 6.0
 IPHONEOS_DEPLOYMENT_TARGET = 17.0
-PRODUCT_BUNDLE_IDENTIFIER = com.duhmarket.NurturAI
+PRODUCT_BUNDLE_IDENTIFIER = com.uathelp.nurturAI
 DEVELOPMENT_TEAM =

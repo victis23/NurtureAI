@@ -28,7 +28,9 @@ struct AppRootView: View {
         Group {
             if let container {
                 Group {
-                    if !appState.hasCompletedOnboarding {
+                    if !appState.isAuthenticated {
+                        LoginView()
+                    } else if !appState.hasCompletedOnboarding {
                         OnboardingView()
                     } else {
                         MainTabView()
@@ -41,6 +43,7 @@ struct AppRootView: View {
         }
         .task {
             if container == nil {
+                appState.restoreAuthState()
                 container = AppContainer.live(modelContext: modelContext)
             }
         }

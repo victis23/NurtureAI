@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 
 @MainActor
 @Observable
@@ -21,4 +22,11 @@ final class AppState {
 
     static let shared = AppState()
     private init() {}
+
+    func restoreAuthState() {
+        if let user = Auth.auth().currentUser {
+            isAuthenticated = true
+            firebaseUID = user.uid
+        }
+    }
 }
