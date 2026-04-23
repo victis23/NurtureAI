@@ -45,20 +45,30 @@ struct AppRootView: View {
 struct MainTabView: View {
     var body: some View {
         TabView {
-            HomeView()
-                .tabItem { Label("Today", systemImage: "sun.max") }
+			NavigationStack {
+				HomeView()
+			}
+			.tabItem { Label("Today", systemImage: "sun.max") }
 
-            AssistView()
-                .tabItem { Label("Ask AI", systemImage: "bubble.left.and.bubble.right") }
+			NavigationStack {
+				AssistView()
+			}
+			.tabItem { Label("Ask AI", systemImage: "bubble.left.and.bubble.right") }
 
-            QuickLogView()
-                .tabItem { Label("Log", systemImage: "plus.circle.fill") }
+			NavigationStack {
+				QuickLogView()
+			}
+			.tabItem { Label("Log", systemImage: "plus.circle.fill") }
 
-            LogHistoryView()
-                .tabItem { Label("History", systemImage: "clock") }
+			NavigationStack {
+				LogHistoryView()
+			}
+			.tabItem { Label("History", systemImage: "clock") }
 
-            SettingsView()
-                .tabItem { Label("Settings", systemImage: "gear") }
+			NavigationStack {
+				SettingsView()
+			}
+			.tabItem { Label("Settings", systemImage: "gear") }     
         }
         .tint(NurturColors.accent)
     }

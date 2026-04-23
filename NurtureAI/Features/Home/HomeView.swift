@@ -10,7 +10,6 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel?
 
     var body: some View {
-        NavigationStack {
             Group {
                 if let baby = babies.first, let vm = viewModel {
                     HomeContentView(viewModel: vm, baby: baby, modelContext: modelContext)
@@ -21,17 +20,16 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Today")
-        }
-        .task {
-            guard let baby = babies.first, let container else { return }
-            let vm = HomeViewModel(
-                logRepository: container.logRepository,
-                patternService: container.patternService,
-                contextBuilder: container.contextBuilder
-            )
-            viewModel = vm
-            await vm.load(baby: baby)
-        }
+			.task {
+				guard let baby = babies.first, let container else { return }
+				let vm = HomeViewModel(
+					logRepository: container.logRepository,
+					patternService: container.patternService,
+					contextBuilder: container.contextBuilder
+				)
+				viewModel = vm
+				await vm.load(baby: baby)
+			}
     }
 }
 

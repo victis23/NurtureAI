@@ -10,7 +10,6 @@ struct AssistView: View {
     @State private var viewModel: AssistViewModel?
 
     var body: some View {
-        NavigationStack {
             Group {
                 if let baby = babies.first, let vm = viewModel {
                     AssistContentView(viewModel: vm, baby: baby, container: container)
@@ -21,25 +20,24 @@ struct AssistView: View {
                 }
             }
             .navigationTitle("Ask NurturAI")
-        }
-        .task {
-            guard let baby = babies.first, let container else { return }
-            let vm = AssistViewModel(
-                orchestrator: container.orchestrator,
-                contextBuilder: container.contextBuilder,
-                safetyFilter: container.safetyFilter,
-                insightRepository: container.insightRepository,
-                appState: appState
-            )
-            if let q = initialQuery { vm.query = q }
-            viewModel = vm
-        }
-        .sheet(isPresented: Binding(
-            get: { viewModel?.showPaywall ?? false },
-            set: { viewModel?.showPaywall = $0 }
-        )) {
-            PaywallView()
-        }
+			.task {
+				guard let baby = babies.first, let container else { return }
+				let vm = AssistViewModel(
+					orchestrator: container.orchestrator,
+					contextBuilder: container.contextBuilder,
+					safetyFilter: container.safetyFilter,
+					insightRepository: container.insightRepository,
+					appState: appState
+				)
+				if let q = initialQuery { vm.query = q }
+				viewModel = vm
+			}
+			.sheet(isPresented: Binding(
+				get: { viewModel?.showPaywall ?? false },
+				set: { viewModel?.showPaywall = $0 }
+			)) {
+				PaywallView()
+			}
     }
 }
 

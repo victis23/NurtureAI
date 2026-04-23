@@ -7,7 +7,6 @@ struct SettingsView: View {
     @State private var showPaywall: Bool = false
 
     var body: some View {
-        NavigationStack {
             Group {
                 if let vm = viewModel {
                     SettingsContentView(viewModel: vm, showPaywall: $showPaywall)
@@ -16,14 +15,13 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-        }
-        .task {
-            guard let container else { return }
-            let vm = SettingsViewModel(babyRepository: container.babyRepository, appState: appState)
-            viewModel = vm
-            vm.load()
-        }
-        .sheet(isPresented: $showPaywall) { PaywallView() }
+			.task {
+				guard let container else { return }
+				let vm = SettingsViewModel(babyRepository: container.babyRepository, appState: appState)
+				viewModel = vm
+				vm.load()
+			}
+			.sheet(isPresented: $showPaywall) { PaywallView() }
     }
 }
 

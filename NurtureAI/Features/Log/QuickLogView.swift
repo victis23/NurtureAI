@@ -8,7 +8,6 @@ struct QuickLogView: View {
     @State private var selectedTab: LogType = .feed
 
     var body: some View {
-        NavigationStack {
             Group {
                 if let baby = babies.first, let vm = viewModel {
                     QuickLogContentView(viewModel: vm, baby: baby, selectedTab: $selectedTab)
@@ -19,16 +18,15 @@ struct QuickLogView: View {
                 }
             }
             .navigationTitle("Log")
-        }
-        .task {
-            guard let container, babies.first != nil else { return }
-            if viewModel == nil {
-                viewModel = QuickLogViewModel(
-                    logRepository: container.logRepository,
-                    contextBuilder: container.contextBuilder
-                )
-            }
-        }
+			.task {
+				guard let container, babies.first != nil else { return }
+				if viewModel == nil {
+					viewModel = QuickLogViewModel(
+						logRepository: container.logRepository,
+						contextBuilder: container.contextBuilder
+					)
+				}
+			}
     }
 }
 

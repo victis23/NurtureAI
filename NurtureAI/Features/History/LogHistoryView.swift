@@ -7,7 +7,6 @@ struct LogHistoryView: View {
     @State private var viewModel: LogHistoryViewModel?
 
     var body: some View {
-        NavigationStack {
             Group {
                 if let baby = babies.first, let vm = viewModel {
                     HistoryContentView(viewModel: vm, baby: baby)
@@ -18,13 +17,12 @@ struct LogHistoryView: View {
                 }
             }
             .navigationTitle("History")
-        }
-        .task {
-            guard let baby = babies.first, let container else { return }
-            let vm = LogHistoryViewModel(logRepository: container.logRepository)
-            viewModel = vm
-            await vm.load(baby: baby)
-        }
+			.task {
+				guard let baby = babies.first, let container else { return }
+				let vm = LogHistoryViewModel(logRepository: container.logRepository)
+				viewModel = vm
+				await vm.load(baby: baby)
+			}
     }
 }
 
