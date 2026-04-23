@@ -1,5 +1,5 @@
 import XCTest
-@testable import NurtureAI
+@testable import NurturAI
 
 final class PatternServiceTests: XCTestCase {
 

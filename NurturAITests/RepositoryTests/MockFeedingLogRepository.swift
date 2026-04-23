@@ -1,5 +1,5 @@
 import Foundation
-@testable import NurtureAI
+@testable import NurturAI
 
 final class MockFeedingLogRepository: FeedingLogRepositoryProtocol {
     var savedLogs: [FeedingLog] = []

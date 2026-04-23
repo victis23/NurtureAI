@@ -1,18 +1,18 @@
-# NurtureAI — Setup Checklist
+# NurturAI — Setup Checklist
 
 ## Create the Xcode project
 
 1. Open Xcode → New Project → iOS → App
-2. Product Name: `NurtureAI`
-3. Bundle ID: `com.nurtureai.app`
+2. Product Name: `NurturAI`
+3. Bundle ID: `com.duhmarket.NurturAI`
 4. Interface: SwiftUI | Lifecycle: SwiftUI App | Language: Swift
 5. Storage: **None** (SwiftData is wired manually)
 6. Save into this folder (replace the generated stub files)
 
 ## Add all source files
 
-Drag the `NurtureAI/` source folder into the project navigator.
-Drag the `NurtureAITests/` folder into the test target.
+Drag the `NurturAI/` source folder into the project navigator.
+Drag the `NurturAITests/` folder into the test target.
 
 ## Capabilities to enable
 
