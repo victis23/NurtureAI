@@ -25,7 +25,7 @@ struct CauseCardView: View {
 
                 Spacer()
 
-                Text("\(cause.probability)%")
+                Text("\(Int(cause.probability))%")
                     .font(NurturTypography.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(probabilityColor)

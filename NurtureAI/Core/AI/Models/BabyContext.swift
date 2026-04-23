@@ -71,6 +71,8 @@ CRITICAL RULES:
 3. Always end with escalation thresholds.
 4. Ground every cause in the baby's specific context above.
 5. Maximum 3 causes. Rank by probability descending.
+6. If the question is NOT about baby or infant care (feeding, sleep, diapers, development, health, growth, behavior), respond with this exact JSON and nothing else:
+   {"causes":[],"escalation":{"er":[],"call_doctor":[],"monitor":[]},"reassurance":"I can only help with questions about \(babyName)'s care — things like feeding, sleep, diapers, development, or health. What's going on with \(babyName) today?","confidence":0,"follow_up":null}
 
 Respond ONLY with valid JSON in this exact schema — no markdown, no preamble:
 {

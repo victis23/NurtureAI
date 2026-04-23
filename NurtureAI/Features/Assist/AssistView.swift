@@ -95,18 +95,16 @@ private struct AssistContentView: View {
                             .padding(.top, 8)
                         }
 
-                        // Streaming text
-                        if viewModel.isStreaming && !viewModel.streamingText.isEmpty {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Thinking...")
-                                    .font(NurturTypography.caption)
-                                    .foregroundStyle(NurturColors.textFaint)
-                                Text(viewModel.streamingText)
+                        // Loading indicator
+                        if viewModel.isStreaming {
+                            HStack(spacing: 10) {
+                                ProgressView()
+                                Text("Looking into this…")
                                     .font(NurturTypography.subheadline)
-                                    .foregroundStyle(NurturColors.textSecondary)
-                                    .animation(.easeInOut, value: viewModel.streamingText)
+                                    .foregroundStyle(NurturColors.textFaint)
                             }
-                            .padding(.horizontal)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 32)
                         }
 
                         // Parsed response

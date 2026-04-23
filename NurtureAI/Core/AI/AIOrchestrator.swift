@@ -6,21 +6,23 @@ protocol AIOrchestrating {
 
 final class AIOrchestrator: AIOrchestrating {
 
-    private let apiKey: String
+    private var apiKey: String { KeychainHelper.read(key: "openai_api_key") ?? "" }
     private let endpoint = URL(string: "https://api.openai.com/v1/chat/completions")!
     private let model = "gpt-4o"
 
-    init(apiKey: String) {
-        self.apiKey = apiKey
-    }
+    init() {}
 
     func stream(query: String, context: BabyContext) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             Task {
                 do {
-                    var request = URLRequest(url: endpoint)
+                    let key = self.apiKey
+                    guard !key.isEmpty else {
+                        throw AIError.missingAPIKey
+                    }
+                    var request = URLRequest(url: self.endpoint)
                     request.httpMethod = "POST"
-                    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                    request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     request.timeoutInterval = 30
 
@@ -67,6 +69,7 @@ enum AIError: LocalizedError {
     case httpError(Int)
     case parseError
     case contextUnavailable
+    case missingAPIKey
 
     var errorDescription: String? {
         switch self {
@@ -78,6 +81,8 @@ enum AIError: LocalizedError {
             return "Could not understand the AI response. Please try again."
         case .contextUnavailable:
             return "Baby context could not be loaded. Please try again."
+        case .missingAPIKey:
+            return "No API key found. Add your OpenAI key in Settings → Developer."
         }
     }
 }

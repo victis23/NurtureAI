@@ -4,7 +4,7 @@ struct AIResponse: Codable {
     let causes: [AICause]
     let escalation: AIEscalation
     let reassurance: String
-    let confidence: Int
+    let confidence: Double
     let followUp: String?
 
     enum CodingKeys: String, CodingKey {
@@ -16,7 +16,7 @@ struct AIResponse: Codable {
 struct AICause: Codable, Identifiable {
     var id: UUID { UUID() }
     let label: String
-    let probability: Int
+    let probability: Double
     let reasoning: String
     let actions: [String]
 }

@@ -75,20 +75,22 @@ final class AssistViewModel {
             let response = try AIResponseParser().parse(accumulated)
             parsedResponse = response
 
-            let insight = AIInsight(
-                id: UUID(),
-                createdAt: .now,
-                query: trimmedQuery,
-                responseJSON: accumulated
-            )
-            insight.baby = baby
-            try insightRepository.save(insight)
-
-            incrementDailyCount()
+            let isOffTopic = response.causes.isEmpty && response.confidence == 0
+            if !isOffTopic {
+                let insight = AIInsight(
+                    id: UUID(),
+                    createdAt: .now,
+                    query: trimmedQuery,
+                    responseJSON: accumulated
+                )
+                insight.baby = baby
+                try insightRepository.save(insight)
+                incrementDailyCount()
+            }
         } catch let err as AIError {
             error = err
         } catch {
-            self.error = .invalidResponse
+            self.error = .parseError
         }
 
         isStreaming = false

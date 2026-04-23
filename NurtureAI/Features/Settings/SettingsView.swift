@@ -121,9 +121,62 @@ private struct SettingsContentView: View {
                     Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
                 }
             }
+
+            #if DEBUG
+            APIKeySection()
+            #endif
         }
         .listStyle(.insetGrouped)
         .background(NurturColors.background)
         .errorAlert(error: $viewModel.error)
     }
 }
+
+#if DEBUG
+private struct APIKeySection: View {
+    @State private var apiKey: String = KeychainHelper.read(key: "openai_api_key") ?? ""
+    @State private var saved: Bool = false
+
+    var body: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "key.fill")
+                        .foregroundStyle(NurturColors.warning)
+                    Text("OpenAI API Key")
+                        .font(NurturTypography.subheadline)
+                        .fontWeight(.medium)
+                    Spacer()
+                    if saved {
+                        Label("Saved", systemImage: "checkmark.circle.fill")
+                            .font(NurturTypography.caption)
+                            .foregroundStyle(NurturColors.success)
+                    }
+                }
+
+                SecureField("sk-...", text: $apiKey)
+                    .font(.system(.caption, design: .monospaced))
+                    .textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .onChange(of: apiKey) { saved = false }
+
+                Button("Save to Keychain") {
+                    KeychainHelper.write(key: "openai_api_key", value: apiKey.trimmingCharacters(in: .whitespaces))
+                    saved = true
+                }
+                .font(NurturTypography.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(NurturColors.accent)
+                .disabled(apiKey.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+            .padding(.vertical, 4)
+        } header: {
+            Text("Developer")
+        } footer: {
+            Text("Debug builds only. Key is stored in Keychain and never logged.")
+                .font(NurturTypography.caption2)
+        }
+    }
+}
+#endif

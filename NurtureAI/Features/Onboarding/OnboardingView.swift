@@ -22,6 +22,12 @@ struct OnboardingView: View {
                             ))
                             .id(viewModel.currentStep)
 
+                        if viewModel.currentStep == .name {
+                            Image("onboarding_name")
+                                .resizable()
+                                .scaledToFit()
+                        }
+
                         if let error = viewModel.error {
                             Text(error)
                                 .font(NurturTypography.caption)
@@ -32,6 +38,7 @@ struct OnboardingView: View {
                     .padding(24)
                     .animation(.easeInOut(duration: 0.25), value: viewModel.currentStep)
                 }
+                .scrollBounceBehavior(.basedOnSize)
 
                 VStack(spacing: 12) {
                     Button(viewModel.currentStep == .feedingMethod ? "Get Started" : "Continue") {

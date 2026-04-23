@@ -15,13 +15,12 @@ struct AppContainer {
 
     @MainActor
     static func live(modelContext: ModelContext) -> AppContainer {
-        let apiKey      = KeychainHelper.read(key: "openai_api_key") ?? ""
         let babyRepo    = BabyRepository(context: modelContext)
         let logRepo     = LogRepository(context: modelContext)
         let insightRepo = InsightRepository(context: modelContext)
         let patterns    = PatternService()
         let builder     = BabyContextBuilder(logRepository: logRepo, patternService: patterns)
-        let orchestrator = AIOrchestrator(apiKey: apiKey)
+        let orchestrator = AIOrchestrator()
         let syncService  = FirestoreSyncService(db: NSObject(), logRepository: logRepo)
 
         return AppContainer(
