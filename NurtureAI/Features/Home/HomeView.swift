@@ -160,13 +160,13 @@ private struct ActiveTimerWidget: View {
                     .frame(width: 48, height: 48)
                     .scaleEffect(pulseScale)
                     .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: pulseScale)
-                Image(systemName: timer.type == .feed ? "drop.fill" : "moon.fill")
+				Image(systemName: getTimerTextAndImage(timer.type).imageName)
                     .foregroundStyle(NurturColors.accent)
                     .font(.title3)
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(timer.type == .feed ? "Feeding in progress" : "Sleep in progress")
+				Text(getTimerTextAndImage(timer.type).text)
                     .font(NurturTypography.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(NurturColors.textPrimary)
@@ -203,4 +203,17 @@ private struct ActiveTimerWidget: View {
         let seconds = Int(interval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
+
+	private func getTimerTextAndImage(_ timerType: LogType) -> (text: String, imageName: String) {
+		switch timerType {
+		case .feed:
+			return ("Feeding in progress", "drop.fill")
+		case .sleep:
+			return ("Sleep in progress", "moon.fill")
+		case .diaper:
+			return ("Diaper in being changed", "bubbles.and.sparkles")
+		case .mood:
+			return ("Mood has changed","")
+		}
+	}
 }
