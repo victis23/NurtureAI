@@ -1,131 +1,115 @@
 import Foundation
-import SwiftData
 
 @MainActor
 @Observable
 final class QuickLogViewModel {
-    private let logRepository: LogRepositoryProtocol
-    private let contextBuilder: BabyContextBuilder
-    private let syncService: FirestoreSyncService
 
-    // Feed
-    var feedStartTime: Date?
+    // MARK: - Dependencies
+
+    let timerService: ActiveTimerService
+
+    // MARK: - Feed UI state
+
     var feedSide: FeedSide = .left
     var bottleML: Int?
-    var isFeedTimerRunning: Bool { feedStartTime != nil }
 
-    // Sleep
-    var sleepStartTime: Date?
-    var isSleepTimerRunning: Bool { sleepStartTime != nil }
+    // MARK: - Diaper UI state
 
-    // Diaper
     var selectedDiaperType: DiaperType = .wet
 
-    // Mood
+    // MARK: - Mood UI state
+
     var selectedMood: MoodState = .content
 
-    // Confirmation
+    // MARK: - Confirmation
+
     var lastSavedLogType: LogType?
     var showSaveConfirmation: Bool = false
 
+    // MARK: - Error
+
     var error: AppError?
 
-    init(logRepository: LogRepositoryProtocol, contextBuilder: BabyContextBuilder, syncService: FirestoreSyncService) {
-        self.logRepository = logRepository
-        self.contextBuilder = contextBuilder
-        self.syncService = syncService
+    // MARK: - Timer state (delegated to service — single source of truth)
+
+    var isFeedTimerRunning: Bool  { timerService.isRunning(.feed) }
+    var isSleepTimerRunning: Bool { timerService.isRunning(.sleep) }
+    var feedStartTime: Date?      { timerService.session(for: .feed)?.startTime }
+    var sleepStartTime: Date?     { timerService.session(for: .sleep)?.startTime }
+
+    // MARK: - Init
+
+    init(timerService: ActiveTimerService) {
+        self.timerService = timerService
     }
+
+    // MARK: - Feed
 
     func startFeed() {
-        feedStartTime = .now
-    }
-
-    func startSleep() {
-        sleepStartTime = .now
+        timerService.start(.feed)
     }
 
     func stopFeed(baby: Baby) async {
-        guard let start = feedStartTime else { return }
-        let log = BabyLog(
-            timestamp: start,
-            endTimestamp: .now,
-            type: .feed
-        )
-        log.metadata = .feed(side: feedSide, bottleML: bottleML)
-        log.baby = baby
         do {
-            try logRepository.save(log)
-            contextBuilder.invalidate()
-            syncAfterSave(baby: baby)
+            try await timerService.stop(
+                .feed,
+                baby: baby,
+                metadata: .feed(side: feedSide, bottleML: bottleML)
+            )
+            feedSide = .left
+            bottleML = nil
+            triggerConfirmation(for: .feed)
         } catch {
             self.error = .data(error)
         }
-        feedStartTime = nil
-        feedSide = .left
-        bottleML = nil
-        triggerConfirmation(for: .feed)
+    }
+
+    // MARK: - Sleep
+
+    func startSleep() {
+        timerService.start(.sleep)
     }
 
     func stopSleep(baby: Baby) async {
-        guard let start = sleepStartTime else { return }
-        let log = BabyLog(
-            timestamp: start,
-            endTimestamp: .now,
-            type: .sleep
-        )
-        log.metadata = .sleep(quality: nil)
-        log.baby = baby
         do {
-            try logRepository.save(log)
-            contextBuilder.invalidate()
-            syncAfterSave(baby: baby)
+            try await timerService.stop(.sleep, baby: baby, metadata: .sleep(quality: nil))
+            triggerConfirmation(for: .sleep)
         } catch {
             self.error = .data(error)
         }
-        sleepStartTime = nil
-        triggerConfirmation(for: .sleep)
     }
+
+    // MARK: - Diaper
 
     func logDiaper(baby: Baby) async {
-        let log = BabyLog(timestamp: .now, type: .diaper)
-        log.metadata = .diaper(type: selectedDiaperType)
-        log.baby = baby
         do {
-            try logRepository.save(log)
-            contextBuilder.invalidate()
-            syncAfterSave(baby: baby)
+            try await timerService.logInstant(
+                type: .diaper,
+                baby: baby,
+                metadata: .diaper(type: selectedDiaperType)
+            )
+            triggerConfirmation(for: .diaper)
         } catch {
             self.error = .data(error)
         }
-        triggerConfirmation(for: .diaper)
     }
+
+    // MARK: - Mood
 
     func logMood(baby: Baby) async {
-        let log = BabyLog(timestamp: .now, type: .mood)
-        log.metadata = .mood(state: selectedMood, notes: nil)
-        log.baby = baby
         do {
-            try logRepository.save(log)
-            contextBuilder.invalidate()
-            syncAfterSave(baby: baby)
+            try await timerService.logInstant(
+                type: .mood,
+                baby: baby,
+                metadata: .mood(state: selectedMood, notes: nil)
+            )
+            triggerConfirmation(for: .mood)
         } catch {
             self.error = .data(error)
         }
-        triggerConfirmation(for: .mood)
     }
 
-    private func syncAfterSave(baby: Baby) {
-        Task {
-            do {
-                let unsynced = try logRepository.fetchUnsynced(for: baby)
-                guard !unsynced.isEmpty else { return }
-                try await syncService.syncPendingLogs(babyID: baby.id, babyLogs: unsynced)
-                try logRepository.markSynced(unsynced)
-            } catch {
-                // Non-fatal — will retry on next save or app foreground
-            }
-        }
-    }
+    // MARK: - Private
 
     private func triggerConfirmation(for type: LogType) {
         lastSavedLogType = type

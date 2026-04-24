@@ -5,14 +5,13 @@ import Combine
 struct HomeView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.appContainer) private var container
-    @Environment(\.modelContext) private var modelContext
     @Query(sort: \Baby.createdAt) private var babies: [Baby]
     @State private var viewModel: HomeViewModel?
 
     var body: some View {
             Group {
                 if let baby = babies.first, let vm = viewModel {
-                    HomeContentView(viewModel: vm, baby: baby, modelContext: modelContext)
+                    HomeContentView(viewModel: vm, baby: baby)
                 } else if babies.isEmpty {
                     ContentUnavailableView(Strings.Common.noBabyProfile, systemImage: "sun.max")
                 } else {
@@ -25,7 +24,7 @@ struct HomeView: View {
 				let vm = HomeViewModel(
 					logRepository: container.logRepository,
 					patternService: container.patternService,
-					contextBuilder: container.contextBuilder
+					timerService: container.timerService
 				)
 				viewModel = vm
 				await vm.load(baby: baby)
@@ -36,7 +35,6 @@ struct HomeView: View {
 private struct HomeContentView: View {
     @Bindable var viewModel: HomeViewModel
     let baby: Baby
-    let modelContext: ModelContext
     @State private var showAssist: Bool = false
     @State private var assistQuery: String? = nil
 
@@ -62,9 +60,9 @@ private struct HomeContentView: View {
                 .padding(.horizontal)
 
                 // Active timer widget
-                if let timer = viewModel.activeTimer {
-                    ActiveTimerWidget(timer: timer) {
-                        Task { await viewModel.stopTimer(baby: baby, context: modelContext) }
+                if let session = viewModel.activeTimerSession {
+                    ActiveTimerWidget(session: session) {
+                        Task { await viewModel.stopActiveTimer(baby: baby) }
                     }
                     .padding(.horizontal)
                 }
@@ -122,13 +120,13 @@ private struct HomeContentView: View {
                 // Quick-action row
                 HStack(spacing: 12) {
                     LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
-                        viewModel.startTimer(type: .feed)
+                        viewModel.startFeed()
                     }
                     LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
-                        viewModel.startTimer(type: .sleep)
+                        viewModel.startSleep()
                     }
                     LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
-                        viewModel.startTimer(type: .diaper)
+                        // Diaper has no timer — log from the Log tab for type selection
                     }
                     LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
                         assistQuery = nil
@@ -142,6 +140,9 @@ private struct HomeContentView: View {
         }
         .background(NurturColors.background)
         .refreshable { await viewModel.refresh(baby: baby) }
+        .onChange(of: viewModel.logVersion) { _, _ in
+            Task { await viewModel.load(baby: baby) }
+        }
         .errorAlert(error: $viewModel.error)
         .sheet(isPresented: $showAssist, onDismiss: { assistQuery = nil }) {
             AssistView(initialQuery: assistQuery)
@@ -150,7 +151,7 @@ private struct HomeContentView: View {
 }
 
 private struct ActiveTimerWidget: View {
-    let timer: HomeViewModel.ActiveTimer
+    let session: ActiveTimerSession
     let onStop: () -> Void
     @State private var elapsed: TimeInterval = 0
     @State private var pulseScale: CGFloat = 1.0
@@ -163,13 +164,13 @@ private struct ActiveTimerWidget: View {
                     .frame(width: 48, height: 48)
                     .scaleEffect(pulseScale)
                     .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: pulseScale)
-				Image(systemName: getTimerTextAndImage(timer.type).imageName)
+				Image(systemName: getTimerTextAndImage(session.type).imageName)
                     .foregroundStyle(NurturColors.accent)
                     .font(.title3)
             }
 
             VStack(alignment: .leading, spacing: 2) {
-				Text(getTimerTextAndImage(timer.type).text)
+				Text(getTimerTextAndImage(session.type).text)
                     .font(NurturTypography.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(NurturColors.textPrimary)
@@ -194,10 +195,10 @@ private struct ActiveTimerWidget: View {
         .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
         .onAppear {
             pulseScale = 1.12
-            elapsed = timer.elapsed
+            elapsed = session.elapsed
         }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-            elapsed = timer.elapsed
+            elapsed = session.elapsed
         }
     }
 

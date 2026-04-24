@@ -21,11 +21,7 @@ struct QuickLogView: View {
 			.task {
 				guard let container, babies.first != nil else { return }
 				if viewModel == nil {
-					viewModel = QuickLogViewModel(
-						logRepository: container.logRepository,
-						contextBuilder: container.contextBuilder,
-						syncService: container.syncService
-					)
+					viewModel = QuickLogViewModel(timerService: container.timerService)
 				}
 			}
     }

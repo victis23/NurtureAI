@@ -1,30 +1,45 @@
 import Foundation
-import SwiftData
 
 @MainActor
 @Observable
 final class HomeViewModel {
+
+    // MARK: - Dependencies
+
     private let logRepository: LogRepositoryProtocol
     private let patternService: PatternService
-    private let contextBuilder: BabyContextBuilder
+    let timerService: ActiveTimerService
+
+    // MARK: - State
 
     var patterns: BabyPatterns?
     var isLoading: Bool = false
     var error: AppError?
-    var activeTimer: ActiveTimer?
-    private var timerTask: Task<Void, Never>?
 
-    struct ActiveTimer {
-        let type: LogType
-        let startedAt: Date
-        var elapsed: TimeInterval { Date().timeIntervalSince(startedAt) }
+    // MARK: - Timer state (delegated to service — single source of truth)
+
+    /// The first active timed session (feed takes precedence over sleep).
+    var activeTimerSession: ActiveTimerSession? {
+        timerService.activeSessions[.feed] ?? timerService.activeSessions[.sleep]
     }
 
-    init(logRepository: LogRepositoryProtocol, patternService: PatternService, contextBuilder: BabyContextBuilder) {
+    /// Increments every time a log is saved via the service.
+    /// HomeView observes this to trigger a pattern reload.
+    var logVersion: Int { timerService.logVersion }
+
+    // MARK: - Init
+
+    init(
+        logRepository: LogRepositoryProtocol,
+        patternService: PatternService,
+        timerService: ActiveTimerService
+    ) {
         self.logRepository = logRepository
         self.patternService = patternService
-        self.contextBuilder = contextBuilder
+        self.timerService = timerService
     }
+
+    // MARK: - Pattern loading
 
     func load(baby: Baby) async {
         isLoading = true
@@ -43,41 +58,23 @@ final class HomeViewModel {
         await load(baby: baby)
     }
 
-    func startTimer(type: LogType) {
-        activeTimer = ActiveTimer(type: type, startedAt: .now)
-        timerTask = Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1))
-                // Trigger UI update by reassigning activeTimer
-                if let current = activeTimer {
-                    activeTimer = current
-                }
-            }
+    // MARK: - Timer actions (delegate to service)
+
+    func startFeed()  { timerService.start(.feed) }
+    func startSleep() { timerService.start(.sleep) }
+
+    /// Stops whichever session is currently active.
+    /// Uses default metadata since the Home screen has no selection UI.
+    func stopActiveTimer(baby: Baby) async {
+        guard let session = activeTimerSession else { return }
+        let metadata: LogMetadata
+        switch session.type {
+        case .feed:  metadata = .feed(side: .left, bottleML: nil)
+        case .sleep: metadata = .sleep(quality: nil)
+        default:     metadata = .none
         }
-    }
-
-    func stopTimer(baby: Baby, context: ModelContext) async {
-        timerTask?.cancel()
-        timerTask = nil
-        guard let timer = activeTimer else { return }
-        activeTimer = nil
-
-        let log = BabyLog(
-            timestamp: timer.startedAt,
-            endTimestamp: .now,
-            type: timer.type
-        )
-        switch timer.type {
-        case .feed: log.metadata = .feed(side: .left, bottleML: nil)
-        case .sleep: log.metadata = .sleep(quality: nil)
-        default: break
-        }
-        log.baby = baby
-
         do {
-            try logRepository.save(log)
-            contextBuilder.invalidate()
-            await load(baby: baby)
+            try await timerService.stop(session.type, baby: baby, metadata: metadata)
         } catch {
             self.error = .data(error)
         }
