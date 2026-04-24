@@ -7,6 +7,7 @@ protocol BabyRepositoryProtocol {
     func fetch(id: UUID) throws -> Baby?
     func save(_ baby: Baby) throws
     func delete(_ baby: Baby) throws
+    func deleteAll() throws
 }
 
 @MainActor
@@ -38,6 +39,16 @@ final class BabyRepository: BabyRepositoryProtocol, @unchecked Sendable {
 
     func delete(_ baby: Baby) throws {
         context.delete(baby)
+        try context.save()
+    }
+
+    /// Deletes every Baby (and its cascade-deleted BabyLog + AIInsight records).
+    /// Used during account deletion to wipe all local data.
+    func deleteAll() throws {
+        let babies = try fetchAll()
+        for baby in babies {
+            context.delete(baby)
+        }
         try context.save()
     }
 }

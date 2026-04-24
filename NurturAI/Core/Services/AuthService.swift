@@ -9,8 +9,12 @@ protocol AuthServiceProtocol {
     var currentUID: String? { get }
     func prepareSignIn() -> String
     func handleAppleCredential(_ result: Result<ASAuthorization, Error>) async throws
+    /// Re-authenticate the currently signed-in user with a fresh Apple credential.
+    /// Used before destructive operations (e.g. account deletion) so we never
+    /// hit `requiresRecentLogin` mid-way through a multi-step delete.
+    func handleAppleReauthCredential(_ result: Result<ASAuthorization, Error>) async throws
     func signOut() throws
-	func deleteAccount()
+    func deleteAccount() async throws
 }
 
 @MainActor
@@ -49,13 +53,40 @@ final class AuthService: AuthServiceProtocol {
         currentNonce = nil
     }
 
+    func handleAppleReauthCredential(_ result: Result<ASAuthorization, Error>) async throws {
+        let authorization = try result.get()
+
+        guard
+            let appleCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+            let nonce = currentNonce,
+            let tokenData = appleCredential.identityToken,
+            let idToken = String(data: tokenData, encoding: .utf8)
+        else {
+            throw AuthError.invalidCredential
+        }
+        guard let user = Auth.auth().currentUser else {
+            throw AuthError.notSignedIn
+        }
+
+        let firebaseCredential = OAuthProvider.appleCredential(
+            withIDToken: idToken,
+            rawNonce: nonce,
+            fullName: appleCredential.fullName
+        )
+        try await user.reauthenticate(with: firebaseCredential)
+        currentNonce = nil
+    }
+
     func signOut() throws {
         try Auth.auth().signOut()
     }
 
-	func deleteAccount() {
-		Auth.auth().currentUser?.delete()
-	}
+    func deleteAccount() async throws {
+        guard let user = Auth.auth().currentUser else { return }
+        // Callers MUST re-authenticate via `handleAppleReauthCredential` first.
+        // With a fresh token in hand, `requiresRecentLogin` cannot fire here.
+        try await user.delete()
+    }
 
     private static func randomNonceString(length: Int = 32) -> String {
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
@@ -72,8 +103,19 @@ final class AuthService: AuthServiceProtocol {
 
 enum AuthError: LocalizedError {
     case invalidCredential
+    case notSignedIn
+    /// Retained for binary/source compatibility — no longer thrown by `deleteAccount()`
+    /// now that re-auth is performed up-front.
+    case requiresRecentLogin
 
     var errorDescription: String? {
-        Strings.Errors.Auth.invalidCredential
+        switch self {
+        case .invalidCredential:
+            return Strings.Errors.Auth.invalidCredential
+        case .notSignedIn:
+            return "You must be signed in to perform this action."
+        case .requiresRecentLogin:
+            return "For your security, please sign in again before deleting your account."
+        }
     }
 }

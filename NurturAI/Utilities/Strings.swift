@@ -193,6 +193,14 @@ enum Strings {
             static let signOut          = "Sign Out"
 			static let deleteAccount     = "Delete Account"
 			static let sectionTitle = "Account Management"
+
+			// Re-auth confirmation flow (run before any destructive delete work)
+			static let reauthTitle       = "Confirm It's You"
+			static let reauthMessage     = "For your security, please sign in with Apple again. Nothing will be deleted until this succeeds."
+			static let reauthCancel      = "Not Now"
+			static let deleteAlertTitle  = "Delete Account?"
+			static let deleteAlertBody   = "You'll be asked to sign in with Apple to confirm. This permanently deletes your account, your baby profile, and all logged data. It cannot be undone."
+			static let deleteConfirm     = "Continue"
         }
     }
 

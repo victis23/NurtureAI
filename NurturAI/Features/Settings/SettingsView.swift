@@ -1,4 +1,5 @@
 import SwiftUI
+import AuthenticationServices
 
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
@@ -6,19 +7,40 @@ struct SettingsView: View {
     @State private var viewModel: SettingsViewModel?
     @State private var showPaywall: Bool = false
 	@State private var showPendingFeature: Bool = false
+	@State private var showDeleteConfirmation: Bool = false
+	@State private var showReauthSheet: Bool = false
 
     var body: some View {
             Group {
                 if let vm = viewModel {
 					ZStack {
-						SettingsContentView(viewModel: vm, showPaywall: $showPaywall, showIsPendingFeature: $showPendingFeature)
-						
-						if showPendingFeature {
-							PendingFeatureView()
-								.transition(.scale.combined(with: .opacity))
+						SettingsContentView(
+							viewModel: vm,
+							showPaywall: $showPaywall,
+							showIsPendingFeature: $showPendingFeature,
+							showDeleteConfirmation: $showDeleteConfirmation
+						)
+
+						PendingFeatureView()
+							.opacity(showPendingFeature ? 1 : 0)
+							.scaleEffect(showPendingFeature ? 1 : 0.8)
+							.allowsHitTesting(showPendingFeature)
+					}
+					.animation(.easeInOut(duration: 0.3), value: showPendingFeature)
+					.alert(Strings.Settings.Account.deleteAlertTitle, isPresented: $showDeleteConfirmation) {
+						Button(Strings.Common.cancel, role: .cancel) { }
+						Button(Strings.Settings.Account.deleteConfirm, role: .destructive) {
+							// Don't touch any data yet — present the re-auth sheet first.
+							showReauthSheet = true
+						}
+					} message: {
+						Text(Strings.Settings.Account.deleteAlertBody)
+					}
+					.sheet(isPresented: $showReauthSheet) {
+						DeleteReauthSheet(viewModel: vm) {
+							showReauthSheet = false
 						}
 					}
-					.animation(.easeInOut, value: showPendingFeature)
                 } else {
                     ProgressView()
                 }
@@ -26,7 +48,13 @@ struct SettingsView: View {
             .navigationTitle(Strings.Settings.navigationTitle)
 			.task {
 				guard let container else { return }
-				let vm = SettingsViewModel(babyRepository: container.babyRepository, authService: container.authService, appState: appState)
+				let vm = SettingsViewModel(
+					babyRepository: container.babyRepository,
+					authService: container.authService,
+					syncService: container.syncService,
+					notificationService: container.notificationService,
+					appState: appState
+				)
 				viewModel = vm
 				vm.load()
 			}
@@ -38,6 +66,7 @@ private struct SettingsContentView: View {
     @Bindable var viewModel: SettingsViewModel
     @Binding var showPaywall: Bool
 	@Binding var showIsPendingFeature: Bool
+	@Binding var showDeleteConfirmation: Bool
     @Environment(AppState.self) private var appState
 
     var body: some View {
@@ -111,9 +140,10 @@ private struct SettingsContentView: View {
                 Button {
                     // Phase 2: Caregiver invite flow
 					showIsPendingFeature = true
-					Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { _ in
+					Task { @MainActor in
+						try? await Task.sleep(for: .seconds(1))
 						showIsPendingFeature = false
-					})
+					}
                 } label: {
                     Label(Strings.Settings.Caregivers.addCaregiver, systemImage: "person.badge.plus")
                         .foregroundStyle(NurturColors.textPrimary)
@@ -137,10 +167,11 @@ private struct SettingsContentView: View {
                 }
 
 				Button(role: .destructive) {
-					
+					showDeleteConfirmation = true
 				} label: {
-					Label(Strings.Settings.Account.deleteAccount, systemImage: "rectangle.portrait.and.arrow.right")
+					Label(Strings.Settings.Account.deleteAccount, systemImage: "trash")
 				}
+				.disabled(viewModel.isDeletingAccount)
             }
 
         }
@@ -160,5 +191,90 @@ private struct PendingFeatureView: View {
 		.background(.white)
 		.opacity(0.6)
 		.shadow(radius: 0.2)
+	}
+}
+
+/// Forces a fresh Sign in with Apple before any destructive delete work runs.
+/// Nothing in `SettingsViewModel.deleteAccount()` executes unless re-auth succeeds —
+/// so cancelling here leaves the user fully intact.
+private struct DeleteReauthSheet: View {
+	@Bindable var viewModel: SettingsViewModel
+	let onDismiss: () -> Void
+
+	@Environment(\.appContainer) private var container
+	@State private var isWorking = false
+	@State private var errorMessage: String?
+
+	var body: some View {
+		VStack(spacing: 20) {
+			Image(systemName: "lock.shield")
+				.font(.system(size: 44))
+				.foregroundStyle(NurturColors.accent)
+				.padding(.top, 32)
+
+			Text(Strings.Settings.Account.reauthTitle)
+				.font(NurturTypography.title3)
+				.fontWeight(.semibold)
+
+			Text(Strings.Settings.Account.reauthMessage)
+				.font(NurturTypography.subheadline)
+				.foregroundStyle(NurturColors.textSecondary)
+				.multilineTextAlignment(.center)
+				.padding(.horizontal, 24)
+
+			if let errorMessage {
+				Text(errorMessage)
+					.font(NurturTypography.caption)
+					.foregroundStyle(NurturColors.danger)
+					.multilineTextAlignment(.center)
+					.padding(.horizontal, 24)
+			}
+
+			Spacer()
+
+			if isWorking {
+				ProgressView()
+					.frame(height: 50)
+			} else {
+				SignInWithAppleButton(.continue) { request in
+					guard let authService = container?.authService else { return }
+					request.requestedScopes = [.fullName, .email]
+					request.nonce = authService.prepareSignIn()
+				} onCompletion: { result in
+					Task { await handleReauth(result) }
+				}
+				.signInWithAppleButtonStyle(.black)
+				.frame(height: 50)
+				.padding(.horizontal, 32)
+			}
+
+			Button(Strings.Settings.Account.reauthCancel) {
+				onDismiss()
+			}
+			.foregroundStyle(NurturColors.textSecondary)
+			.padding(.bottom, 24)
+		}
+		.frame(maxWidth: .infinity, maxHeight: .infinity)
+		.background(NurturColors.background)
+		.interactiveDismissDisabled(isWorking)
+	}
+
+	private func handleReauth(_ result: Result<ASAuthorization, Error>) async {
+		guard let authService = container?.authService else { return }
+		isWorking = true
+		errorMessage = nil
+		do {
+			try await authService.handleAppleReauthCredential(result)
+			// Re-auth succeeded — proceed with the actual destructive work.
+			await viewModel.deleteAccount()
+			onDismiss()
+		} catch {
+			if (error as? ASAuthorizationError)?.code == .canceled {
+				// User dismissed Apple sheet — leave the reauth sheet open so they can retry.
+			} else {
+				errorMessage = error.localizedDescription
+			}
+		}
+		isWorking = false
 	}
 }

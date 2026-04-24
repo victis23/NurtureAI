@@ -87,12 +87,29 @@ actor FirestoreSyncService {
             .delete()
     }
 
-	// Removes baby from Firestore
-	func deleteBaby(babyID: UUID) async throws {
-		try await db
-			.collection("babies").document(babyID.uuidString)
-			.delete()
-	}
+    // Removes baby + entire logs sub-collection from Firestore.
+    // Firestore does not cascade-delete sub-collections, so logs must be deleted first.
+    // Batches deletes in chunks of 500 to respect Firestore's batch limit.
+    func deleteBaby(babyID: UUID) async throws {
+        let babyRef = db.collection("babies").document(babyID.uuidString)
+        let logsRef = babyRef.collection("logs")
+
+        // Page through logs and batch-delete until none remain.
+        while true {
+            let snapshot = try await logsRef.limit(to: 500).getDocuments()
+            if snapshot.documents.isEmpty { break }
+
+            let batch = db.batch()
+            for doc in snapshot.documents {
+                batch.deleteDocument(doc.reference)
+            }
+            try await batch.commit()
+
+            if snapshot.documents.count < 500 { break }
+        }
+
+        try await babyRef.delete()
+    }
 
     // Call on app foreground, WiFi reconnect, and every 15 min background refresh
     func syncPendingLogs(babyID: UUID, babyLogs: [BabyLog]) async throws {
