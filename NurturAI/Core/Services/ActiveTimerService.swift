@@ -5,7 +5,12 @@ import Foundation
 /// Represents an in-progress timed log session.
 /// Stored by LogType key so any future log type gets timer support
 /// without changing the service interface.
-struct ActiveTimerSession {
+///
+/// Codable so the service can persist running sessions to UserDefaults
+/// and restore them on cold launch — see `ActiveTimerService.persistActiveSessions`.
+/// `startTime` is an absolute Date, so `elapsed` keeps computing the
+/// correct duration even if the app was killed for hours in between.
+struct ActiveTimerSession: Codable {
     let type: LogType
     let startTime: Date
     var elapsed: TimeInterval { Date().timeIntervalSince(startTime) }
@@ -74,6 +79,9 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
         self.logRepository = logRepository
         self.syncService = syncService
         self.contextBuilder = contextBuilder
+        // Rehydrate any timer that was running when the app was killed.
+        // Safe to do at the end of init — purely local read, no I/O.
+        restoreActiveSessions()
     }
 
     // MARK: - Queries
@@ -91,6 +99,7 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
     func start(_ type: LogType) {
         guard activeSessions[type] == nil else { return }
         activeSessions[type] = ActiveTimerSession(type: type, startTime: .now)
+        persistActiveSessions()
     }
 
     func stop(_ type: LogType, baby: Baby, metadata: LogMetadata) async throws {
@@ -106,6 +115,7 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
 
         try logRepository.save(log)
         activeSessions[type] = nil
+        persistActiveSessions()
         contextBuilder.invalidate()
         logVersion += 1
         syncAfterSave(baby: baby)
@@ -219,6 +229,47 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
             } catch {
                 // Non-fatal — will retry on next save or app foreground
             }
+        }
+    }
+
+    // MARK: - Active session persistence
+    //
+    // The full set of running sessions is mirrored to UserDefaults under a
+    // single key. We encode an array of sessions (not a [LogType: …] dict)
+    // because Swift's JSON encoder treats string-enum-keyed dictionaries
+    // inconsistently across versions; an array round-trips cleanly and the
+    // dictionary is rebuilt by `type` on restore. State changes are rare
+    // (only on start / stop), so writing the whole blob each time is fine.
+
+    private static let storageKey = "nurtur.activeTimerSessions.v1"
+
+    private func persistActiveSessions() {
+        let defaults = UserDefaults.standard
+        let sessions = Array(activeSessions.values)
+        guard !sessions.isEmpty else {
+            defaults.removeObject(forKey: Self.storageKey)
+            return
+        }
+        do {
+            let data = try JSONEncoder().encode(sessions)
+            defaults.set(data, forKey: Self.storageKey)
+        } catch {
+            // Non-fatal — worst case the user loses timer continuity if
+            // the app is killed before the next successful persist.
+        }
+    }
+
+    private func restoreActiveSessions() {
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: Self.storageKey) else { return }
+        do {
+            let sessions = try JSONDecoder().decode([ActiveTimerSession].self, from: data)
+            var dict: [LogType: ActiveTimerSession] = [:]
+            for session in sessions { dict[session.type] = session }
+            activeSessions = dict
+        } catch {
+            // Corrupt blob — clear it so we don't keep failing every launch.
+            defaults.removeObject(forKey: Self.storageKey)
         }
     }
 }
