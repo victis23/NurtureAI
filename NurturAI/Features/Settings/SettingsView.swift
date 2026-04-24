@@ -115,12 +115,18 @@ private struct SettingsContentView: View {
             }
 
             // Sign out
-            Section {
+            Section(Strings.Settings.Account.sectionTitle) {
                 Button(role: .destructive) {
                     viewModel.signOut()
                 } label: {
                     Label(Strings.Settings.Account.signOut, systemImage: "rectangle.portrait.and.arrow.right")
                 }
+
+				Button(role: .destructive) {
+					
+				} label: {
+					Label(Strings.Settings.Account.deleteAccount, systemImage: "rectangle.portrait.and.arrow.right")
+				}
             }
 
         }

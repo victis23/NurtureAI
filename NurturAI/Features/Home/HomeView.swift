@@ -115,6 +115,7 @@ private struct HomeContentView: View {
                         )
                     }
                     .padding(.horizontal)
+					.transition(.opacity)
                 }
 
                 // Quick-action row
@@ -155,6 +156,7 @@ private struct HomeContentView: View {
                 .padding(.bottom, 20)
             }
             .padding(.top, 8)
+			.animation(.bouncy(duration: 0.4), value: viewModel.patterns == nil)
         }
         .background(NurturColors.background)
         .refreshable { await viewModel.refresh(baby: baby) }

@@ -191,6 +191,8 @@ enum Strings {
 
         enum Account {
             static let signOut          = "Sign Out"
+			static let deleteAccount     = "Delete Account"
+			static let sectionTitle = "Account Management"
         }
     }
 
