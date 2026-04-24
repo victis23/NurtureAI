@@ -64,8 +64,13 @@ final class HomeViewModel {
 
     // MARK: - Timer actions (delegate to service)
 
-    func startFeed()  { timerService.start(.feed) }
-    func startSleep() { timerService.start(.sleep) }
+	func startFeed()  {
+		timerService.start(.feed)
+	}
+
+	func startSleep() {
+		timerService.start(.sleep)
+	}
 
 	func logDiaperFor(baby: Baby) {
 		Task {

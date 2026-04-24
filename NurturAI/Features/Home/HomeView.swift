@@ -120,10 +120,28 @@ private struct HomeContentView: View {
                 // Quick-action row
                 HStack(spacing: 12) {
                     LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
-                        viewModel.startFeed()
+						Task {
+							if let session = viewModel.activeTimerSession {
+								await viewModel.stopActiveTimer(baby: baby)
+								if session.type != .feed {
+									viewModel.startFeed()
+								}
+							} else {
+								viewModel.startFeed()
+							}
+						}
                     }
                     LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
-                        viewModel.startSleep()
+						Task {
+							if let session = viewModel.activeTimerSession {
+								await viewModel.stopActiveTimer(baby: baby)
+								if session.type != .sleep {
+									viewModel.startSleep()
+								}
+							} else {
+								viewModel.startSleep()
+							}
+						}
                     }
                     LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
 						viewModel.logDiaperFor(baby: baby)
