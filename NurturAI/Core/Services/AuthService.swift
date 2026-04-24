@@ -10,6 +10,7 @@ protocol AuthServiceProtocol {
     func prepareSignIn() -> String
     func handleAppleCredential(_ result: Result<ASAuthorization, Error>) async throws
     func signOut() throws
+	func deleteAccount()
 }
 
 @MainActor
@@ -51,6 +52,10 @@ final class AuthService: AuthServiceProtocol {
     func signOut() throws {
         try Auth.auth().signOut()
     }
+
+	func deleteAccount() {
+		Auth.auth().currentUser?.delete()
+	}
 
     private static func randomNonceString(length: Int = 32) -> String {
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")

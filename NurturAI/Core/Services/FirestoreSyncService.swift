@@ -87,6 +87,13 @@ actor FirestoreSyncService {
             .delete()
     }
 
+	// Removes baby from Firestore
+	func deleteBaby(babyID: UUID) async throws {
+		try await db
+			.collection("babies").document(babyID.uuidString)
+			.delete()
+	}
+
     // Call on app foreground, WiFi reconnect, and every 15 min background refresh
     func syncPendingLogs(babyID: UUID, babyLogs: [BabyLog]) async throws {
         guard !babyLogs.isEmpty else { return }

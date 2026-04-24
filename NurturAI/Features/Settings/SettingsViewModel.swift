@@ -51,4 +51,13 @@ final class SettingsViewModel {
         appState.firebaseUID = nil
         appState.currentBaby = nil
     }
+
+	//FIXME: Still need to also delete the repositories and remove firestore entries 
+	func deleteAccount() {
+		authService.deleteAccount()
+		appState.hasCompletedOnboarding = false
+		appState.isAuthenticated = false
+		appState.firebaseUID = nil
+		appState.currentBaby = nil
+	}
 }
