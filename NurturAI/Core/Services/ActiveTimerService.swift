@@ -36,6 +36,10 @@ protocol ActiveTimerServiceProtocol: AnyObject {
 
     /// Saves an instant (non-timed) log and syncs. Used for Diaper, Mood, etc.
     func logInstant(type: LogType, baby: Baby, metadata: LogMetadata) async throws
+
+    /// Ensures the baby document exists in Firestore with the correct caregiver UID.
+    /// Call on app launch / every load — idempotent, non-fatal.
+    func ensureBabySynced(_ baby: Baby) async
 }
 
 // MARK: - Implementation
@@ -109,6 +113,16 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
         contextBuilder.invalidate()
         logVersion += 1
         syncAfterSave(baby: baby)
+    }
+
+    // MARK: - Baby Sync
+
+    func ensureBabySynced(_ baby: Baby) async {
+        do {
+            try await syncService.syncBaby(baby)
+        } catch {
+            // Non-fatal — logs will still save locally and retry on next launch
+        }
     }
 
     // MARK: - Private

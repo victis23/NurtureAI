@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 import FirebaseFirestore
 
 actor FirestoreSyncService {
@@ -12,14 +13,20 @@ actor FirestoreSyncService {
     }
 
     // Creates or updates the baby document in Firestore.
-    // Must be called after the baby is saved locally so caregiverFirebaseUIDs is populated.
+    // Idempotent (merge: true) — safe to call on every app launch.
+    // Automatically includes the current user's UID in caregiverFirebaseUIDs
+    // so existing babies created before the sync fix are self-healed.
     func syncBaby(_ baby: Baby) async throws {
+        var uids = baby.caregiverFirebaseUIDs
+        if let currentUID = Auth.auth().currentUser?.uid, !uids.contains(currentUID) {
+            uids.append(currentUID)
+        }
         let data: [String: Any] = [
             "id":                    baby.id.uuidString,
             "name":                  baby.name,
             "birthDate":             Timestamp(date: baby.birthDate),
             "feedingMethod":         baby.feedingMethod.rawValue,
-            "caregiverFirebaseUIDs": baby.caregiverFirebaseUIDs,
+            "caregiverFirebaseUIDs": uids,
             "createdAt":             Timestamp(date: baby.createdAt)
         ]
         try await db

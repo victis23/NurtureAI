@@ -44,6 +44,9 @@ final class HomeViewModel {
     func load(baby: Baby) async {
         isLoading = true
         error = nil
+        // Ensure the baby document exists in Firestore before any log writes.
+        // Idempotent — self-heals babies created before the sync fix.
+        await timerService.ensureBabySynced(baby)
         do {
             let since = Date().addingTimeInterval(-86400)
             let logs = try logRepository.fetchLogs(for: baby, since: since)
