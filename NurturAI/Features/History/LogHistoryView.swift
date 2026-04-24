@@ -19,7 +19,7 @@ struct LogHistoryView: View {
             .navigationTitle(Strings.History.navigationTitle)
 			.task {
 				guard let baby = babies.first, let container else { return }
-				let vm = LogHistoryViewModel(logRepository: container.logRepository)
+				let vm = LogHistoryViewModel(logRepository: container.logRepository, timerService: container.timerService)
 				viewModel = vm
 				await vm.load(baby: baby)
 			}

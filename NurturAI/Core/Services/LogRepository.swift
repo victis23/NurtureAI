@@ -8,6 +8,8 @@ protocol LogRepositoryProtocol {
     func save(_ log: BabyLog) throws
     func markSynced(_ logs: [BabyLog]) throws
     func fetchUnsynced(for baby: Baby) throws -> [BabyLog]
+    func fetchLog(id: UUID) throws -> BabyLog?
+    func saveChanges() throws
     func delete(_ log: BabyLog) throws
 }
 
@@ -63,6 +65,17 @@ final class LogRepository: LogRepositoryProtocol, @unchecked Sendable {
             }
         )
         return try context.fetch(descriptor)
+    }
+
+    func fetchLog(id: UUID) throws -> BabyLog? {
+        let descriptor = FetchDescriptor<BabyLog>(
+            predicate: #Predicate { $0.id == id }
+        )
+        return try context.fetch(descriptor).first
+    }
+
+    func saveChanges() throws {
+        try context.save()
     }
 
     func delete(_ log: BabyLog) throws {

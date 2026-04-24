@@ -40,6 +40,13 @@ protocol ActiveTimerServiceProtocol: AnyObject {
     /// Ensures the baby document exists in Firestore with the correct caregiver UID.
     /// Call on app launch / every load — idempotent, non-fatal.
     func ensureBabySynced(_ baby: Baby) async
+
+    /// Deletes a log from SwiftData and Firestore, and increments logVersion.
+    func deleteLog(_ log: BabyLog, baby: Baby) async throws
+
+    /// Starts the real-time Firestore listener for remote log changes.
+    /// No-op if already listening — safe to call on every load.
+    func startListening(for baby: Baby) async
 }
 
 // MARK: - Implementation
@@ -56,6 +63,8 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
     private let logRepository: LogRepositoryProtocol
     private let syncService: FirestoreSyncService
     private let contextBuilder: BabyContextBuilder
+    private var remoteListener: SyncCancellable?
+    private var observedBaby: Baby?
 
     init(
         logRepository: LogRepositoryProtocol,
@@ -113,6 +122,79 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
         contextBuilder.invalidate()
         logVersion += 1
         syncAfterSave(baby: baby)
+    }
+
+    // MARK: - Delete
+
+    func deleteLog(_ log: BabyLog, baby: Baby) async throws {
+        // Capture the ID before deletion — accessing the model after SwiftData
+        // removes it from the context is unsafe.
+        let logID = log.id
+        try logRepository.delete(log)
+        logVersion += 1
+        Task {
+            do {
+                try await syncService.deleteLog(babyID: baby.id, logID: logID)
+            } catch {
+                // Non-fatal — doc may already be absent or user is offline.
+                // SwiftData is already consistent; Firestore will drift at worst.
+            }
+        }
+    }
+
+    // MARK: - Remote Listener
+
+    func startListening(for baby: Baby) async {
+        // Guard ensures we only attach one listener per app session.
+        guard remoteListener == nil else { return }
+        // Store on self (@MainActor) — never captured directly in a @Sendable closure.
+        observedBaby = baby
+        let since = Date().addingTimeInterval(-30 * 86400) // mirror history window
+        remoteListener = await syncService.listenForRemoteChanges(
+            babyID: baby.id,
+            since: since,
+            onUpdate: { [weak self] logs in self?.handleRemoteUpserts(logs) },
+            onDelete: { [weak self] ids  in self?.handleRemoteDeletes(ids)  }
+        )
+    }
+
+    private func handleRemoteUpserts(_ logs: [BabyLog]) {
+        guard let baby = observedBaby else { return }
+        var changed = false
+        for log in logs {
+            do {
+                if let existing = try logRepository.fetchLog(id: log.id) {
+                    // Log already in SwiftData — apply remote field updates.
+                    existing.metadataJSON  = log.metadataJSON
+                    existing.endTimestamp  = log.endTimestamp
+                    existing.syncedToCloud = true
+                    try logRepository.saveChanges()
+                } else {
+                    // New log from another caregiver — link to baby and insert.
+                    log.baby = baby
+                    try logRepository.save(log)
+                }
+                changed = true
+            } catch {
+                // Non-fatal — local state stays consistent
+            }
+        }
+        if changed { logVersion += 1 }
+    }
+
+    private func handleRemoteDeletes(_ ids: [UUID]) {
+        var changed = false
+        for id in ids {
+            do {
+                if let log = try logRepository.fetchLog(id: id) {
+                    try logRepository.delete(log)
+                    changed = true
+                }
+            } catch {
+                // Non-fatal — log may already be absent locally
+            }
+        }
+        if changed { logVersion += 1 }
     }
 
     // MARK: - Baby Sync

@@ -4,13 +4,15 @@ import Foundation
 @Observable
 final class LogHistoryViewModel {
     private let logRepository: LogRepositoryProtocol
+    private let timerService: ActiveTimerService
 
     var sections: [(date: Date, logs: [BabyLog])] = []
     var isLoading: Bool = false
     var error: AppError?
 
-    init(logRepository: LogRepositoryProtocol) {
+    init(logRepository: LogRepositoryProtocol, timerService: ActiveTimerService) {
         self.logRepository = logRepository
+        self.timerService = timerService
     }
 
     func load(baby: Baby) async {
@@ -28,7 +30,7 @@ final class LogHistoryViewModel {
 
     func delete(_ log: BabyLog, baby: Baby) async {
         do {
-            try logRepository.delete(log)
+            try await timerService.deleteLog(log, baby: baby)
             await load(baby: baby)
         } catch {
             self.error = .data(error)

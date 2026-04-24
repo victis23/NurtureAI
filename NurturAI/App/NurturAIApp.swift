@@ -23,6 +23,7 @@ struct AppRootView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var container: AppContainer?
+    @State private var isRestoringAccount = false
 
     var body: some View {
         Group {
@@ -30,6 +31,9 @@ struct AppRootView: View {
                 Group {
                     if !appState.isAuthenticated {
                         LoginView()
+                    } else if isRestoringAccount {
+                        // Silently checking Firestore for an existing baby after reinstall.
+                        ProgressView()
                     } else if !appState.hasCompletedOnboarding {
                         OnboardingView()
                     } else {
@@ -44,7 +48,33 @@ struct AppRootView: View {
         .task {
             if container == nil {
                 appState.restoreAuthState()
-                container = AppContainer.live(modelContext: modelContext)
+                let c = AppContainer.live(modelContext: modelContext)
+                container = c
+
+                // Reinstall detection: authenticated but onboarding flag wiped with SwiftData.
+                // Check Firestore for an existing baby before showing the onboarding flow.
+                if appState.isAuthenticated,
+                   !appState.hasCompletedOnboarding,
+                   let uid = appState.firebaseUID {
+                    isRestoringAccount = true
+                    do {
+                        if let restore = try await c.syncService.fetchBabyForRestore(uid: uid) {
+                            let baby = Baby(
+                                id: restore.id,
+                                name: restore.name,
+                                birthDate: restore.birthDate,
+                                feedingMethod: restore.feedingMethod,
+                                caregiverFirebaseUIDs: restore.caregiverFirebaseUIDs,
+                                createdAt: restore.createdAt
+                            )
+                            try c.babyRepository.save(baby)
+                            appState.hasCompletedOnboarding = true
+                        }
+                    } catch {
+                        // Non-fatal — user will see onboarding and can re-create their profile.
+                    }
+                    isRestoringAccount = false
+                }
             }
         }
     }

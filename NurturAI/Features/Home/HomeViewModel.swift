@@ -55,6 +55,7 @@ final class HomeViewModel {
             self.error = .data(error)
         }
         isLoading = false
+        await timerService.startListening(for: baby)
     }
 
     func refresh(baby: Baby) async {
