@@ -86,7 +86,7 @@ private struct HomeContentView: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         NurturStatusCard(
                             title: Strings.Home.Status.lastFed,
-                            value: patterns.lastFeedMinutesAgo.map { "\($0)m ago" } ?? Strings.Home.notLogged,
+							value: viewModel.getValueCardStatusfor(state: .feed) ?? Strings.Home.notLogged,
                             subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
                             icon: "drop.fill",
                             iconColor: NurturColors.info
@@ -94,7 +94,7 @@ private struct HomeContentView: View {
 
                         NurturStatusCard(
                             title: Strings.Home.Status.awake,
-                            value: "\(patterns.currentAwakeWindowMinutes)m",
+							value: viewModel.getValueCardStatusfor(state: .sleep, isAwakeCard: true) ?? "",
                             subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
                             icon: "sun.max.fill",
                             iconColor: NurturColors.warning
@@ -102,7 +102,7 @@ private struct HomeContentView: View {
 
                         NurturStatusCard(
                             title: Strings.Home.Status.sleepToday,
-                            value: "\(patterns.totalSleepTodayMinutes / 60)h \(patterns.totalSleepTodayMinutes % 60)m",
+							value: viewModel.getValueCardStatusfor(state: .sleep) ?? "",
                             icon: "moon.fill",
                             iconColor: NurturColors.accent
                         )
@@ -126,7 +126,7 @@ private struct HomeContentView: View {
                         viewModel.startSleep()
                     }
                     LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
-                        // Diaper has no timer — log from the Log tab for type selection
+						viewModel.logDiaperFor(baby: baby)
                     }
                     LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
                         assistQuery = nil

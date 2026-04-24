@@ -63,6 +63,16 @@ final class HomeViewModel {
     func startFeed()  { timerService.start(.feed) }
     func startSleep() { timerService.start(.sleep) }
 
+	func logDiaperFor(baby: Baby) {
+		Task {
+			do {
+				try await timerService.logInstant(type: .diaper, baby: baby, metadata: .diaper(type: .none))
+			} catch {
+				self.error = .data(error)
+			}
+		}
+	}
+
     /// Stops whichever session is currently active.
     /// Uses default metadata since the Home screen has no selection UI.
     func stopActiveTimer(baby: Baby) async {
@@ -79,4 +89,24 @@ final class HomeViewModel {
             self.error = .data(error)
         }
     }
+
+	func getValueCardStatusfor(state: LogType, isAwakeCard: Bool = false) -> String? {
+		let isActive = timerService.activeSessions[state] != nil
+		guard let patterns else { return nil }
+
+		switch state {
+		case .feed:
+			return isActive ? Strings.Home.Status.currentlyFeeding : patterns.lastFeedMinutesAgo.map { "\($0)m ago" }
+		case .sleep:
+			if isAwakeCard {
+				return isActive ? Strings.Home.Status.currentlySleeping : "\(patterns.currentAwakeWindowMinutes)m"
+			}
+
+			let totalSleepTodayMins = patterns.totalSleepTodayMinutes
+			return isActive ? Strings.Home.Status.currentlySleeping : "\(totalSleepTodayMins / 60)h \(totalSleepTodayMins % 60)m"
+		case .diaper, .mood:
+			return nil
+		}
+		
+	}
 }

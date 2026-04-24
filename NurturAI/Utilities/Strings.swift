@@ -67,10 +67,12 @@ enum Strings {
         static let diaper           = "Diaper"
 
         enum Status {
-            static let lastFed      = "Last Fed"
-            static let awake        = "Awake"
-            static let sleepToday   = "Sleep Today"
-            static let lastDiaper   = "Last Diaper"
+            static let lastFed           = "Last Fed"
+            static let awake             = "Awake"
+            static let sleepToday        = "Sleep Today"
+            static let lastDiaper        = "Last Diaper"
+            static let currentlyFeeding  = "Currently feeding"
+            static let currentlySleeping = "Currently sleeping"
             static func maxAwake(_ value: String) -> String { "Max \(value)m recommended" }
         }
 

@@ -7,15 +7,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "B6CDB3B8-3820-4164-8162-4979B9AF2D15"
+            uuid = "7EABC810-1695-4BCD-B039-7059FAC1F384"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NurturAI/Features/Home/HomeView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "91"
-            endingLineNumber = "91"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -23,17 +23,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4282CFD0-7D1C-403E-AE7E-EE0D5C82E89E"
-            shouldBeEnabled = "No"
+            uuid = "2FFDB630-3CA1-4EF0-BAEE-8C8CFB043F01"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NurturAI/Features/Log/QuickLogView.swift"
+            filePath = "NurturAI/Features/Log/QuickLogViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "6"
-            endingLineNumber = "6"
-            landmarkName = "QuickLogView"
-            landmarkType = "14">
+            startingLineNumber = "85"
+            endingLineNumber = "85"
+            landmarkName = "logDiaper(baby:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "2FFDB630-3CA1-4EF0-BAEE-8C8CFB043F01 - a14052a525ea96aa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for NurturAI.QuickLogViewModel.logDiaper(baby: NurturAI.Baby) async -&gt; ()"
+                  moduleName = "NurturAI.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/scottleonard/Downloads/Coding%20Stuff/Coding/NurturAI/NurturAI/Features/Log/QuickLogViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "86"
+                  endingLineNumber = "86">
+               </Location>
+               <Location
+                  uuid = "2FFDB630-3CA1-4EF0-BAEE-8C8CFB043F01 - ae49248a40519a6d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for NurturAI.QuickLogViewModel.logDiaper(baby: NurturAI.Baby) async -&gt; ()"
+                  moduleName = "NurturAI.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/scottleonard/Downloads/Coding%20Stuff/Coding/NurturAI/NurturAI/Features/Log/QuickLogViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "86"
+                  endingLineNumber = "86">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

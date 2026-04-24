@@ -17,7 +17,7 @@ enum LogType: String, Codable, CaseIterable {
 }
 
 enum DiaperType: String, Codable, CaseIterable {
-    case wet, dirty, both, dry
+    case wet, dirty, both, dry, none
 }
 
 enum FeedSide: String, Codable, CaseIterable {
