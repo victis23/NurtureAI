@@ -45,6 +45,11 @@ final class AssistViewModel {
         guard !trimmedQuery.isEmpty else { return }
         guard !hasReachedFreeLimit else { showPaywall = true; return }
 
+        // Clear the input field as soon as we've committed to processing.
+        // `trimmedQuery` is already captured above, so the LLM call still
+        // uses the user's original text; the field just looks empty.
+        query = ""
+
         if safetyFilter.requiresEmergencyResponse(trimmedQuery) {
             emergencyMode = true
             showEscalationBanner = true
