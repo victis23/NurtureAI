@@ -24,7 +24,8 @@ struct HomeView: View {
 				let vm = HomeViewModel(
 					logRepository: container.logRepository,
 					patternService: container.patternService,
-					timerService: container.timerService
+					timerService: container.timerService,
+					notificationService: container.notificationService
 				)
 				viewModel = vm
 				await vm.load(baby: baby)

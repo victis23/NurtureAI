@@ -9,6 +9,8 @@
 		<string>DMSans-Bold.ttf</string>
 		<string>DMSans-SemiBold.ttf</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIImageName</key>

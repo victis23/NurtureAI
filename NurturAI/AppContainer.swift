@@ -15,6 +15,7 @@ struct AppContainer {
     let timerService: ActiveTimerService
     let subscriptionService: SubscriptionServiceProtocol
     let authService: AuthServiceProtocol
+    let notificationService: NotificationService
 
     @MainActor
     static func live(modelContext: ModelContext) -> AppContainer {
@@ -45,7 +46,8 @@ struct AppContainer {
             syncService: syncService,
             timerService: timerService,
             subscriptionService: subscriptionService,
-            authService: AuthService()
+            authService: AuthService(),
+            notificationService: NotificationService()
         )
     }
 }

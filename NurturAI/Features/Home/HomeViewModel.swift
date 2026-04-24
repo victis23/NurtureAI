@@ -8,6 +8,7 @@ final class HomeViewModel {
 
     private let logRepository: LogRepositoryProtocol
     private let patternService: PatternService
+    private let notificationService: NotificationService
     let timerService: ActiveTimerService
 
     // MARK: - State
@@ -32,11 +33,13 @@ final class HomeViewModel {
     init(
         logRepository: LogRepositoryProtocol,
         patternService: PatternService,
-        timerService: ActiveTimerService
+        timerService: ActiveTimerService,
+        notificationService: NotificationService
     ) {
         self.logRepository = logRepository
         self.patternService = patternService
         self.timerService = timerService
+        self.notificationService = notificationService
     }
 
     // MARK: - Pattern loading
@@ -50,7 +53,16 @@ final class HomeViewModel {
         do {
             let since = Date().addingTimeInterval(-86400)
             let logs = try logRepository.fetchLogs(for: baby, since: since)
-            patterns = patternService.analyze(logs: logs, baby: baby)
+            let computed = patternService.analyze(logs: logs, baby: baby)
+            patterns = computed
+            // Request permission once (no-op if already granted/denied),
+            // then reschedule notifications based on the latest patterns.
+            await notificationService.requestPermission()
+            await notificationService.scheduleNotifications(
+                for: baby,
+                patterns: computed,
+                activeSessions: timerService.activeSessions
+            )
         } catch {
             self.error = .data(error)
         }
