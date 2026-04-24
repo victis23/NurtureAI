@@ -61,8 +61,14 @@ actor FirestoreSyncService {
     // Automatically includes the current user's UID in caregiverFirebaseUIDs
     // so existing babies created before the sync fix are self-healed.
     func syncBaby(_ baby: Baby) async throws {
+        // Bug #2 fix: a missing UID used to silently no-op the self-heal step,
+        // which broke the restore flow on accounts created before caregiver UIDs
+        // were tracked. Fail loudly instead so the caller can re-auth.
+        guard let currentUID = Auth.auth().currentUser?.uid else {
+            throw AuthError.notSignedIn
+        }
         var uids = baby.caregiverFirebaseUIDs
-        if let currentUID = Auth.auth().currentUser?.uid, !uids.contains(currentUID) {
+        if !uids.contains(currentUID) {
             uids.append(currentUID)
         }
         let data: [String: Any] = [
@@ -111,18 +117,25 @@ actor FirestoreSyncService {
         try await babyRef.delete()
     }
 
-    // Call on app foreground, WiFi reconnect, and every 15 min background refresh
+    // Call on app foreground, WiFi reconnect, and every 15 min background refresh.
+    // Bug #1 fix: Firestore batches cap at 500 ops, so chunk the pending logs
+    // (mirrors deleteBaby above). Previously a single batch was used and any
+    // backlog &gt; 500 logs would throw and abort the whole sync.
     func syncPendingLogs(babyID: UUID, babyLogs: [BabyLog]) async throws {
         guard !babyLogs.isEmpty else { return }
 
-        let batch = db.batch()
-        for log in babyLogs {
-            let ref = db
-                .collection("babies").document(babyID.uuidString)
-                .collection("logs").document(log.id.uuidString)
-            batch.setData(log.firestorePayload, forDocument: ref, merge: true)
+        let chunkSize = 500
+        for chunk in stride(from: 0, to: babyLogs.count, by: chunkSize) {
+            let end = min(chunk + chunkSize, babyLogs.count)
+            let batch = db.batch()
+            for log in babyLogs[chunk..<end] {
+                let ref = db
+                    .collection("babies").document(babyID.uuidString)
+                    .collection("logs").document(log.id.uuidString)
+                batch.setData(log.firestorePayload, forDocument: ref, merge: true)
+            }
+            try await batch.commit()
         }
-        try await batch.commit()
     }
 
     // Real-time listener for caregiver-shared updates.

@@ -6,7 +6,9 @@ struct AssistView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(\.appContainer) private var container
-    @Query(sort: \Baby.createdAt) private var babies: [Baby]
+    // Bug #4 fix: matches HomeView — newest baby first so re-onboarded
+    // profiles aren't shadowed by a stale older record.
+    @Query(sort: \Baby.createdAt, order: .reverse) private var babies: [Baby]
     @State private var viewModel: AssistViewModel?
 
     var body: some View {

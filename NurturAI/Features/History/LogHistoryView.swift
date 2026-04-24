@@ -3,7 +3,9 @@ import SwiftData
 
 struct LogHistoryView: View {
     @Environment(\.appContainer) private var container
-    @Query(sort: \Baby.createdAt) private var babies: [Baby]
+    // Bug #4 fix: matches HomeView — newest baby first so re-onboarded
+    // profiles aren't shadowed by a stale older record.
+    @Query(sort: \Baby.createdAt, order: .reverse) private var babies: [Baby]
     @State private var viewModel: LogHistoryViewModel?
 
     var body: some View {

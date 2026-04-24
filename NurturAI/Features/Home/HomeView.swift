@@ -5,7 +5,10 @@ import Combine
 struct HomeView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.appContainer) private var container
-    @Query(sort: \Baby.createdAt) private var babies: [Baby]
+    // Bug #4 fix: default sort order is .forward, which means after a
+    // delete-and-recreate cycle the *oldest* surviving baby gets selected.
+    // Reverse the order so `babies.first` is always the most-recent profile.
+    @Query(sort: \Baby.createdAt, order: .reverse) private var babies: [Baby]
     @State private var viewModel: HomeViewModel?
 
     var body: some View {

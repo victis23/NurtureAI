@@ -14,7 +14,10 @@ final class BabyLog {
 
     var durationSeconds: Int? {
         guard let end = endTimestamp else { return nil }
-        return Int(end.timeIntervalSince(timestamp))
+        // Bug #3 fix: clock skew between caregiver devices can produce an
+        // endTimestamp that's slightly earlier than the start. A negative
+        // duration would render as "-3s" in the UI; clamp at zero.
+        return max(0, Int(end.timeIntervalSince(timestamp)))
     }
 
     var metadata: LogMetadata {

@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import UserNotifications
 
 @MainActor
@@ -24,6 +25,12 @@ final class NotificationService: NSObject {
 
     /// Minutes after the primary notification fires before the follow-up reminder fires.
     private static let followupDelayMinutes = 30
+
+    /// Bug #6 fix: scheduling failures used to be swallowed by `try?`. The most
+    /// common cause is hitting iOS's 64-pending-notification ceiling, which
+    /// silently breaks reminders. Surface failures via OSLog so we can see them
+    /// in Console.app and (eventually) in crash analytics.
+    private static let logger = Logger(subsystem: "ai.nurtur.app", category: "Notifications")
 
     // MARK: - State
 
@@ -200,7 +207,13 @@ final class NotificationService: NSObject {
             repeats: false
         )
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        try? await center.add(request)
+        do {
+            try await center.add(request)
+        } catch {
+            Self.logger.error(
+                "Failed to schedule notification \(id, privacy: .public): \(error.localizedDescription, privacy: .public)"
+            )
+        }
     }
 }
 

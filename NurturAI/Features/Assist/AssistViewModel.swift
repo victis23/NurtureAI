@@ -109,6 +109,14 @@ final class AssistViewModel {
     }
 
     private func dailyKey() -> String {
-        "queryCount_\(Date().formatted(.dateTime.year().month().day()))"
+        // Bug #5 fix: `.formatted(.dateTime…)` is locale-sensitive — switching
+        // regions (or the user travelling) can change the rendered string and
+        // silently reset (or double-count) the daily limit. Use a fixed
+        // yyyy-MM-dd key in the user's current calendar instead.
+        let components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        let year  = components.year  ?? 0
+        let month = components.month ?? 0
+        let day   = components.day   ?? 0
+        return String(format: "queryCount_%04d-%02d-%02d", year, month, day)
     }
 }
