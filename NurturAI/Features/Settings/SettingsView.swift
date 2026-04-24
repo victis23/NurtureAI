@@ -75,9 +75,9 @@ private struct SettingsContentView: View {
             Section(Strings.Settings.BabyProfile.sectionTitle) {
                 if viewModel.isEditing {
                     VStack(alignment: .leading, spacing: 12) {
-                        TextField("Name", text: $viewModel.editingName)
+                        TextField(Strings.Settings.BabyProfile.nameLabel, text: $viewModel.editingName)
                             .textFieldStyle(.roundedBorder)
-                        DatePicker("Birthday", selection: $viewModel.editingBirthDate, in: ...Date(), displayedComponents: .date)
+                        DatePicker(Strings.Settings.BabyProfile.birthdayLabel, selection: $viewModel.editingBirthDate, in: ...Date(), displayedComponents: .date)
                         HStack {
                             Button(Strings.Common.cancel) {
                                 viewModel.isEditing = false
@@ -185,7 +185,7 @@ private struct PendingFeatureView: View {
 	var body: some View {
 		VStack(spacing: 15) {
 			Image(systemName: "star")
-			Text("Coming Soon!")
+			Text(Strings.Settings.Caregivers.pendingFeatureTitle)
 		}
 		.frame(width: 300, height: 300, alignment: .center)
 		.background(.white)

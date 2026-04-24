@@ -113,9 +113,9 @@ enum AuthError: LocalizedError {
         case .invalidCredential:
             return Strings.Errors.Auth.invalidCredential
         case .notSignedIn:
-            return "You must be signed in to perform this action."
+            return Strings.Errors.Auth.notSignedIn
         case .requiresRecentLogin:
-            return "For your security, please sign in again before deleting your account."
+            return Strings.Errors.Auth.requiresRecentLogin
         }
     }
 }

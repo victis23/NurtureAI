@@ -94,16 +94,16 @@ final class NotificationService: NSObject {
         guard minutesUntilDue > 0 else { return }
 
         let primary = UNMutableNotificationContent()
-        primary.title = "Time to feed \(baby.name)"
-        primary.body  = "It's been \(lastFeedMinutesAgo) min since the last feeding."
+        primary.title = Strings.Notifications.Feed.primaryTitle(baby.name)
+        primary.body  = Strings.Notifications.Feed.primaryBody(lastFeedMinutesAgo)
         primary.sound = .default
 
         await schedule(id: ID.feed, content: primary, inMinutes: minutesUntilDue)
 
         // Follow-up reminder if the primary is ignored.
         let followup = UNMutableNotificationContent()
-        followup.title = "\(baby.name) still needs to be fed"
-        followup.body  = "It's been a while since the last feeding — don't forget to log it."
+        followup.title = Strings.Notifications.Feed.followupTitle(baby.name)
+        followup.body  = Strings.Notifications.Feed.followupBody
         followup.sound = .default
 
         await schedule(
@@ -131,16 +131,20 @@ final class NotificationService: NSObject {
         guard minutesUntilDue > 0 else { return }
 
         let primary = UNMutableNotificationContent()
-        primary.title = "\(baby.name) may be getting tired"
-        primary.body  = "\(baby.name) has been awake for \(patterns.currentAwakeWindowMinutes) min — approaching the \(patterns.ageAppropriateMaxAwakeMinutes) min limit."
+        primary.title = Strings.Notifications.Sleep.primaryTitle(baby.name)
+        primary.body  = Strings.Notifications.Sleep.primaryBody(
+            baby.name,
+            awakeMinutes: patterns.currentAwakeWindowMinutes,
+            maxMinutes: patterns.ageAppropriateMaxAwakeMinutes
+        )
         primary.sound = .default
 
         await schedule(id: ID.sleep, content: primary, inMinutes: minutesUntilDue)
 
         // Follow-up reminder if the primary is ignored.
         let followup = UNMutableNotificationContent()
-        followup.title = "\(baby.name) is past their awake window"
-        followup.body  = "Overtired babies struggle to fall asleep — try winding down soon."
+        followup.title = Strings.Notifications.Sleep.followupTitle(baby.name)
+        followup.body  = Strings.Notifications.Sleep.followupBody
         followup.sound = .default
 
         await schedule(
@@ -169,16 +173,16 @@ final class NotificationService: NSObject {
         guard minutesUntilDue > 0 else { return }
 
         let primary = UNMutableNotificationContent()
-        primary.title = "Time to check \(baby.name)'s diaper"
-        primary.body  = "It's been \(lastDiaperMinutesAgo) min since the last diaper change."
+        primary.title = Strings.Notifications.Diaper.primaryTitle(baby.name)
+        primary.body  = Strings.Notifications.Diaper.primaryBody(lastDiaperMinutesAgo)
         primary.sound = .default
 
         await schedule(id: ID.diaper, content: primary, inMinutes: minutesUntilDue)
 
         // Follow-up reminder if the primary is ignored.
         let followup = UNMutableNotificationContent()
-        followup.title = "\(baby.name)'s diaper still needs checking"
-        followup.body  = "Don't forget to check and log a diaper change."
+        followup.title = Strings.Notifications.Diaper.followupTitle(baby.name)
+        followup.body  = Strings.Notifications.Diaper.followupBody
         followup.sound = .default
 
         await schedule(

@@ -79,6 +79,8 @@ enum Strings {
         enum Timer {
             static let feedInProgress   = "Feeding in progress"
             static let sleepInProgress  = "Sleep in progress"
+            static let diaperInProgress = "Diaper is being changed"
+            static let moodLogged       = "Mood logged"
         }
 
         enum Prediction {
@@ -89,6 +91,7 @@ enum Strings {
     // MARK: - Log
     enum Log {
         static let navigationTitle  = "Log"
+        static let pickerLabel      = "Log type"
         static let tabFeed          = "Feed"
         static let tabSleep         = "Sleep"
         static let tabDiaper        = "Diaper"
@@ -167,6 +170,8 @@ enum Strings {
 
         enum BabyProfile {
             static let sectionTitle     = "Baby Profile"
+            static let nameLabel        = "Name"
+            static let birthdayLabel    = "Birthday"
         }
 
         enum Subscription {
@@ -179,8 +184,9 @@ enum Strings {
         }
 
         enum Caregivers {
-            static let sectionTitle     = "Caregivers"
-            static let addCaregiver     = "Add Caregiver"
+            static let sectionTitle         = "Caregivers"
+            static let addCaregiver         = "Add Caregiver"
+            static let pendingFeatureTitle  = "Coming Soon!"
         }
 
         enum Legal {
@@ -239,6 +245,52 @@ enum Strings {
         static let sleeping = "Sleeping"
     }
 
+    // MARK: - Notifications
+    /// User-facing copy for local UNNotification reminders.
+    /// All "primary" copy fires when a feed/sleep/diaper window is reached;
+    /// "followup" copy fires `NotificationService.followupDelayMinutes` later if ignored.
+    enum Notifications {
+
+        enum Feed {
+            static func primaryTitle(_ babyName: String) -> String {
+                "Time to feed \(babyName)"
+            }
+            static func primaryBody(_ minutesAgo: Int) -> String {
+                "It's been \(minutesAgo) min since the last feeding."
+            }
+            static func followupTitle(_ babyName: String) -> String {
+                "\(babyName) still needs to be fed"
+            }
+            static let followupBody = "It's been a while since the last feeding — don't forget to log it."
+        }
+
+        enum Sleep {
+            static func primaryTitle(_ babyName: String) -> String {
+                "\(babyName) may be getting tired"
+            }
+            static func primaryBody(_ babyName: String, awakeMinutes: Int, maxMinutes: Int) -> String {
+                "\(babyName) has been awake for \(awakeMinutes) min — approaching the \(maxMinutes) min limit."
+            }
+            static func followupTitle(_ babyName: String) -> String {
+                "\(babyName) is past their awake window"
+            }
+            static let followupBody = "Overtired babies struggle to fall asleep — try winding down soon."
+        }
+
+        enum Diaper {
+            static func primaryTitle(_ babyName: String) -> String {
+                "Time to check \(babyName)'s diaper"
+            }
+            static func primaryBody(_ minutesAgo: Int) -> String {
+                "It's been \(minutesAgo) min since the last diaper change."
+            }
+            static func followupTitle(_ babyName: String) -> String {
+                "\(babyName)'s diaper still needs checking"
+            }
+            static let followupBody = "Don't forget to check and log a diaper change."
+        }
+    }
+
     // MARK: - Errors
     enum Errors {
         enum App {
@@ -259,7 +311,9 @@ enum Strings {
         }
 
         enum Auth {
-            static let invalidCredential = "Sign in failed. Please try again."
+            static let invalidCredential   = "Sign in failed. Please try again."
+            static let notSignedIn         = "You must be signed in to perform this action."
+            static let requiresRecentLogin = "For your security, please sign in again before deleting your account."
         }
 
         enum Subscription {

@@ -36,7 +36,7 @@ private struct QuickLogContentView: View {
         ZStack {
             VStack(spacing: 0) {
                 // 4-tab segmented control
-                Picker("Log type", selection: $selectedTab) {
+                Picker(Strings.Log.pickerLabel, selection: $selectedTab) {
                     Text(Strings.Log.tabFeed).tag(LogType.feed)
                     Text(Strings.Log.tabSleep).tag(LogType.sleep)
                     Text(Strings.Log.tabDiaper).tag(LogType.diaper)

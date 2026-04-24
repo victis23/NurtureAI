@@ -236,9 +236,9 @@ private struct ActiveTimerWidget: View {
 		case .sleep:
 			return (Strings.Home.Timer.sleepInProgress, "moon.fill")
 		case .diaper:
-			return ("Diaper in being changed", "bubbles.and.sparkles")
+			return (Strings.Home.Timer.diaperInProgress, "bubbles.and.sparkles")
 		case .mood:
-			return ("Mood has changed","")
+			return (Strings.Home.Timer.moodLogged, "face.smiling")
 		}
 	}
 }
