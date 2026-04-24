@@ -44,19 +44,28 @@ final class OnboardingViewModel {
         currentStep = steps[idx - 1]
     }
 
-    func complete(context: ModelContext, appState: AppState) async {
+    func complete(context: ModelContext, appState: AppState, syncService: FirestoreSyncService) async {
         isSaving = true
         error = nil
+
+        guard let uid = appState.firebaseUID, !uid.isEmpty else {
+            error = Strings.Errors.Onboarding.saveFailed
+            isSaving = false
+            return
+        }
+
         let baby = Baby(
             name: draft.name.trimmingCharacters(in: .whitespaces),
             birthDate: draft.birthDate,
             feedingMethod: draft.feedingMethod,
             birthWeightGrams: 0,
-            currentWeightGrams: 0
+            currentWeightGrams: 0,
+            caregiverFirebaseUIDs: [uid]
         )
         context.insert(baby)
         do {
             try context.save()
+            try await syncService.syncBaby(baby)
             appState.currentBaby = baby
             appState.hasCompletedOnboarding = true
         } catch {

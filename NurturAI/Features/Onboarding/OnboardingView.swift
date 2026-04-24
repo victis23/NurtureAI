@@ -4,6 +4,7 @@ import SwiftData
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.appContainer) private var container
     @State private var viewModel = OnboardingViewModel()
 
     var body: some View {
@@ -37,7 +38,8 @@ struct OnboardingView: View {
                 VStack(spacing: 12) {
                     Button(viewModel.currentStep == .feedingMethod ? Strings.Onboarding.getStarted : Strings.Onboarding.continueButton) {
                         if viewModel.currentStep == .feedingMethod {
-                            Task { await viewModel.complete(context: modelContext, appState: appState) }
+                            guard let syncService = container?.syncService else { return }
+                            Task { await viewModel.complete(context: modelContext, appState: appState, syncService: syncService) }
                         } else {
                             viewModel.advance()
                         }

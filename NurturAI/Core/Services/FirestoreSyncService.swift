@@ -11,6 +11,23 @@ actor FirestoreSyncService {
         self.logRepository = logRepository
     }
 
+    // Creates or updates the baby document in Firestore.
+    // Must be called after the baby is saved locally so caregiverFirebaseUIDs is populated.
+    func syncBaby(_ baby: Baby) async throws {
+        let data: [String: Any] = [
+            "id":                    baby.id.uuidString,
+            "name":                  baby.name,
+            "birthDate":             Timestamp(date: baby.birthDate),
+            "feedingMethod":         baby.feedingMethod.rawValue,
+            "caregiverFirebaseUIDs": baby.caregiverFirebaseUIDs,
+            "createdAt":             Timestamp(date: baby.createdAt)
+        ]
+        try await db
+            .collection("babies")
+            .document(baby.id.uuidString)
+            .setData(data, merge: true)
+    }
+
     // Call on app foreground, WiFi reconnect, and every 15 min background refresh
     func syncPendingLogs(babyID: UUID, babyLogs: [BabyLog]) async throws {
         guard !babyLogs.isEmpty else { return }
