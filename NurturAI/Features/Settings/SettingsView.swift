@@ -5,11 +5,20 @@ struct SettingsView: View {
     @Environment(\.appContainer) private var container
     @State private var viewModel: SettingsViewModel?
     @State private var showPaywall: Bool = false
+	@State private var showPendingFeature: Bool = false
 
     var body: some View {
             Group {
                 if let vm = viewModel {
-                    SettingsContentView(viewModel: vm, showPaywall: $showPaywall)
+					ZStack {
+						SettingsContentView(viewModel: vm, showPaywall: $showPaywall, showIsPendingFeature: $showPendingFeature)
+						
+						if showPendingFeature {
+							PendingFeatureView()
+								.transition(.scale.combined(with: .opacity))
+						}
+					}
+					.animation(.easeInOut, value: showPendingFeature)
                 } else {
                     ProgressView()
                 }
@@ -28,6 +37,7 @@ struct SettingsView: View {
 private struct SettingsContentView: View {
     @Bindable var viewModel: SettingsViewModel
     @Binding var showPaywall: Bool
+	@Binding var showIsPendingFeature: Bool
     @Environment(AppState.self) private var appState
 
     var body: some View {
@@ -100,6 +110,10 @@ private struct SettingsContentView: View {
             Section(Strings.Settings.Caregivers.sectionTitle) {
                 Button {
                     // Phase 2: Caregiver invite flow
+					showIsPendingFeature = true
+					Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { _ in
+						showIsPendingFeature = false
+					})
                 } label: {
                     Label(Strings.Settings.Caregivers.addCaregiver, systemImage: "person.badge.plus")
                         .foregroundStyle(NurturColors.textPrimary)
@@ -134,4 +148,17 @@ private struct SettingsContentView: View {
         .background(NurturColors.background)
         .errorAlert(error: $viewModel.error)
     }
+}
+
+private struct PendingFeatureView: View {
+	var body: some View {
+		VStack(spacing: 15) {
+			Image(systemName: "star")
+			Text("Coming Soon!")
+		}
+		.frame(width: 300, height: 300, alignment: .center)
+		.background(.white)
+		.opacity(0.6)
+		.shadow(radius: 0.2)
+	}
 }
