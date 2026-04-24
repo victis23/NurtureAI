@@ -11,6 +11,17 @@ struct BabyPatterns {
     let lastSleepMinutesAgo: Int?
     let lastDiaperMinutesAgo: Int?
     let sleepTrend: SleepTrend
+
+    // Raw timestamps powering live "Xm ago" displays on the Home dashboard.
+    // The *MinutesAgo Ints above are intentionally retained — Notifications
+    // and the AI context builder use them as a stable snapshot at scheduling
+    // / context-build time. These Dates are used by views that tick (via
+    // SwiftUI's TimelineView) to recompute "Xm ago" without a full reload.
+    let lastFeedAt:   Date?
+    let lastDiaperAt: Date?
+    /// End of the most recent *completed* sleep — i.e. the last "wake" event.
+    /// Nil until the baby has had at least one logged sleep.
+    let lastWakeAt:   Date?
 }
 
 struct PatternService {
@@ -49,10 +60,13 @@ struct PatternService {
         // Feedings today
         let feedingsToday = todayFeeds.count
 
-        // Minutes ago for last of each type
-        let lastFeedMinutesAgo: Int? = feedLogs.sorted { $0.timestamp > $1.timestamp }.first.map {
-            Int(now.timeIntervalSince($0.timestamp)) / 60
-        }
+        // Most-recent timestamp for each type (used for both the snapshot
+        // *MinutesAgo Ints and the live Date? fields below).
+        let lastFeedAt   = feedLogs.sorted   { $0.timestamp > $1.timestamp }.first?.timestamp
+        let lastDiaperAt = diaperLogs.sorted { $0.timestamp > $1.timestamp }.first?.timestamp
+
+        let lastFeedMinutesAgo:   Int? = lastFeedAt.map   { Int(now.timeIntervalSince($0)) / 60 }
+        let lastDiaperMinutesAgo: Int? = lastDiaperAt.map { Int(now.timeIntervalSince($0)) / 60 }
 
         // Current awake window: time since last sleep ended
         let lastSleepEnd = sleepLogs
@@ -70,10 +84,6 @@ struct PatternService {
             lastSleepMinutesAgo = nil
         }
 
-        let lastDiaperMinutesAgo: Int? = diaperLogs.sorted { $0.timestamp > $1.timestamp }.first.map {
-            Int(now.timeIntervalSince($0.timestamp)) / 60
-        }
-
         // Sleep trend (compare past 3 days vs prior 3 days avg longest stretch)
         let trend = sleepTrend(sleepLogs: logs.filter { $0.type == .sleep }, now: now)
 
@@ -87,7 +97,10 @@ struct PatternService {
             lastFeedMinutesAgo: lastFeedMinutesAgo,
             lastSleepMinutesAgo: lastSleepMinutesAgo,
             lastDiaperMinutesAgo: lastDiaperMinutesAgo,
-            sleepTrend: trend
+            sleepTrend: trend,
+            lastFeedAt:   lastFeedAt,
+            lastDiaperAt: lastDiaperAt,
+            lastWakeAt:   lastSleepEnd
         )
     }
 

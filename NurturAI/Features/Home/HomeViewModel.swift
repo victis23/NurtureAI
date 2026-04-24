@@ -128,6 +128,51 @@ final class HomeViewModel {
 		case .diaper, .mood:
 			return nil
 		}
-		
+
+	}
+
+	// MARK: - Live (tickable) status displays
+	//
+	// These mirror getValueCardStatusfor but compute "Xm ago" / awake window
+	// from the supplied `now`. SwiftUI's TimelineView in HomeView calls these
+	// every 60 s with `context.date`, so the labels stay fresh without forcing
+	// a full pattern reload. The original method above is preserved to keep
+	// the existing public surface intact.
+
+	private func minutesAgo(_ date: Date, now: Date) -> Int {
+		max(0, Int(now.timeIntervalSince(date) / 60))
+	}
+
+	func lastFedDisplay(at now: Date) -> String? {
+		if timerService.activeSessions[.feed] != nil {
+			return Strings.Home.Status.currentlyFeeding
+		}
+		guard let lastFedAt = patterns?.lastFeedAt else { return nil }
+		return "\(minutesAgo(lastFedAt, now: now))m ago"
+	}
+
+	func awakeDisplay(at now: Date) -> String? {
+		if timerService.activeSessions[.sleep] != nil {
+			return Strings.Home.Status.currentlySleeping
+		}
+		guard let lastWakeAt = patterns?.lastWakeAt else { return "0m" }
+		return "\(minutesAgo(lastWakeAt, now: now))m"
+	}
+
+	func sleepTodayDisplay(at now: Date) -> String? {
+		guard let patterns else { return nil }
+		// While a sleep session is in progress, fold its live elapsed time
+		// into today's total so the card visibly grows minute-by-minute.
+		var totalMinutes = patterns.totalSleepTodayMinutes
+		if let active = timerService.activeSessions[.sleep] {
+			let liveSecs = max(0, now.timeIntervalSince(active.startTime))
+			totalMinutes += Int(liveSecs / 60)
+		}
+		return "\(totalMinutes / 60)h \(totalMinutes % 60)m"
+	}
+
+	func lastDiaperDisplay(at now: Date) -> String? {
+		guard let lastDiaperAt = patterns?.lastDiaperAt else { return nil }
+		return "\(minutesAgo(lastDiaperAt, now: now))m ago"
 	}
 }

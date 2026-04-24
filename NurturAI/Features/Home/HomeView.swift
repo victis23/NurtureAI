@@ -85,41 +85,46 @@ private struct HomeContentView: View {
                     .padding(.horizontal)
                 }
 
-                // Status cards
+                // Status cards — wrapped in a TimelineView so "Xm ago" labels
+                // tick every 60 s without a full pattern reload. SwiftUI
+                // automatically suspends the timeline when the view is off
+                // screen, so this is battery-friendly.
                 if let patterns = viewModel.patterns {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        NurturStatusCard(
-                            title: Strings.Home.Status.lastFed,
-							value: viewModel.getValueCardStatusfor(state: .feed) ?? Strings.Home.notLogged,
-                            subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
-                            icon: "drop.fill",
-                            iconColor: NurturColors.info
-                        )
+                    TimelineView(.periodic(from: .now, by: 60)) { context in
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            NurturStatusCard(
+                                title: Strings.Home.Status.lastFed,
+                                value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
+                                subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
+                                icon: "drop.fill",
+                                iconColor: NurturColors.info
+                            )
 
-                        NurturStatusCard(
-                            title: Strings.Home.Status.awake,
-							value: viewModel.getValueCardStatusfor(state: .sleep, isAwakeCard: true) ?? "",
-                            subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
-                            icon: "sun.max.fill",
-                            iconColor: NurturColors.warning
-                        )
+                            NurturStatusCard(
+                                title: Strings.Home.Status.awake,
+                                value: viewModel.awakeDisplay(at: context.date) ?? "",
+                                subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
+                                icon: "sun.max.fill",
+                                iconColor: NurturColors.warning
+                            )
 
-                        NurturStatusCard(
-                            title: Strings.Home.Status.sleepToday,
-							value: viewModel.getValueCardStatusfor(state: .sleep) ?? "",
-                            icon: "moon.fill",
-                            iconColor: NurturColors.accent
-                        )
+                            NurturStatusCard(
+                                title: Strings.Home.Status.sleepToday,
+                                value: viewModel.sleepTodayDisplay(at: context.date) ?? "",
+                                icon: "moon.fill",
+                                iconColor: NurturColors.accent
+                            )
 
-                        NurturStatusCard(
-                            title: Strings.Home.Status.lastDiaper,
-                            value: patterns.lastDiaperMinutesAgo.map { "\($0)m ago" } ?? Strings.Home.notLogged,
-                            icon: "bubbles.and.sparkles",
-                            iconColor: NurturColors.success
-                        )
+                            NurturStatusCard(
+                                title: Strings.Home.Status.lastDiaper,
+                                value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
+                                icon: "bubbles.and.sparkles",
+                                iconColor: NurturColors.success
+                            )
+                        }
                     }
                     .padding(.horizontal)
-					.transition(.opacity)
+                    .transition(.opacity)
                 }
 
                 // Quick-action row
