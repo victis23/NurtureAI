@@ -12,11 +12,11 @@
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIImageName</key>
-		<string>LogoLaunch</string>
+		<string>launchLogoScreen</string>
 		<key>UIColorName</key>
 		<string>AccentOrange</string>
 		<key>UIImageRespectsSafeAreaInsets</key>
-		<true/>
+		<false/>
 	</dict>
 </dict>
 </plist>
