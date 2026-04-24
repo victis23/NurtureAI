@@ -218,6 +218,10 @@ enum Strings {
         static let bestValue            = "BEST VALUE"
         static let restorePurchases     = "Restore Purchases"
         static let footer               = "Prices shown in USD. Cancel anytime."
+        static let loadingProducts      = "Loading subscription options…"
+        static let tryAgain             = "Try again"
+        static let restored             = "Subscription restored."
+        static let noPurchasesFound     = "No previous purchases found."
     }
 
     // MARK: - Products
@@ -321,6 +325,7 @@ enum Strings {
             static let verificationFailed   = "Purchase could not be verified."
             static let pending              = "Your purchase is pending approval."
             static let unknown              = "An unknown error occurred."
+            static let loadFailed           = "Couldn't load subscription options. Check your connection and try again."
         }
 
         enum Onboarding {

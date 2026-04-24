@@ -13,7 +13,10 @@ struct AppContainer {
     let safetyFilter: SafetyFilter
     let syncService: FirestoreSyncService
     let timerService: ActiveTimerService
-    let subscriptionService: SubscriptionServiceProtocol
+    // Stored as the concrete `@Observable` type (mirroring `timerService` above)
+    // so SwiftUI views can observe loading / error / status changes directly.
+    // Code that only needs the protocol can still upcast at the use-site.
+    let subscriptionService: StoreKitSubscriptionService
     let authService: AuthServiceProtocol
     let notificationService: NotificationService
 
