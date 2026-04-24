@@ -21,6 +21,11 @@ final class AssistViewModel {
 
     private let freeQueryLimit = 3
 
+    /// Keychain-backed counter store. Survives app uninstall, closing the
+    /// "delete and reinstall to reset the limit" abuse vector. See
+    /// `DailyQuotaStore` for accessibility / threading notes.
+    private let quotaStore = DailyQuotaStore()
+
     var hasReachedFreeLimit: Bool {
         !appState.isSubscribed && dailyQueryCount >= freeQueryLimit
     }
@@ -104,13 +109,29 @@ final class AssistViewModel {
 
     private func incrementDailyCount() {
         let key = dailyKey()
-        let current = UserDefaults.standard.integer(forKey: key)
-        UserDefaults.standard.set(current + 1, forKey: key)
-        dailyQueryCount = current + 1
+        let current = quotaStore.count(forKey: key)
+        let next = current + 1
+        quotaStore.setCount(next, forKey: key)
+        dailyQueryCount = next
     }
 
     private func loadDailyCount() -> Int {
-        UserDefaults.standard.integer(forKey: dailyKey())
+        let key = dailyKey()
+
+        // One-time migration: if Keychain has nothing for today's key but
+        // UserDefaults still does (existing user mid-day, app updated to
+        // the Keychain-backed implementation), copy the value across and
+        // clear the UserDefaults entry so we don't double-count later.
+        let keychainCount = quotaStore.count(forKey: key)
+        if keychainCount == 0 {
+            let legacyCount = UserDefaults.standard.integer(forKey: key)
+            if legacyCount > 0 {
+                quotaStore.setCount(legacyCount, forKey: key)
+                UserDefaults.standard.removeObject(forKey: key)
+                return legacyCount
+            }
+        }
+        return keychainCount
     }
 
     private func dailyKey() -> String {
