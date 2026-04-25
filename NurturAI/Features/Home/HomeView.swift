@@ -97,7 +97,8 @@ private struct HomeContentView: View {
                                 value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
                                 subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
                                 icon: "drop.fill",
-                                iconColor: NurturColors.info
+                                iconColor: NurturColors.info,
+                                isUrgent: viewModel.isFeedUrgent(at: context.date)
                             )
 
                             NurturStatusCard(
@@ -105,7 +106,8 @@ private struct HomeContentView: View {
                                 value: viewModel.awakeDisplay(at: context.date) ?? "",
                                 subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
                                 icon: "sun.max.fill",
-                                iconColor: NurturColors.warning
+                                iconColor: NurturColors.warning,
+                                isUrgent: viewModel.isAwakeUrgent(at: context.date)
                             )
 
                             NurturStatusCard(
@@ -119,7 +121,8 @@ private struct HomeContentView: View {
                                 title: Strings.Home.Status.lastDiaper,
                                 value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
                                 icon: "bubbles.and.sparkles",
-                                iconColor: NurturColors.success
+                                iconColor: NurturColors.success,
+                                isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
                             )
                         }
                     }
@@ -170,7 +173,7 @@ private struct HomeContentView: View {
         .background(NurturColors.background)
         .refreshable { await viewModel.refresh(baby: baby) }
         .onChange(of: viewModel.logVersion) { _, _ in
-            Task { await viewModel.load(baby: baby) }
+            Task { await viewModel.handleLogSaved(baby: baby) }
         }
         .errorAlert(error: $viewModel.error)
         .sheet(isPresented: $showAssist, onDismiss: { assistQuery = nil }) {

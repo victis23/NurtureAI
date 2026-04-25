@@ -266,6 +266,14 @@ enum Strings {
                 "\(babyName) still needs to be fed"
             }
             static let followupBody = "It's been a while since the last feeding — don't forget to log it."
+            static func escalation1Title(_ babyName: String) -> String {
+                "\(babyName) is overdue for a feed"
+            }
+            static let escalation1Body = "Well past the usual feeding window — please check in."
+            static func escalation2Title(_ babyName: String) -> String {
+                "Please check on \(babyName)"
+            }
+            static let escalation2Body = "It's been a long stretch — log a feed when you can."
         }
 
         enum Sleep {
@@ -279,6 +287,14 @@ enum Strings {
                 "\(babyName) is past their awake window"
             }
             static let followupBody = "Overtired babies struggle to fall asleep — try winding down soon."
+            static func escalation1Title(_ babyName: String) -> String {
+                "\(babyName) is overtired"
+            }
+            static let escalation1Body = "Past the awake-window limit — try winding down now."
+            static func escalation2Title(_ babyName: String) -> String {
+                "\(babyName) really needs to sleep"
+            }
+            static let escalation2Body = "Long past the awake limit — overtired babies fight sleep harder."
         }
 
         enum Diaper {
@@ -292,6 +308,14 @@ enum Strings {
                 "\(babyName)'s diaper still needs checking"
             }
             static let followupBody = "Don't forget to check and log a diaper change."
+            static func escalation1Title(_ babyName: String) -> String {
+                "\(babyName)'s diaper is overdue"
+            }
+            static let escalation1Body = "Well past the usual change window — please check in."
+            static func escalation2Title(_ babyName: String) -> String {
+                "Please check \(babyName)'s diaper"
+            }
+            static let escalation2Body = "It's been a long stretch — a check is overdue."
         }
     }
 

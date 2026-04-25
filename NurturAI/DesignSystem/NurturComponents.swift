@@ -8,14 +8,27 @@ struct NurturStatusCard: View {
     let subtitle: String?
     let icon: String
     let iconColor: Color
+    /// When true, the card pulses gently and gains a faint red glow. Used on
+    /// Home to draw the parent's eye to severely overdue feed/sleep/diaper.
+    let isUrgent: Bool
 
-    init(title: String, value: String, subtitle: String? = nil, icon: String, iconColor: Color = NurturColors.accent) {
+    init(
+        title: String,
+        value: String,
+        subtitle: String? = nil,
+        icon: String,
+        iconColor: Color = NurturColors.accent,
+        isUrgent: Bool = false
+    ) {
         self.title = title
         self.value = value
         self.subtitle = subtitle
         self.icon = icon
         self.iconColor = iconColor
+        self.isUrgent = isUrgent
     }
+
+    @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -38,6 +51,22 @@ struct NurturStatusCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .nurturCardPadded()
+        .scaleEffect(pulseScale)
+        .shadow(color: isUrgent ? Color.red.opacity(0.35) : .clear, radius: 8)
+        .onAppear { applyPulseState(isUrgent) }
+        .onChange(of: isUrgent) { _, newValue in applyPulseState(newValue) }
+    }
+
+    private func applyPulseState(_ urgent: Bool) {
+        if urgent {
+            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
+                pulseScale = 1.02
+            }
+        } else {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                pulseScale = 1.0
+            }
+        }
     }
 }
 

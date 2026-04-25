@@ -55,14 +55,10 @@ final class HomeViewModel {
             let logs = try logRepository.fetchLogs(for: baby, since: since)
             let computed = patternService.analyze(logs: logs, baby: baby)
             patterns = computed
-            // Request permission once (no-op if already granted/denied),
-            // then reschedule notifications based on the latest patterns.
+            // Permission ask is idempotent. Scheduling is intentionally NOT
+            // done here — see `handleLogSaved` — to avoid resetting pending
+            // notification timers every time the Home view opens or refreshes.
             await notificationService.requestPermission()
-            await notificationService.scheduleNotifications(
-                for: baby,
-                patterns: computed,
-                activeSessions: timerService.activeSessions
-            )
         } catch {
             self.error = .data(error)
         }
@@ -72,6 +68,26 @@ final class HomeViewModel {
 
     func refresh(baby: Baby) async {
         await load(baby: baby)
+    }
+
+    /// Called after a log is saved (locally or via remote sync). Recomputes
+    /// patterns and reschedules notifications so the new log moves the next
+    /// reminder forward. Kept separate from `load` so app-open / pull-to-refresh
+    /// don't reset relative-time triggers.
+    func handleLogSaved(baby: Baby) async {
+        do {
+            let since = Date().addingTimeInterval(-86400)
+            let logs = try logRepository.fetchLogs(for: baby, since: since)
+            let computed = patternService.analyze(logs: logs, baby: baby)
+            patterns = computed
+            await notificationService.scheduleNotifications(
+                for: baby,
+                patterns: computed,
+                activeSessions: timerService.activeSessions
+            )
+        } catch {
+            self.error = .data(error)
+        }
     }
 
     // MARK: - Timer actions (delegate to service)
@@ -174,5 +190,38 @@ final class HomeViewModel {
 	func lastDiaperDisplay(at now: Date) -> String? {
 		guard let lastDiaperAt = patterns?.lastDiaperAt else { return nil }
 		return "\(minutesAgo(lastDiaperAt, now: now))m ago"
+	}
+
+	// MARK: - Urgency
+	//
+	// True when the relevant window is severely overdue. Drives the red-glow
+	// pulse on Home status cards. Thresholds match `NotificationService` so
+	// the visual cue and the escalation pings stay in sync.
+
+	func isFeedUrgent(at now: Date) -> Bool {
+		guard let patterns else { return false }
+		guard timerService.activeSessions[.feed] == nil else { return false }
+		guard let lastFedAt = patterns.lastFeedAt else { return false }
+		let minutesSinceFeed = minutesAgo(lastFedAt, now: now)
+		let minutesUntilDue  = patterns.avgFeedIntervalMinutes - minutesSinceFeed
+		return minutesUntilDue <= -NotificationService.feedSeverelyOverdueMinutes
+	}
+
+	func isAwakeUrgent(at now: Date) -> Bool {
+		guard let patterns else { return false }
+		guard timerService.activeSessions[.sleep] == nil else { return false }
+		guard let lastWakeAt = patterns.lastWakeAt else { return false }
+		let awakeMinutes    = minutesAgo(lastWakeAt, now: now)
+		let minutesUntilDue = patterns.ageAppropriateMaxAwakeMinutes - awakeMinutes
+		return minutesUntilDue <= -NotificationService.sleepSeverelyOverdueMinutes
+	}
+
+	func isDiaperUrgent(baby: Baby, at now: Date) -> Bool {
+		guard let patterns else { return false }
+		guard let lastDiaperAt = patterns.lastDiaperAt else { return false }
+		let intervalMinutes = NotificationService.diaperIntervalMinutes(forAgeInWeeks: baby.ageInWeeks)
+		let minutesSince    = minutesAgo(lastDiaperAt, now: now)
+		let minutesUntilDue = intervalMinutes - minutesSince
+		return minutesUntilDue <= -NotificationService.diaperSeverelyOverdueMinutes
 	}
 }
