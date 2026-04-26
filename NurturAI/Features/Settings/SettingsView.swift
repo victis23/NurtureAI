@@ -25,8 +25,8 @@ struct SettingsView: View {
 							.opacity(showPendingFeature ? 1 : 0)
 							.scaleEffect(showPendingFeature ? 1 : 0.8)
 							.allowsHitTesting(showPendingFeature)
+							.animation(.easeInOut(duration: 0.3), value: showPendingFeature)
 					}
-					.animation(.easeInOut(duration: 0.3), value: showPendingFeature)
 					.alert(Strings.Settings.Account.deleteAlertTitle, isPresented: $showDeleteConfirmation) {
 						Button(Strings.Common.cancel, role: .cancel) { }
 						Button(Strings.Settings.Account.deleteConfirm, role: .destructive) {
@@ -152,10 +152,19 @@ private struct SettingsContentView: View {
 
             // Links
             Section(Strings.Settings.Legal.sectionTitle) {
-                Link(Strings.Settings.Legal.privacyPolicy, destination: URL(string: "https://nurtur.ai/privacy")!)
-                    .foregroundStyle(NurturColors.textPrimary)
-                Link(Strings.Settings.Legal.termsOfService, destination: URL(string: "https://nurtur.ai/terms")!)
-                    .foregroundStyle(NurturColors.textPrimary)
+				NavigationLink(Strings.Settings.Legal.privacyPolicy) {
+					PrivacyPolicy()
+				}
+				
+				NavigationLink(Strings.Settings.Legal.termsOfService) {
+					TermsAndConditions(
+						showTermsAndConditions: Binding(get: {
+							false
+						}, set: { _ in
+						}),
+						hideDoneButton: true
+					)
+				}
             }
 
             // Sign out

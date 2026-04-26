@@ -7,6 +7,7 @@ struct LoginView: View {
 
     @State private var isLoading = false
     @State private var errorMessage: String?
+	@Binding var showTermsAndConditions: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,37 +33,42 @@ struct LoginView: View {
 
             Spacer()
 
-            VStack(spacing: 16) {
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(NurturTypography.caption)
-                        .foregroundStyle(NurturColors.danger)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-                }
-
-                if isLoading {
-                    ProgressView()
-                        .frame(height: 50)
-                } else {
-                    SignInWithAppleButton(.signIn) { request in
-                        guard let authService = container?.authService else { return }
-                        request.requestedScopes = [.fullName, .email]
-                        request.nonce = authService.prepareSignIn()
-                    } onCompletion: { result in
-                        Task { await handleResult(result) }
-                    }
-                    .signInWithAppleButtonStyle(.black)
-                    .frame(height: 50)
-                    .padding(.horizontal, 32)
-                }
-
-                Text(Strings.Auth.legalDisclaimer)
-                    .font(NurturTypography.caption2)
-                    .foregroundStyle(NurturColors.textFaint)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
+			VStack(spacing: 16) {
+				if let errorMessage {
+					Text(errorMessage)
+						.font(NurturTypography.caption)
+						.foregroundStyle(NurturColors.danger)
+						.multilineTextAlignment(.center)
+						.padding(.horizontal, 32)
+				}
+				
+				if isLoading {
+					ProgressView()
+						.frame(height: 50)
+				} else {
+					SignInWithAppleButton(.signIn) { request in
+						guard let authService = container?.authService else { return }
+						request.requestedScopes = [.fullName, .email]
+						request.nonce = authService.prepareSignIn()
+					} onCompletion: { result in
+						Task { await handleResult(result) }
+					}
+					.signInWithAppleButtonStyle(.black)
+					.frame(height: 50)
+					.padding(.horizontal, 32)
+				}
+				
+				Button {
+					showTermsAndConditions = true
+				} label: {
+					Text(Strings.Auth.legalDisclaimer)
+						.font(NurturTypography.caption2)
+						.foregroundStyle(NurturColors.textFaint)
+						.multilineTextAlignment(.center)
+						.padding(.horizontal, 32)
+					
+				}
+			}
             .padding(.bottom, 52)
         }
         .background(NurturColors.background)

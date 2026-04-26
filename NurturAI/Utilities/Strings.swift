@@ -24,6 +24,11 @@ enum Strings {
         static let unknownError     = "An unknown error occurred."
         static let noBabyProfile    = "No baby profile"
         static let stop             = "Stop"
+		static let done				= "Done"
+		static let termsTitle		= "Terms of Use"
+		static let privacyTitle		= "Privacy Policy"
+		static let viewPrivacyPolicy = "View Privacy Policy"
+		static let contactHeading	= "Contact"
     }
 
     // MARK: - Auth
