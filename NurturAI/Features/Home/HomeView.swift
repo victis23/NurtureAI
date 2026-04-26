@@ -168,7 +168,7 @@ private struct HomeContentView: View {
                 .padding(.bottom, 20)
             }
             .padding(.top, 8)
-			.animation(.bouncy(duration: 0.4), value: viewModel.patterns == nil)
+			.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
         }
         .background(NurturColors.background)
         .refreshable { await viewModel.refresh(baby: baby) }

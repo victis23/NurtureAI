@@ -24,19 +24,24 @@ struct AppRootView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var container: AppContainer?
     @State private var isRestoringAccount = false
+	@State private var showTermsAndConditions = false
 
     var body: some View {
         Group {
             if let container {
                 Group {
                     if !appState.isAuthenticated {
-                        LoginView()
+						if showTermsAndConditions {
+							TermsAndConditions(showTermsAndConditions: $showTermsAndConditions)
+						} else {
+							LoginView(showTermsAndConditions: $showTermsAndConditions)
+						}
                     } else if isRestoringAccount {
                         // Silently checking Firestore for an existing baby after reinstall.
                         ProgressView()
-                    } else if !appState.hasCompletedOnboarding {
-                        OnboardingView()
-                    } else {
+					} else if !appState.hasCompletedOnboarding {
+						OnboardingView()
+					} else {
                         MainTabView()
                     }
                 }

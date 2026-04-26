@@ -139,6 +139,7 @@ private struct AssistContentView: View {
                 }
                 .padding(.vertical, 12)
             }
+			.scrollDismissesKeyboard(.interactively)
 
             // Input bar
             if !viewModel.emergencyMode {
