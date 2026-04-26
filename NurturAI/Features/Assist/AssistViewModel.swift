@@ -11,7 +11,37 @@ final class AssistViewModel {
     let appState: AppState
 
     var query: String = ""
-    var parsedResponse: AIResponse?
+
+    /// UserDefaults key for the persisted last response. Lives outside the
+    /// instance so the stored-property initializer below can reference it.
+    private static let lastResponseKey = "assist.lastResponse"
+
+    /// Stored backing for `parsedResponse` — the property `@Observable`
+    /// actually tracks. The computed `parsedResponse` below mirrors writes
+    /// to UserDefaults so the previous AI answer survives leaving the
+    /// Assist tab and even an app relaunch. Mirrors the
+    /// `_hasCompletedOnboarding` / `hasCompletedOnboarding` pattern used
+    /// in `AppState`.
+    private var _parsedResponse: AIResponse? = {
+        guard let data = UserDefaults.standard.data(forKey: AssistViewModel.lastResponseKey),
+              let response = try? JSONDecoder().decode(AIResponse.self, from: data)
+        else { return nil }
+        return response
+    }()
+
+    var parsedResponse: AIResponse? {
+        get { _parsedResponse }
+        set {
+            _parsedResponse = newValue
+            if let response = newValue,
+               let data = try? JSONEncoder().encode(response) {
+                UserDefaults.standard.set(data, forKey: Self.lastResponseKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: Self.lastResponseKey)
+            }
+        }
+    }
+
     var isStreaming: Bool = false
     var showEscalationBanner: Bool = false
     var emergencyMode: Bool = false
