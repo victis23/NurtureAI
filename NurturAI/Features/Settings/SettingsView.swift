@@ -25,7 +25,7 @@ struct SettingsView: View {
 							.opacity(showPendingFeature ? 1 : 0)
 							.scaleEffect(showPendingFeature ? 1 : 0.8)
 							.allowsHitTesting(showPendingFeature)
-							.animation(.easeInOut(duration: 0.3), value: showPendingFeature)
+							.animation(.easeInOut(duration: 0.5), value: showPendingFeature)
 					}
 					.alert(Strings.Settings.Account.deleteAlertTitle, isPresented: $showDeleteConfirmation) {
 						Button(Strings.Common.cancel, role: .cancel) { }
@@ -193,13 +193,19 @@ private struct SettingsContentView: View {
 private struct PendingFeatureView: View {
 	var body: some View {
 		VStack(spacing: 15) {
-			Image(systemName: "star")
+			Image(systemName: "star.fill")
+				.font(.system(size: 50))
+				.foregroundStyle(Color.yellow)
+				.symbolEffect(.pulse, options: .speed(3.0))
 			Text(Strings.Settings.Caregivers.pendingFeatureTitle)
+				.foregroundStyle(.accentOrange)
+				.fontWeight(.heavy)
 		}
-		.frame(width: 300, height: 300, alignment: .center)
-		.background(.white)
-		.opacity(0.6)
-		.shadow(radius: 0.2)
+		.frame(width: 150, height: 150, alignment: .center)
+		.background(Color.white.opacity(0.6), in: RoundedRectangle(cornerRadius: 15))
+		.overlay(RoundedRectangle(cornerRadius: 15, style: .continuous)
+			.strokeBorder(.accentOrange, lineWidth: 1)
+			.shadow(radius: 15))
 	}
 }
 
