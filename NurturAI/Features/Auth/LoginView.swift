@@ -75,11 +75,16 @@ struct LoginView: View {
     }
 
     private func handleResult(_ result: Result<ASAuthorization, Error>) async {
-        guard let authService = container?.authService else { return }
+		guard let authService = container?.authService, let syncService = container?.syncService else { return }
         isLoading = true
         errorMessage = nil
         do {
             try await authService.handleAppleCredential(result)
+
+			if let skipOnboarding = await skipOnBoarding(syncService: syncService, uID: authService.currentUID) {
+				appState.hasCompletedOnboarding = skipOnboarding
+			}
+			
             appState.isAuthenticated = true
             appState.firebaseUID = authService.currentUID
         } catch {
@@ -91,4 +96,18 @@ struct LoginView: View {
         }
         isLoading = false
     }
+
+	private func skipOnBoarding(syncService: FirestoreSyncService, uID: String?) async -> Bool? {
+		guard let uID else { return false }
+		var oldAccountData: FirestoreSyncService.BabyRestoreData?
+		
+		do {
+			oldAccountData = try await syncService.fetchBabyForRestore(uid: uID)
+		} catch {
+			errorMessage = error.localizedDescription
+			return nil
+		}
+
+		return oldAccountData != nil
+	}
 }
