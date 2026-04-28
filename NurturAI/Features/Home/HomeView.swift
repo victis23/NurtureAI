@@ -103,7 +103,7 @@ private struct HomeContentView: View {
 
                             NurturStatusCard(
                                 title: Strings.Home.Status.awake,
-                                value: viewModel.awakeDisplay(at: context.date) ?? "",
+								value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
                                 subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
                                 icon: "sun.max.fill",
                                 iconColor: NurturColors.warning,
@@ -112,7 +112,7 @@ private struct HomeContentView: View {
 
                             NurturStatusCard(
                                 title: Strings.Home.Status.sleepToday,
-                                value: viewModel.sleepTodayDisplay(at: context.date) ?? "",
+								value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
                                 icon: "moon.fill",
                                 iconColor: NurturColors.accent
                             )
