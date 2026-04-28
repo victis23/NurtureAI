@@ -171,7 +171,7 @@ final class HomeViewModel {
 		if timerService.activeSessions[.sleep] != nil {
 			return Strings.Home.Status.currentlySleeping
 		}
-		guard let lastWakeAt = patterns?.lastWakeAt else { return "0m" }
+		guard let lastWakeAt = patterns?.lastWakeAt else { return nil }
 		return "\(minutesAgo(lastWakeAt, now: now))m"
 	}
 
@@ -184,6 +184,7 @@ final class HomeViewModel {
 			let liveSecs = max(0, now.timeIntervalSince(active.startTime))
 			totalMinutes += Int(liveSecs / 60)
 		}
+		guard patterns.lastWakeAt != nil else { return nil }
 		return "\(totalMinutes / 60)h \(totalMinutes % 60)m"
 	}
 
