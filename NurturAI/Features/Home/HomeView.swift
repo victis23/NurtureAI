@@ -170,7 +170,10 @@ private struct HomeContentView: View {
             .padding(.top, 8)
 			.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
         }
-        .background(NurturColors.background)
+		.background(LinearGradient(
+			colors: [.background, .accentColor.opacity(0.1)],
+			startPoint: .topLeading,
+			endPoint: .bottomTrailing))
         .refreshable { await viewModel.refresh(baby: baby) }
         .onChange(of: viewModel.logVersion) { _, _ in
             Task { await viewModel.handleLogSaved(baby: baby) }
