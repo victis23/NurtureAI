@@ -92,6 +92,18 @@ private struct HomeContentView: View {
                 // screen, so this is battery-friendly.
                 if let patterns = viewModel.patterns {
                     TimelineView(.periodic(from: .now, by: 60)) { context in
+                        let nextState: CharacterAnimation = {
+                            switch viewModel.activeTimerSession?.type {
+                            case .sleep: return .sleeping
+                            case .feed:  return .feeding
+                            default:     break
+                            }
+                            let urgent = viewModel.isFeedUrgent(at: context.date)
+                                || viewModel.isAwakeUrgent(at: context.date)
+                                || viewModel.isDiaperUrgent(baby: baby, at: context.date)
+                            return urgent ? .crying : .relaxing
+                        }()
+
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             NurturStatusCard(
                                 title: Strings.Home.Status.lastFed,
@@ -104,7 +116,7 @@ private struct HomeContentView: View {
 
                             NurturStatusCard(
                                 title: Strings.Home.Status.awake,
-								value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
+                                value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
                                 subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
                                 icon: "sun.max.fill",
                                 iconColor: NurturColors.warning,
@@ -113,7 +125,7 @@ private struct HomeContentView: View {
 
                             NurturStatusCard(
                                 title: Strings.Home.Status.sleepToday,
-								value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
+                                value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
                                 icon: "moon.fill",
                                 iconColor: NurturColors.accent
                             )
@@ -125,6 +137,9 @@ private struct HomeContentView: View {
                                 iconColor: NurturColors.success,
                                 isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
                             )
+                        }
+                        .onChange(of: nextState, initial: true) { _, new in
+                            babyState = new
                         }
                     }
                     .padding(.horizontal)
@@ -169,8 +184,9 @@ private struct HomeContentView: View {
 
 				VStack(){
 					HStack(){
-						CharacterView(state: $babyState)
-						.frame(width: 200, height: 200)
+						CharacterView(state: babyState)
+						.frame(width: 250, height: 250)
+						.padding(.leading, -40)
 						Spacer()
 					}
 				}

@@ -3,7 +3,7 @@ import AVFoundation
 import Lottie
 
 struct CharacterView: View {
-    @Binding var state: CharacterAnimation
+    let state: CharacterAnimation
 
     var body: some View {
         Group {
@@ -17,6 +17,20 @@ struct CharacterView: View {
                 Color.clear
             }
         }
+        .mask(
+            GeometryReader { geo in
+                RadialGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: .black, location: 0.0),
+                        .init(color: .black, location: 0.6),
+                        .init(color: .clear, location: 1.0)
+                    ]),
+                    center: .center,
+                    startRadius: 0,
+                    endRadius: min(geo.size.width, geo.size.height) / 2
+                )
+            }
+        )
         .id(state)
     }
 
@@ -77,22 +91,4 @@ private final class PlayerView: UIView {
         queuePlayer.isMuted = true
         queuePlayer.play()
     }
-}
-
-#Preview {
-    @Previewable @State var state: CharacterAnimation = .relaxing
-
-    VStack(spacing: 24) {
-        CharacterView(state: $state)
-            .frame(width: 220, height: 220)
-
-        HStack(spacing: 12) {
-            ForEach(CharacterAnimation.allCases, id: \.self) { s in
-                Button(s.rawValue) { state = s }
-                    .buttonStyle(.bordered)
-                    .tint(state == s ? .orange : .gray)
-            }
-        }
-    }
-    .padding()
 }

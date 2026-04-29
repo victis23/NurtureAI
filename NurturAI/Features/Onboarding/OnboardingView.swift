@@ -60,11 +60,11 @@ struct OnboardingView: View {
                 .padding(.bottom, 32)
             }
 			.background(alignment: .center, content: {
-					Image("onboarding_name")
+					Image("happyBabyImage")
 						.resizable()
 						.scaledToFill()
 						.ignoresSafeArea()
-						.opacity(0.5)
+						.opacity(0.2)
 						.transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
 			})
             .navigationTitle(Strings.Onboarding.navigationTitle)
