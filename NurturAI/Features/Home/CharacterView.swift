@@ -1,129 +1,83 @@
 import SwiftUI
-import ImageIO
-import UniformTypeIdentifiers
-
-// MARK: - GIF Frame Model
-
-private struct GIFFrames {
-    let images: [UIImage]
-    let duration: Double
-}
-
-// MARK: - GIF Loader
-
-private enum GIFLoader {
-    static func load(named name: String) -> GIFFrames? {
-        guard
-            let url = Bundle.main.url(forResource: name, withExtension: "gif"),
-            let data = try? Data(contentsOf: url),
-            let source = CGImageSourceCreateWithData(data as CFData, nil)
-        else { return nil }
-
-        let count = CGImageSourceGetCount(source)
-        var images: [UIImage] = []
-        var totalDuration: Double = 0
-
-        for i in 0..<count {
-            guard let cgImage = CGImageSourceCreateImageAtIndex(source, i, nil) else { continue }
-
-            let frameProps = CGImageSourceCopyPropertiesAtIndex(source, i, nil) as? [String: Any]
-            let gifProps   = frameProps?[kCGImagePropertyGIFDictionary as String] as? [String: Any]
-            let delay      = (gifProps?[kCGImagePropertyGIFUnclampedDelayTime as String]
-                           ?? gifProps?[kCGImagePropertyGIFDelayTime as String]) as? Double ?? 0.1
-
-            images.append(UIImage(cgImage: cgImage))
-            totalDuration += delay
-        }
-
-        guard !images.isEmpty else { return nil }
-        return GIFFrames(images: images, duration: totalDuration)
-    }
-}
-
-// MARK: - Preloader (Observable)
-
-@MainActor
-@Observable
-final class GIFPreloader {
-    fileprivate var cache: [CharacterAnimation: GIFFrames] = [:]
-    private(set) var isReady: Bool = false
-
-    func preloadAll() async {
-        await withTaskGroup(of: (CharacterAnimation, GIFFrames?).self) { group in
-            for state in CharacterAnimation.allCases {
-                group.addTask {
-                    let frames = await Task.detached(priority: .userInitiated) {
-						await GIFLoader.load(named: state.rawValue)
-                    }.value
-                    return (state, frames)
-                }
-            }
-            for await (state, frames) in group {
-                if let frames { cache[state] = frames }
-            }
-        }
-        isReady = true
-    }
-
-    fileprivate func frames(for state: CharacterAnimation) -> GIFFrames? {
-        cache[state]
-    }
-}
-
-// MARK: - UIImageView GIF Renderer
-
-private struct GIFImageView: UIViewRepresentable {
-    let frames: GIFFrames
-
-    func makeUIView(context: Context) -> UIImageView {
-        let view = UIImageView()
-        view.contentMode       = .scaleAspectFit
-        view.clipsToBounds     = true
-        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        view.setContentHuggingPriority(.defaultLow, for: .vertical)
-        return view
-    }
-
-    func updateUIView(_ uiView: UIImageView, context: Context) {
-        // Stop first so the new animation always starts from frame 0
-        uiView.stopAnimating()
-        uiView.animationImages   = frames.images
-        uiView.animationDuration = frames.duration
-        uiView.animationRepeatCount = 0        // loop forever
-        uiView.image             = frames.images.first
-        uiView.startAnimating()
-    }
-}
-
-// MARK: - CharacterView
+import AVFoundation
+import Lottie
 
 struct CharacterView: View {
     @Binding var state: CharacterAnimation
 
-    @State private var preloader = GIFPreloader()
-    @State private var currentFrames: GIFFrames?
-
     var body: some View {
-        ZStack {
-            if let frames = currentFrames {
-                GIFImageView(frames: frames)
-                    .id(state)           // forces UIViewRepresentable to recreate on state change
-            } else {
-                ProgressView()
+        Group {
+            switch resolvedAsset(for: state) {
+            case .video(let name):
+                LoopingVideoView(animationName: name)
+            case .lottie(let name):
+                LottieView(animation: .named(name))
+                    .playing(loopMode: .loop)
+            case .none:
+                Color.clear
             }
         }
-        .task {
-            await preloader.preloadAll()
-            currentFrames = preloader.frames(for: state)
+        .id(state)
+    }
+
+    // Prefer HEVC video (real alpha, smaller, faster); fall back to Lottie JSON.
+    private func resolvedAsset(for state: CharacterAnimation) -> CharacterAsset {
+        let name = state.rawValue
+        if Bundle.main.url(forResource: name, withExtension: "mov") != nil {
+            return .video(name: name)
         }
-        .onChange(of: state) { _, newState in
-            // Swap immediately from cache — no loading flash
-            currentFrames = preloader.frames(for: newState)
+        if Bundle.main.url(forResource: name, withExtension: "json") != nil {
+            return .lottie(name: name)
         }
+        return .none
     }
 }
 
-// MARK: - Preview
+private enum CharacterAsset {
+    case video(name: String)
+    case lottie(name: String)
+    case none
+}
+
+private struct LoopingVideoView: UIViewRepresentable {
+    let animationName: String
+
+    func makeUIView(context: Context) -> PlayerView {
+        let view = PlayerView()
+        view.backgroundColor = .clear
+        view.isOpaque = false
+        view.load(animationName: animationName)
+        return view
+    }
+
+    func updateUIView(_ uiView: PlayerView, context: Context) { }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: PlayerView, context: Context) -> CGSize? {
+        CGSize(width: proposal.width ?? 0, height: proposal.height ?? 0)
+    }
+}
+
+private final class PlayerView: UIView {
+    override class var layerClass: AnyClass { AVPlayerLayer.self }
+    private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+    private var looper: AVPlayerLooper?
+
+    func load(animationName: String) {
+        guard let url = Bundle.main.url(forResource: animationName, withExtension: "mov") else { return }
+
+        let item = AVPlayerItem(url: url)
+        item.preferredForwardBufferDuration = 1.0
+
+        let queuePlayer = AVQueuePlayer()
+        queuePlayer.automaticallyWaitsToMinimizeStalling = false
+        looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
+
+        playerLayer.player = queuePlayer
+        playerLayer.videoGravity = .resizeAspect
+        queuePlayer.isMuted = true
+        queuePlayer.play()
+    }
+}
 
 #Preview {
     @Previewable @State var state: CharacterAnimation = .relaxing

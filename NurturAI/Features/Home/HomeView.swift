@@ -41,6 +41,7 @@ private struct HomeContentView: View {
     let baby: Baby
     @State private var showAssist: Bool = false
     @State private var assistQuery: String? = nil
+	@State private var babyState: CharacterAnimation = .relaxing
 
     var body: some View {
         ScrollView {
@@ -165,7 +166,16 @@ private struct HomeContentView: View {
                     }
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 20)
+
+				VStack(){
+					HStack(){
+						CharacterView(state: $babyState)
+						.frame(width: 200, height: 200)
+						Spacer()
+					}
+				}
+				.padding(.bottom, 20)
+				Spacer()
             }
             .padding(.top, 8)
 			.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
