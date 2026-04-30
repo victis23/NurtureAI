@@ -137,11 +137,11 @@ private struct LogHistoryRow: View {
         case .feed(let side, let ml):
             var parts = [side.rawValue.capitalized]
             if let ml { parts.append("\(ml) ml") }
-            if let dur = log.durationSeconds { parts.append("\(dur / 60) min") }
+            if let dur = log.durationSeconds { parts.append((dur / 60).hmDisplay) }
             return parts.joined(separator: " · ")
         case .sleep:
             if let dur = log.durationSeconds {
-                return "\(dur / 60) min"
+                return (dur / 60).hmDisplay
             }
             return "—"
         case .diaper(let type):

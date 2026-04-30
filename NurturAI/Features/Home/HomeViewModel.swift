@@ -133,14 +133,14 @@ final class HomeViewModel {
 
 		switch state {
 		case .feed:
-			return isActive ? Strings.Home.Status.currentlyFeeding : patterns.lastFeedMinutesAgo.map { "\($0)m ago" }
+			return isActive ? Strings.Home.Status.currentlyFeeding : patterns.lastFeedMinutesAgo.map { "\($0.hmDisplay) ago" }
 		case .sleep:
 			if isAwakeCard {
-				return isActive ? Strings.Home.Status.currentlySleeping : "\(patterns.currentAwakeWindowMinutes)m"
+				return isActive ? Strings.Home.Status.currentlySleeping : patterns.currentAwakeWindowMinutes.hmDisplay
 			}
 
 			let totalSleepTodayMins = patterns.totalSleepTodayMinutes
-			return isActive ? Strings.Home.Status.currentlySleeping : "\(totalSleepTodayMins / 60)h \(totalSleepTodayMins % 60)m"
+			return isActive ? Strings.Home.Status.currentlySleeping : totalSleepTodayMins.hmDisplay
 		case .diaper, .mood:
 			return nil
 		}
@@ -164,7 +164,7 @@ final class HomeViewModel {
 			return Strings.Home.Status.currentlyFeeding
 		}
 		guard let lastFedAt = patterns?.lastFeedAt else { return nil }
-		return "\(minutesAgo(lastFedAt, now: now))m ago"
+		return "\(minutesAgo(lastFedAt, now: now).hmDisplay) ago"
 	}
 
 	func awakeDisplay(at now: Date) -> String? {
@@ -172,7 +172,7 @@ final class HomeViewModel {
 			return Strings.Home.Status.currentlySleeping
 		}
 		guard let lastWakeAt = patterns?.lastWakeAt else { return nil }
-		return "\(minutesAgo(lastWakeAt, now: now))m"
+		return minutesAgo(lastWakeAt, now: now).hmDisplay
 	}
 
 	func sleepTodayDisplay(at now: Date) -> String? {
@@ -185,12 +185,12 @@ final class HomeViewModel {
 			totalMinutes += Int(liveSecs / 60)
 		}
 		guard patterns.lastWakeAt != nil else { return nil }
-		return "\(totalMinutes / 60)h \(totalMinutes % 60)m"
+		return totalMinutes.hmDisplay
 	}
 
 	func lastDiaperDisplay(at now: Date) -> String? {
 		guard let lastDiaperAt = patterns?.lastDiaperAt else { return nil }
-		return "\(minutesAgo(lastDiaperAt, now: now))m ago"
+		return "\(minutesAgo(lastDiaperAt, now: now).hmDisplay) ago"
 	}
 
 	// MARK: - Urgency

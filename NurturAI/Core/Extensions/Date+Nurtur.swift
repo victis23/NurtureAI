@@ -35,3 +35,15 @@ extension Date {
         Date().addingTimeInterval(-hours * 3600)
     }
 }
+
+extension Int {
+    /// Display-only formatter for a minute count: "1h 23m" when >= 60, "23m" when < 60.
+    var hmDisplay: String {
+        let currentValue = self
+		let total = Swift.max(0, currentValue)
+        let h = total / 60
+        let m = total % 60
+        return h > 0 ? "\(h)h \(m)m" : "\(m)m"
+    }
+}
+
