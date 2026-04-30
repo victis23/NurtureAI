@@ -6,16 +6,20 @@ struct CharacterView: View {
     let state: CharacterAnimation
 
     var body: some View {
-        Group {
-            switch resolvedAsset(for: state) {
-            case .video(let name):
-                LoopingVideoView(animationName: name)
-            case .lottie(let name):
-                LottieView(animation: .named(name))
-                    .playing(loopMode: .loop)
-            case .none:
-                Color.clear
+        ZStack {
+            Group {
+                switch resolvedAsset(for: state) {
+                case .video(let name):
+                    LoopingVideoView(animationName: name)
+                case .lottie(let name):
+                    LottieView(animation: .named(name))
+                        .playing(loopMode: .loop)
+                case .none:
+                    Color.clear
+                }
             }
+            .id(state)
+            .transition(.opacity)
         }
         .mask(
             GeometryReader { geo in
@@ -31,7 +35,7 @@ struct CharacterView: View {
                 )
             }
         )
-        .id(state)
+        .animation(.easeInOut(duration: 0.4), value: state)
     }
 
     // Prefer HEVC video (real alpha, smaller, faster); fall back to Lottie JSON.
