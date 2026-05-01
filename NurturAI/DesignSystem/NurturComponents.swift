@@ -126,14 +126,17 @@ struct LargeActionButton: View {
             VStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.title2)
+
                 Text(title)
                     .font(NurturTypography.caption)
                     .fontWeight(.medium)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+            .background(color.opacity(0.20), in: RoundedRectangle(cornerRadius: 14))
             .foregroundStyle(color)
+			.overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
+				.strokeBorder(.white, lineWidth: 2).opacity(0.6))
         }
     }
 }

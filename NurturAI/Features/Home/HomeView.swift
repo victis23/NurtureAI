@@ -44,170 +44,174 @@ private struct HomeContentView: View {
 	@State private var babyState: CharacterAnimation = .relaxing
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Header
-                HStack(spacing: 12) {
-                    BabyAvatar(name: baby.name, size: 56)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(baby.name)
-                            .font(NurturTypography.title3)
-                            .foregroundStyle(NurturColors.textPrimary)
-                        Text(baby.displayAge)
-                            .font(NurturTypography.subheadline)
-                            .foregroundStyle(NurturColors.textSecondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(NurturColors.accentSoft, in: Capsule())
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal)
-
-                // Active timer widget
-                if let session = viewModel.activeTimerSession {
-                    ActiveTimerWidget(session: session) {
-                        Task { await viewModel.stopActiveTimer(baby: baby) }
-                    }
-                    .padding(.horizontal)
-                }
-
-                // Prediction card
-                if let patterns = viewModel.patterns,
-                   patterns.currentAwakeWindowMinutes > 0,
-                   patterns.currentAwakeWindowMinutes >= patterns.ageAppropriateMaxAwakeMinutes - 15 {
-                    PredictionCard(
-                        title: Strings.Home.Prediction.title,
-                        message: "\(baby.name) has been awake \(patterns.currentAwakeWindowMinutes) min — approaching the \(patterns.ageAppropriateMaxAwakeMinutes) min limit."
-                    ) {
-                        assistQuery = "\(baby.name) has been awake for \(patterns.currentAwakeWindowMinutes) minutes (max recommended is \(patterns.ageAppropriateMaxAwakeMinutes) min). What are some ways to help them wind down and fall asleep?"
-                        showAssist = true
-                    }
-                    .padding(.horizontal)
-                }
-
-                // Status cards — wrapped in a TimelineView so "Xm ago" labels
-                // tick every 60 s without a full pattern reload. SwiftUI
-                // automatically suspends the timeline when the view is off
-                // screen, so this is battery-friendly.
-                if let patterns = viewModel.patterns {
-                    TimelineView(.periodic(from: .now, by: 60)) { context in
-                        let nextState: CharacterAnimation = {
-                            switch viewModel.activeTimerSession?.type {
-                            case .sleep: return .sleeping
-                            case .feed:  return .feeding
-                            default:     break
-                            }
-                            let urgent = viewModel.isFeedUrgent(at: context.date)
-                                || viewModel.isAwakeUrgent(at: context.date)
-                                || viewModel.isDiaperUrgent(baby: baby, at: context.date)
-                            return urgent ? .crying : .relaxing
-                        }()
-
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            NurturStatusCard(
-                                title: Strings.Home.Status.lastFed,
-                                value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
-                                subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
-                                icon: "drop.fill",
-                                iconColor: NurturColors.info,
-                                isUrgent: viewModel.isFeedUrgent(at: context.date)
-                            )
-
-                            NurturStatusCard(
-                                title: Strings.Home.Status.awake,
-                                value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
-                                subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
-                                icon: "sun.max.fill",
-                                iconColor: NurturColors.warning,
-                                isUrgent: viewModel.isAwakeUrgent(at: context.date)
-                            )
-
-                            NurturStatusCard(
-                                title: Strings.Home.Status.sleepToday,
-                                value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
-                                icon: "moon.fill",
-                                iconColor: NurturColors.accent
-                            )
-
-                            NurturStatusCard(
-                                title: Strings.Home.Status.lastDiaper,
-                                value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
-                                icon: "bubbles.and.sparkles",
-                                iconColor: NurturColors.success,
-                                isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
-                            )
-                        }
-                        .onChange(of: nextState, initial: true) { _, new in
-                            babyState = new
-                        }
-                    }
-                    .padding(.horizontal)
-                    .transition(.opacity)
-                }
-
-                // Quick-action row
-                HStack(spacing: 12) {
-                    LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
-						Task {
-							if let session = viewModel.activeTimerSession {
-								await viewModel.stopActiveTimer(baby: baby)
-								if session.type != .feed {
-									viewModel.startFeed()
-								}
-							} else {
-								viewModel.startFeed()
-							}
-						}
-                    }
-                    LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
-						Task {
-							if let session = viewModel.activeTimerSession {
-								await viewModel.stopActiveTimer(baby: baby)
-								if session.type != .sleep {
-									viewModel.startSleep()
-								}
-							} else {
-								viewModel.startSleep()
-							}
-						}
-                    }
-                    LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
-						viewModel.logDiaperFor(baby: baby)
-                    }
-                    LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
-                        assistQuery = nil
-                        showAssist = true
-                    }
-                }
-                .padding(.horizontal)
-
-				VStack(){
-					HStack(){
-						CharacterView(state: babyState)
-						.frame(width: 250, height: 250)
+		ZStack {
+			VStack(){
+				HStack(){
+					CharacterView(state: babyState)
+						.frame(width: 350, height: 350)
 						.padding(.leading, -40)
-						Spacer()
-					}
+						.padding(.top, 350)
+					Spacer()
 				}
-				.padding(.bottom, 20)
-				Spacer()
-            }
-            .padding(.top, 8)
-			.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
-        }
-		.background(LinearGradient(
-			colors: [.background, .accentColor.opacity(0.1)],
-			startPoint: .topLeading,
-			endPoint: .bottomTrailing))
-        .refreshable { await viewModel.refresh(baby: baby) }
-        .onChange(of: viewModel.logVersion) { _, _ in
-            Task { await viewModel.handleLogSaved(baby: baby) }
-        }
-        .errorAlert(error: $viewModel.error)
-        .sheet(isPresented: $showAssist, onDismiss: { assistQuery = nil }) {
-            AssistView(initialQuery: assistQuery)
-        }
+			}
+			.padding(.bottom, 20)
+			
+			ScrollView {
+					VStack(spacing: 20) {
+						// Header
+						HStack(spacing: 12) {
+							BabyAvatar(name: baby.name, size: 56)
+							VStack(alignment: .leading, spacing: 2) {
+								Text(baby.name)
+									.font(NurturTypography.title3)
+									.foregroundStyle(NurturColors.textPrimary)
+								Text(baby.displayAge)
+									.font(NurturTypography.subheadline)
+									.foregroundStyle(NurturColors.textSecondary)
+									.padding(.horizontal, 10)
+									.padding(.vertical, 4)
+									.background(NurturColors.accentSoft, in: Capsule())
+							}
+							Spacer()
+						}
+						.padding(.horizontal)
+						
+						// Active timer widget
+						if let session = viewModel.activeTimerSession {
+							ActiveTimerWidget(session: session) {
+								Task { await viewModel.stopActiveTimer(baby: baby) }
+							}
+							.padding(.horizontal)
+						}
+						
+						// Prediction card
+						if let patterns = viewModel.patterns,
+						   patterns.currentAwakeWindowMinutes > 0,
+						   patterns.currentAwakeWindowMinutes >= patterns.ageAppropriateMaxAwakeMinutes - 15 {
+							PredictionCard(
+								title: Strings.Home.Prediction.title,
+								message: "\(baby.name) has been awake \(patterns.currentAwakeWindowMinutes) min — approaching the \(patterns.ageAppropriateMaxAwakeMinutes) min limit."
+							) {
+								assistQuery = "\(baby.name) has been awake for \(patterns.currentAwakeWindowMinutes) minutes (max recommended is \(patterns.ageAppropriateMaxAwakeMinutes) min). What are some ways to help them wind down and fall asleep?"
+								showAssist = true
+							}
+							.padding(.horizontal)
+						}
+						
+						// Status cards — wrapped in a TimelineView so "Xm ago" labels
+						// tick every 60 s without a full pattern reload. SwiftUI
+						// automatically suspends the timeline when the view is off
+						// screen, so this is battery-friendly.
+						if let patterns = viewModel.patterns {
+							TimelineView(.periodic(from: .now, by: 60)) { context in
+								let nextState: CharacterAnimation = {
+									switch viewModel.activeTimerSession?.type {
+									case .sleep: return .sleeping
+									case .feed:  return .feeding
+									default:     break
+									}
+									let urgent = viewModel.isFeedUrgent(at: context.date)
+									|| viewModel.isAwakeUrgent(at: context.date)
+									|| viewModel.isDiaperUrgent(baby: baby, at: context.date)
+									return urgent ? .crying : .relaxing
+								}()
+								
+								LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+									NurturStatusCard(
+										title: Strings.Home.Status.lastFed,
+										value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
+										subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
+										icon: "drop.fill",
+										iconColor: NurturColors.info,
+										isUrgent: viewModel.isFeedUrgent(at: context.date)
+									)
+									
+									NurturStatusCard(
+										title: Strings.Home.Status.awake,
+										value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
+										subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
+										icon: "sun.max.fill",
+										iconColor: NurturColors.warning,
+										isUrgent: viewModel.isAwakeUrgent(at: context.date)
+									)
+									
+									NurturStatusCard(
+										title: Strings.Home.Status.sleepToday,
+										value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
+										icon: "moon.fill",
+										iconColor: NurturColors.accent
+									)
+									
+									NurturStatusCard(
+										title: Strings.Home.Status.lastDiaper,
+										value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
+										icon: "bubbles.and.sparkles",
+										iconColor: NurturColors.success,
+										isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
+									)
+								}
+								.onChange(of: nextState, initial: true) { _, new in
+									babyState = new
+								}
+							}
+							.padding(.horizontal)
+							.transition(.opacity)
+						}
+						
+						// Quick-action row
+						HStack(spacing: 12) {
+							LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
+								Task {
+									if let session = viewModel.activeTimerSession {
+										await viewModel.stopActiveTimer(baby: baby)
+										if session.type != .feed {
+											viewModel.startFeed()
+										}
+									} else {
+										viewModel.startFeed()
+									}
+								}
+							}
+							LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
+								Task {
+									if let session = viewModel.activeTimerSession {
+										await viewModel.stopActiveTimer(baby: baby)
+										if session.type != .sleep {
+											viewModel.startSleep()
+										}
+									} else {
+										viewModel.startSleep()
+									}
+								}
+							}
+	
+							LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
+								viewModel.logDiaperFor(baby: baby)
+							}
+							LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
+								assistQuery = nil
+								showAssist = true
+							}
+						}
+						.padding(.horizontal)
+					}
+					.padding(.top, 25)
+					.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
+			}
+			.background(LinearGradient(
+				colors: [.background, .accentColor.opacity(0.1)],
+				startPoint: .topLeading,
+				endPoint: .bottomTrailing))
+			.padding(.top)
+			.refreshable { await viewModel.refresh(baby: baby) }
+			.onChange(of: viewModel.logVersion) { _, _ in
+				Task { await viewModel.handleLogSaved(baby: baby) }
+			}
+			.errorAlert(error: $viewModel.error)
+			.sheet(isPresented: $showAssist, onDismiss: { assistQuery = nil }) {
+				AssistView(initialQuery: assistQuery)
+			}
+		}
     }
 }
 
