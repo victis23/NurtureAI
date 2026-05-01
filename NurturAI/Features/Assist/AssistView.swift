@@ -145,22 +145,18 @@ private struct AssistContentView: View {
             if !viewModel.emergencyMode {
                 Divider()
                 HStack(spacing: 12) {
-					ZStack {
-						RoundedRectangle(cornerRadius: 10, style: .circular)
-							.frame(height: 50)
-							.overlay(.white, in: RoundedRectangle(cornerRadius: 10, style: .circular))
-							.overlay {
-								RoundedRectangle(cornerRadius: 10, style: .circular)
-									.stroke(lineWidth: 0.5)
-									.foregroundStyle(.black.opacity(0.2))
-							}
-						TextField(Strings.Assist.inputPlaceholder, text: $viewModel.query, axis: .vertical)
-							.lineLimit(1...4)
-							.textFieldStyle(.plain)
-							.focused($isInputFocused)
-							.disabled(viewModel.isStreaming)
-							.padding(.leading, 10)
-					}
+					TextField(Strings.Assist.inputPlaceholder, text: $viewModel.query, axis: .vertical)
+						.lineLimit(1...4)
+						.textFieldStyle(.plain)
+						.focused($isInputFocused)
+						.disabled(viewModel.isStreaming)
+						.padding(.horizontal, 12)
+						.padding(.vertical, 10)
+						.background(.white, in: RoundedRectangle(cornerRadius: 10))
+						.overlay(
+							RoundedRectangle(cornerRadius: 10)
+								.stroke(.black.opacity(0.2), lineWidth: 0.5)
+						)
 
                     Button {
                         isInputFocused = false
