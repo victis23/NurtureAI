@@ -145,21 +145,32 @@ private struct AssistContentView: View {
             if !viewModel.emergencyMode {
                 Divider()
                 HStack(spacing: 12) {
-                    TextField(Strings.Assist.inputPlaceholder, text: $viewModel.query, axis: .vertical)
-                        .lineLimit(1...4)
-                        .textFieldStyle(.roundedBorder)
-                        .focused($isInputFocused)
-                        .disabled(viewModel.isStreaming)
+					ZStack {
+						RoundedRectangle(cornerRadius: 10, style: .circular)
+							.frame(height: 50)
+							.overlay(.white, in: RoundedRectangle(cornerRadius: 10, style: .circular))
+							.overlay {
+								RoundedRectangle(cornerRadius: 10, style: .circular)
+									.stroke(lineWidth: 0.5)
+									.foregroundStyle(.black.opacity(0.2))
+							}
+						TextField(Strings.Assist.inputPlaceholder, text: $viewModel.query, axis: .vertical)
+							.lineLimit(1...4)
+							.textFieldStyle(.plain)
+							.focused($isInputFocused)
+							.disabled(viewModel.isStreaming)
+							.padding(.leading, 10)
+					}
 
                     Button {
                         isInputFocused = false
                         Task { await viewModel.ask(baby: baby) }
                     } label: {
                         Image(systemName: "arrow.up.circle.fill")
-                            .font(.title2)
+                            .font(.title)
                             .foregroundStyle(
                                 viewModel.query.trimmingCharacters(in: .whitespaces).isEmpty
-                                    ? NurturColors.textFaint
+								? NurturColors.textFaint.opacity(0.3)
                                     : NurturColors.accent
                             )
                     }

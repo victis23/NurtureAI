@@ -49,6 +49,7 @@ private struct HomeContentView: View {
 				HStack(){
 					CharacterView(state: babyState)
 						.frame(width: 350, height: 350)
+						.opacity(0.7)
 						.padding(.leading, -40)
 						.padding(.top, 350)
 					Spacer()

@@ -101,3 +101,9 @@ private struct ProgressBar: View {
         .frame(height: 4)
     }
 }
+
+struct OnboardingView_preview: PreviewProvider {
+	static var previews: some View {
+		
+	}
+}

@@ -67,7 +67,11 @@ private struct QuickLogContentView: View {
                     }
                 }
             }
-            .background(NurturColors.background)
+			.background(LinearGradient(
+				colors: [NurturColors.accentSoft, .accentOrange.opacity(0.2)],
+				startPoint: .topLeading,
+				endPoint: .bottomTrailing)
+			)
 
             // Toast confirmation
             ToastOverlay(
