@@ -60,12 +60,14 @@ struct OnboardingView: View {
                 .padding(.bottom, 32)
             }
 			.background(alignment: .center, content: {
-					Image("happyBabyImage")
-						.resizable()
-						.scaledToFill()
-						.ignoresSafeArea()
-						.opacity(0.2)
-						.transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
+				VStack {
+					Spacer()
+						.frame(height: 350)
+					CharacterView(state: .relaxing)
+						.opacity(0.8)
+						.frame(width: 600, height: 600)
+						.padding(.bottom, 150)
+				}
 			})
             .navigationTitle(Strings.Onboarding.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -104,6 +106,7 @@ private struct ProgressBar: View {
 
 struct OnboardingView_preview: PreviewProvider {
 	static var previews: some View {
-		
+		OnboardingView()
+			.environment(AppState.shared)
 	}
 }

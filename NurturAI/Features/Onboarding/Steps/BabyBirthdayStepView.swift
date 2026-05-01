@@ -23,5 +23,9 @@ struct BabyBirthdayStepView: View {
             .datePickerStyle(.graphical)
             .tint(NurturColors.accent)
         }
+		.background {
+			Color.white
+				.opacity(0.7)
+		}
     }
 }
