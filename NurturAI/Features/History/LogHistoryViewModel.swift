@@ -8,11 +8,13 @@ final class LogHistoryViewModel {
 
     var sections: [(date: Date, logs: [BabyLog])] = []
     var isLoading: Bool = false
+	var logVersion: Int
     var error: AppError?
 
     init(logRepository: LogRepositoryProtocol, timerService: ActiveTimerService) {
         self.logRepository = logRepository
         self.timerService = timerService
+		self.logVersion = timerService.logVersion
     }
 
     func load(baby: Baby) async {

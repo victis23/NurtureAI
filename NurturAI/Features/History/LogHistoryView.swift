@@ -59,7 +59,7 @@ private struct HistoryContentView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .background(NurturColors.background)
+		.scrollContentBackground(.automatic)
         .refreshable { await viewModel.load(baby: baby) }
         .errorAlert(error: $viewModel.error)
     }

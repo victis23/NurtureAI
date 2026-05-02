@@ -5,6 +5,7 @@ struct FeedTimerView: View {
     @Bindable var viewModel: QuickLogViewModel
     let baby: Baby
     @State private var elapsed: TimeInterval = 0
+	let feedTimerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 24) {
@@ -66,7 +67,7 @@ struct FeedTimerView: View {
                 .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 12))
             }
         }
-        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(feedTimerPublisher) { _ in
             if let start = viewModel.feedStartTime {
                 elapsed = Date().timeIntervalSince(start)
             }
