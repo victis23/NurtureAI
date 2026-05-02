@@ -39,6 +39,20 @@ final class LogHistoryViewModel {
         }
     }
 
+    func update(_ log: BabyLog, baby: Baby, newTimestamp: Date, newEndTimestamp: Date?) async {
+        do {
+            try await timerService.updateLog(
+                log,
+                baby: baby,
+                newTimestamp: newTimestamp,
+                newEndTimestamp: newEndTimestamp
+            )
+            await load(baby: baby)
+        } catch {
+            self.error = .data(error)
+        }
+    }
+
     private func groupByDay(_ logs: [BabyLog]) -> [(date: Date, logs: [BabyLog])] {
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: logs) { log in

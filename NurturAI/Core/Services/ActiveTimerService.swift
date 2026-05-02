@@ -49,6 +49,11 @@ protocol ActiveTimerServiceProtocol: AnyObject {
     /// Deletes a log from SwiftData and Firestore, and increments logVersion.
     func deleteLog(_ log: BabyLog, baby: Baby) async throws
 
+    /// Updates a log's timestamps in SwiftData and Firestore, and increments logVersion.
+    /// `endTimestamp` should remain nil for instant logs (diaper, mood) and non-nil
+    /// for timed logs (feed, sleep) — the caller is responsible for that invariant.
+    func updateLog(_ log: BabyLog, baby: Baby, newTimestamp: Date, newEndTimestamp: Date?) async throws
+
     /// Starts the real-time Firestore listener for remote log changes.
     /// No-op if already listening — safe to call on every load.
     func startListening(for baby: Baby) async
@@ -150,6 +155,18 @@ final class ActiveTimerService: ActiveTimerServiceProtocol {
                 // SwiftData is already consistent; Firestore will drift at worst.
             }
         }
+    }
+
+    func updateLog(_ log: BabyLog, baby: Baby, newTimestamp: Date, newEndTimestamp: Date?) async throws {
+        log.timestamp = newTimestamp
+        log.endTimestamp = newEndTimestamp
+        // Mark unsynced so syncAfterSave's fetchUnsynced picks it up. The
+        // Firestore write uses setData(merge: true), so this is an upsert.
+        log.syncedToCloud = false
+        try logRepository.saveChanges()
+        contextBuilder.invalidate()
+        logVersion += 1
+        syncAfterSave(baby: baby)
     }
 
     // MARK: - Remote Listener

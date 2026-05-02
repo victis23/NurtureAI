@@ -31,6 +31,7 @@ struct LogHistoryView: View {
 private struct HistoryContentView: View {
     @Bindable var viewModel: LogHistoryViewModel
     let baby: Baby
+    @State private var editingLog: BabyLog?
 
     var body: some View {
         List {
@@ -46,6 +47,8 @@ private struct HistoryContentView: View {
                     Section(header: sectionHeader(for: section.date)) {
                         ForEach(section.logs) { log in
                             LogHistoryRow(log: log)
+                                .contentShape(Rectangle())
+                                .onTapGesture { editingLog = log }
                         }
                         .onDelete { indexSet in
                             for idx in indexSet {
@@ -62,6 +65,11 @@ private struct HistoryContentView: View {
 		.scrollContentBackground(.automatic)
         .refreshable { await viewModel.load(baby: baby) }
         .errorAlert(error: $viewModel.error)
+        .sheet(item: $editingLog) { log in
+            LogEditSheet(log: log) { newStart, newEnd in
+                await viewModel.update(log, baby: baby, newTimestamp: newStart, newEndTimestamp: newEnd)
+            }
+        }
     }
 
     private func sectionHeader(for date: Date) -> some View {
@@ -150,6 +158,70 @@ private struct LogHistoryRow: View {
             return "\(state.emoji) \(state.label)"
         case .none:
             return "—"
+        }
+    }
+}
+
+private struct LogEditSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let log: BabyLog
+    let onSave: (Date, Date?) async -> Void
+
+    @State private var startDate: Date
+    @State private var endDate: Date
+    @State private var isSaving = false
+
+    private let hasEndTimestamp: Bool
+
+    init(log: BabyLog, onSave: @escaping (Date, Date?) async -> Void) {
+        self.log = log
+        self.onSave = onSave
+        _startDate = State(initialValue: log.timestamp)
+        _endDate = State(initialValue: log.endTimestamp ?? log.timestamp)
+        self.hasEndTimestamp = log.endTimestamp != nil
+    }
+
+    private var isValid: Bool {
+        guard startDate <= .now else { return false }
+        if hasEndTimestamp {
+            return endDate > startDate && endDate <= .now
+        }
+        return true
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                DatePicker(
+                    Strings.History.editStartLabel,
+                    selection: $startDate,
+                    in: ...Date()
+                )
+                if hasEndTimestamp {
+                    DatePicker(
+                        Strings.History.editEndLabel,
+                        selection: $endDate,
+                        in: startDate...Date()
+                    )
+                }
+            }
+            .navigationTitle(Strings.History.editTitle(log.type.rawValue.capitalized))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(Strings.Common.cancel) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(Strings.Common.save) {
+                        isSaving = true
+                        Task {
+                            await onSave(startDate, hasEndTimestamp ? endDate : nil)
+                            dismiss()
+                        }
+                    }
+                    .disabled(!isValid || isSaving)
+                }
+            }
         }
     }
 }

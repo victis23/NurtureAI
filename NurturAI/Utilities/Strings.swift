@@ -142,6 +142,9 @@ enum Strings {
         static let noLogsMessage    = "Start logging feeds, sleep, and diapers."
         static let today            = "Today"
         static let yesterday        = "Yesterday"
+        static let editStartLabel   = "Start"
+        static let editEndLabel     = "End"
+        static func editTitle(_ type: String) -> String { "Edit \(type)" }
     }
 
     // MARK: - Assist
