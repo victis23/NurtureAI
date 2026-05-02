@@ -69,6 +69,7 @@ struct OnboardingView: View {
             .navigationTitle(Strings.Onboarding.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
 			.onChange(of: appState.isSubscribed) {
+				NSLog("[Onboarding] - App Subscribe State Triggered")
 				advanceToNextView()
 			}
         }
@@ -91,7 +92,13 @@ struct OnboardingView: View {
 	fileprivate func advanceToNextView() {
 		if viewModel.currentStep == .upsale {
 			guard let syncService = container?.syncService else { return }
-			Task { await viewModel.complete(context: modelContext, appState: appState, syncService: syncService) }
+			Task {
+				await viewModel.complete(
+					context: modelContext,
+					appState: appState,
+					syncService: syncService
+				)
+			}
 		} else {
 			viewModel.advance()
 		}
