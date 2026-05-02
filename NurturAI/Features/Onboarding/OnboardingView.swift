@@ -6,7 +6,10 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.appContainer) private var container
     @State private var viewModel = OnboardingViewModel()
-	var showProgressBar: Bool = false
+	@State private var contentOpacity: Double = 1
+	private let fadeDuration: Double = 0.2
+	private var showProgressBar: Bool = false
+	@State private var buttonTap: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -21,10 +24,7 @@ struct OnboardingView: View {
                 ScrollView {
                     VStack(spacing: 32) {
                         stepContent
-                            .transition(.asymmetric(
-                                insertion: .move(edge: .trailing).combined(with: .opacity),
-                                removal: .move(edge: .leading).combined(with: .opacity)
-                            ))
+                            .opacity(contentOpacity)
                             .id(viewModel.currentStep)
 
                         if let error = viewModel.error {
@@ -35,25 +35,31 @@ struct OnboardingView: View {
                         }
                     }
                     .padding(24)
-                    .animation(.easeInOut(duration: 0.25), value: viewModel.currentStep)
                 }
                 .scrollBounceBehavior(.basedOnSize)
 
                 VStack(spacing: 12) {
 					Button(getButtonText(viewModel.currentStep)) {
+						buttonTap.toggle()
 						advanceToNextView()
                     }
-                    .primaryButton()
+                    .buttonStyle(PrimaryButtonStyle())
                     .disabled(!viewModel.canAdvance || viewModel.isSaving)
                     .overlay {
                         if viewModel.isSaving { ProgressView() }
                     }
+					.sensoryFeedback(.impact, trigger: buttonTap)
 
-                    if viewModel.currentStep != .welcome {
-                        Button(Strings.Common.back) { viewModel.back() }
-                            .font(NurturTypography.subheadline)
-                            .foregroundStyle(NurturColors.textSecondary)
-                    }
+					Button(Strings.Common.back) {
+						transitionStep {
+							buttonTap.toggle()
+							viewModel.back()
+						}
+					}
+					.font(NurturTypography.subheadline)
+					.foregroundStyle(viewModel.currentStep != .welcome ? NurturColors.textSecondary : .clear)
+					.disabled(viewModel.currentStep == .welcome)
+					.sensoryFeedback(.impact, trigger: buttonTap)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
@@ -115,7 +121,20 @@ struct OnboardingView: View {
 				)
 			}
 		} else {
-			viewModel.advance()
+			transitionStep { viewModel.advance() }
+		}
+	}
+
+	private func transitionStep(_ change: @escaping () -> Void) {
+		Task { @MainActor in
+			withAnimation(.easeOut(duration: fadeDuration)) {
+				contentOpacity = 0
+			}
+			try? await Task.sleep(for: .seconds(fadeDuration))
+			change()
+			withAnimation(.easeIn(duration: fadeDuration)) {
+				contentOpacity = 1
+			}
 		}
 	}
 }

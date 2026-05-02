@@ -126,7 +126,7 @@ private struct MoodLogView: View {
             Button(Strings.Common.logNow) {
                 Task { await viewModel.logMood(baby: baby) }
             }
-            .primaryButton()
+            .buttonStyle(PrimaryButtonStyle())
         }
     }
 }

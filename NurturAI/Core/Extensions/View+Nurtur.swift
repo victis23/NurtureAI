@@ -14,15 +14,6 @@ extension View {
             .nurturCard()
     }
 
-    func primaryButton() -> some View {
-        self
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(NurturColors.accent, in: RoundedRectangle(cornerRadius: 14))
-            .foregroundStyle(.white)
-            .font(NurturTypography.headline)
-    }
-
     func pillButton(isSelected: Bool = false) -> some View {
         self
             .padding(.horizontal, 20)
@@ -46,5 +37,19 @@ extension View {
                 Text(err.errorDescription ?? Strings.Common.unknownError)
             }
         }
+    }
+}
+
+struct PrimaryButtonStyle: ButtonStyle {
+    var tint: Color = NurturColors.accent
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(tint, in: RoundedRectangle(cornerRadius: 14))
+            .foregroundStyle(.white)
+            .font(NurturTypography.headline)
+            .opacity(configuration.isPressed ? 0.85 : 1)
     }
 }

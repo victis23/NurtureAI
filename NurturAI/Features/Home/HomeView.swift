@@ -42,6 +42,7 @@ private struct HomeContentView: View {
     @State private var showAssist: Bool = false
     @State private var assistQuery: String? = nil
 	@State private var babyState: CharacterAnimation = .relaxing
+	@State private var buttonTap: Bool? = false
 
     var body: some View {
 		ZStack {
@@ -162,6 +163,7 @@ private struct HomeContentView: View {
 						// Quick-action row
 						HStack(spacing: 12) {
 							LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
+								buttonTap?.toggle()
 								Task {
 									if let session = viewModel.activeTimerSession {
 										await viewModel.stopActiveTimer(baby: baby)
@@ -172,8 +174,10 @@ private struct HomeContentView: View {
 										viewModel.startFeed()
 									}
 								}
-							}
+							}.sensoryFeedback(.impact, trigger: buttonTap)
+
 							LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
+								buttonTap?.toggle()
 								Task {
 									if let session = viewModel.activeTimerSession {
 										await viewModel.stopActiveTimer(baby: baby)
@@ -184,15 +188,18 @@ private struct HomeContentView: View {
 										viewModel.startSleep()
 									}
 								}
-							}
+							}.sensoryFeedback(.impact, trigger: buttonTap)
 	
 							LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
 								viewModel.logDiaperFor(baby: baby)
-							}
+								buttonTap?.toggle()
+							}.sensoryFeedback(.impact, trigger: buttonTap)
+
 							LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
 								assistQuery = nil
 								showAssist = true
-							}
+								buttonTap?.toggle()
+							}.sensoryFeedback(.impact, trigger: buttonTap)
 						}
 						.padding(.horizontal)
 					}
@@ -222,6 +229,7 @@ private struct ActiveTimerWidget: View {
     @State private var elapsed: TimeInterval = 0
     @State private var pulseScale: CGFloat = 1.0
 	let timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+	@State private var buttonTap = false
 
     var body: some View {
         HStack(spacing: 16) {
@@ -249,13 +257,17 @@ private struct ActiveTimerWidget: View {
 
             Spacer()
 
-            Button(Strings.Common.stop) { onStop() }
-                .font(NurturTypography.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(NurturColors.danger, in: Capsule())
+			Button(Strings.Common.stop) {
+				buttonTap.toggle()
+				onStop()
+			}
+			.font(NurturTypography.subheadline)
+			.fontWeight(.semibold)
+			.foregroundStyle(.white)
+			.padding(.horizontal, 16)
+			.padding(.vertical, 8)
+			.background(NurturColors.danger, in: Capsule())
+			.sensoryFeedback(.impact, trigger: buttonTap)
         }
         .padding(16)
         .background(NurturColors.surface, in: RoundedRectangle(cornerRadius: 16))

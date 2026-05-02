@@ -27,9 +27,8 @@ struct SleepTimerView: View {
                 }
             } label: {
                 Text(viewModel.isSleepTimerRunning ? Strings.Log.Sleep.wakeUp : Strings.Log.Sleep.startSleep)
-                    .primaryButton()
             }
-            .tint(viewModel.isSleepTimerRunning ? NurturColors.warning : NurturColors.accent)
+            .buttonStyle(PrimaryButtonStyle(tint: viewModel.isSleepTimerRunning ? NurturColors.warning : NurturColors.accent))
         }
         .onReceive(sleepTimerPublisher) { _ in
             if let start = viewModel.sleepStartTime {
