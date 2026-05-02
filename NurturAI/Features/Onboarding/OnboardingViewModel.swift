@@ -5,12 +5,16 @@ import SwiftData
 @Observable
 final class OnboardingViewModel {
     var draft = OnboardingDraft()
-    var currentStep: OnboardingStep = .name
+    var currentStep: OnboardingStep = .welcome
     var isSaving: Bool = false
     var error: String?
 
     enum OnboardingStep: Int, CaseIterable {
-        case name, birthday, feedingMethod, upsale
+		case welcome
+        case name
+		case birthday
+		case feedingMethod
+		case upsale
 
         var progress: Double {
 			Double(rawValue + 1) / Double(OnboardingStep.allCases.count)        }
@@ -26,8 +30,7 @@ final class OnboardingViewModel {
         switch currentStep {
         case .name:           return !draft.name.trimmingCharacters(in: .whitespaces).isEmpty
         case .birthday:       return draft.birthDate <= .now
-		case .feedingMethod:  return true
-		case .upsale: 		 return true
+		case .feedingMethod, .upsale, .welcome:  return true
         }
     }
 

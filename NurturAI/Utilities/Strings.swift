@@ -42,6 +42,16 @@ enum Strings {
         static let navigationTitle  = "Welcome to NurturAI"
         static let continueButton   = "Continue"
         static let getStarted       = "Get Started"
+		
+		enum Greeting {
+			static let welcome = "Welcome to Nurtur"
+			static let welcomeSubTitle = "Your ai parenting helper"
+
+			static let greeting1 = "We know parenting can feel overwhelming—especially when it’s all new. That’s exactly why we created this app."
+			
+			static let greeting2 = "Our goal is simple: to support you with guidance you can trust, so you can focus on what matters most—your baby."
+			static let greeting3 = "Get instant, personalized answers tailored to your child, powered by AI and grounded in real pediatric research. Because you deserve confidence, not guesswork."
+		}
 
         enum Name {
             static let heading      = "What's your baby's name?"
