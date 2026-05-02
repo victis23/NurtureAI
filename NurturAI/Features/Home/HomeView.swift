@@ -221,6 +221,7 @@ private struct ActiveTimerWidget: View {
     let onStop: () -> Void
     @State private var elapsed: TimeInterval = 0
     @State private var pulseScale: CGFloat = 1.0
+	let timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         HStack(spacing: 16) {
@@ -263,7 +264,7 @@ private struct ActiveTimerWidget: View {
             pulseScale = 1.12
             elapsed = session.elapsed
         }
-        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(timerPublisher) { _ in
             elapsed = session.elapsed
         }
     }

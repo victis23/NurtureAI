@@ -8,62 +8,73 @@ struct PaywallView: View {
     @State private var isPurchasing: Bool = false
     @State private var inlineError: String?
     @State private var restoreMessage: String?
+	var isOnboarding: Bool = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 32) {
-                    header
-
-                    // Product cards area — replaced by a loader / error view
-                    // while StoreKit is still fetching.
-                    if let service = container?.subscriptionService {
-                        productsSection(service: service)
-                    }
-
-                    if let inlineError {
-                        Text(inlineError)
-                            .font(NurturTypography.caption)
-                            .foregroundStyle(NurturColors.danger)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-
-                    if let restoreMessage {
-                        Text(restoreMessage)
-                            .font(NurturTypography.caption)
-                            .foregroundStyle(NurturColors.textSecondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-
-                    Button(Strings.Paywall.restorePurchases) {
-                        Task { await restore() }
-                    }
-                    .font(NurturTypography.subheadline)
-                    .foregroundStyle(NurturColors.textSecondary)
-                    .disabled(isPurchasing)
-
-                    Text(Strings.Paywall.footer)
-                        .font(NurturTypography.caption2)
-                        .foregroundStyle(NurturColors.textFaint)
-                        .padding(.bottom, 32)
-                }
-            }
-            .background(NurturColors.background)
-            .navigationTitle(Strings.Paywall.navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(Strings.Common.close) { dismiss() }
-                        // Avoid dismissing mid-purchase — StoreKit UI is modal,
-                        // but the user could still tap this between the purchase
-                        // sheet closing and our finish() completing.
-                        .disabled(isPurchasing)
-                }
-            }
-        }
+		if isOnboarding {
+			contentBody
+		} else {
+			NavigationStack {
+				contentBody
+					.navigationTitle(Strings.Paywall.navigationTitle)
+			}
+		}
     }
+	
+	private var contentBody: some View {
+		ScrollView {
+			VStack(spacing: 32) {
+				header
+				
+				// Product cards area — replaced by a loader / error view
+				// while StoreKit is still fetching.
+				if let service = container?.subscriptionService {
+					productsSection(service: service)
+				}
+				
+				if let inlineError {
+					Text(inlineError)
+						.font(NurturTypography.caption)
+						.foregroundStyle(NurturColors.danger)
+						.multilineTextAlignment(.center)
+						.padding(.horizontal)
+				}
+				
+				if let restoreMessage {
+					Text(restoreMessage)
+						.font(NurturTypography.caption)
+						.foregroundStyle(NurturColors.textSecondary)
+						.multilineTextAlignment(.center)
+						.padding(.horizontal)
+				}
+				
+				Button(Strings.Paywall.restorePurchases) {
+					Task { await restore() }
+				}
+				.font(NurturTypography.subheadline)
+				.foregroundStyle(NurturColors.textSecondary)
+				.disabled(isPurchasing)
+				
+				Text(Strings.Paywall.footer)
+					.font(NurturTypography.caption2)
+					.foregroundStyle(NurturColors.textFaint)
+					.padding(.bottom, 32)
+			}
+		}
+		.background(isOnboarding ? .white : NurturColors.background)
+		.navigationBarTitleDisplayMode(.inline)
+		.toolbar {
+			if !isOnboarding {
+				ToolbarItem(placement: .cancellationAction) {
+					Button(Strings.Common.close) { dismiss() }
+					// Avoid dismissing mid-purchase — StoreKit UI is modal,
+					// but the user could still tap this between the purchase
+					// sheet closing and our finish() completing.
+						.disabled(isPurchasing)
+				}
+			}
+		}
+	}
 
     // MARK: - Sections
 
@@ -249,4 +260,10 @@ private struct ProductCard: View {
         .disabled(isPurchasing || storeProduct == nil)
         .opacity(storeProduct == nil ? 0.5 : 1.0)
     }
+}
+
+struct previewT: PreviewProvider {
+	static var previews: some View {
+		
+	}
 }

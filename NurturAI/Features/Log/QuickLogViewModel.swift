@@ -114,9 +114,10 @@ final class QuickLogViewModel {
     private func triggerConfirmation(for type: LogType) {
         lastSavedLogType = type
         showSaveConfirmation = true
-        Task {
+
+        Task { [weak self] in
             try? await Task.sleep(for: .seconds(2))
-            showSaveConfirmation = false
+			self?.showSaveConfirmation = false
         }
     }
 }

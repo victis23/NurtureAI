@@ -36,13 +36,8 @@ struct OnboardingView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 VStack(spacing: 12) {
-                    Button(viewModel.currentStep == .feedingMethod ? Strings.Onboarding.getStarted : Strings.Onboarding.continueButton) {
-                        if viewModel.currentStep == .feedingMethod {
-                            guard let syncService = container?.syncService else { return }
-                            Task { await viewModel.complete(context: modelContext, appState: appState, syncService: syncService) }
-                        } else {
-                            viewModel.advance()
-                        }
+                    Button(viewModel.currentStep == .upsale ? Strings.Onboarding.getStarted : Strings.Onboarding.continueButton) {
+						advanceToNextView()
                     }
                     .primaryButton()
                     .disabled(!viewModel.canAdvance || viewModel.isSaving)
@@ -60,17 +55,22 @@ struct OnboardingView: View {
                 .padding(.bottom, 32)
             }
 			.background(alignment: .center, content: {
-				VStack {
-					Spacer()
-						.frame(height: 350)
-					CharacterView(state: .relaxing)
-						.opacity(0.8)
-						.frame(width: 600, height: 600)
-						.padding(.bottom, 150)
+				if viewModel.currentStep != .upsale {
+					VStack {
+						Spacer()
+							.frame(height: 350)
+						CharacterView(state: .relaxing)
+							.opacity(0.8)
+							.frame(width: 600, height: 600)
+							.padding(.bottom, 150)
+					}
 				}
 			})
             .navigationTitle(Strings.Onboarding.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
+			.onChange(of: appState.isSubscribed) {
+				advanceToNextView()
+			}
         }
 	}
 
@@ -83,8 +83,19 @@ struct OnboardingView: View {
             BabyBirthdayStepView(birthDate: $viewModel.draft.birthDate)
         case .feedingMethod:
             FeedingMethodStepView(feedingMethod: $viewModel.draft.feedingMethod)
+		case .upsale:
+			PaywallView(isOnboarding: true)
         }
     }
+
+	fileprivate func advanceToNextView() {
+		if viewModel.currentStep == .upsale {
+			guard let syncService = container?.syncService else { return }
+			Task { await viewModel.complete(context: modelContext, appState: appState, syncService: syncService) }
+		} else {
+			viewModel.advance()
+		}
+	}
 }
 
 private struct ProgressBar: View {

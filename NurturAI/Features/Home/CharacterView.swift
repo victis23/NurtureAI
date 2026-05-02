@@ -80,7 +80,12 @@ private final class PlayerView: UIView {
     private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
     private var looper: AVPlayerLooper?
 
+    deinit {
+        tearDown()
+    }
+
     func load(animationName: String) {
+        tearDown()
         guard let url = Bundle.main.url(forResource: animationName, withExtension: "mov") else { return }
 
         let item = AVPlayerItem(url: url)
@@ -94,5 +99,15 @@ private final class PlayerView: UIView {
         playerLayer.videoGravity = .resizeAspect
         queuePlayer.isMuted = true
         queuePlayer.play()
+    }
+
+    private func tearDown() {
+        looper?.disableLooping()
+        looper = nil
+        if let player = playerLayer.player as? AVQueuePlayer {
+            player.pause()
+            player.removeAllItems()
+        }
+        playerLayer.player = nil
     }
 }

@@ -5,6 +5,7 @@ struct SleepTimerView: View {
     @Bindable var viewModel: QuickLogViewModel
     let baby: Baby
     @State private var elapsed: TimeInterval = 0
+	let sleepTimerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 24) {
@@ -30,7 +31,7 @@ struct SleepTimerView: View {
             }
             .tint(viewModel.isSleepTimerRunning ? NurturColors.warning : NurturColors.accent)
         }
-        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(sleepTimerPublisher) { _ in
             if let start = viewModel.sleepStartTime {
                 elapsed = Date().timeIntervalSince(start)
             }

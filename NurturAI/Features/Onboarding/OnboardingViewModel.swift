@@ -10,7 +10,7 @@ final class OnboardingViewModel {
     var error: String?
 
     enum OnboardingStep: Int, CaseIterable {
-        case name, birthday, feedingMethod
+        case name, birthday, feedingMethod, upsale
 
         var progress: Double {
 			Double(rawValue + 1) / Double(OnboardingStep.allCases.count)        }
@@ -26,7 +26,8 @@ final class OnboardingViewModel {
         switch currentStep {
         case .name:           return !draft.name.trimmingCharacters(in: .whitespaces).isEmpty
         case .birthday:       return draft.birthDate <= .now
-        case .feedingMethod:  return true
+		case .feedingMethod:  return true
+		case .upsale: 		 return true
         }
     }
 
@@ -57,7 +58,7 @@ final class OnboardingViewModel {
         let baby = Baby(
             name: draft.name.trimmingCharacters(in: .whitespaces),
             birthDate: draft.birthDate,
-            feedingMethod: draft.feedingMethod,
+			feedingMethod: draft.feedingMethod,
             birthWeightGrams: 0,
             currentWeightGrams: 0,
             caregiverFirebaseUIDs: [uid]
