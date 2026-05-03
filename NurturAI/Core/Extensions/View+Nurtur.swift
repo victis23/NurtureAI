@@ -38,6 +38,25 @@ extension View {
             }
         }
     }
+
+	func onboardingText() -> some View {
+		VStack {
+			self
+				.multilineTextAlignment(.center)
+				.font(NurturTypography.bodyMedium)
+				.lineSpacing(10)
+				.fontWeight(.light)
+				.foregroundStyle(.black.opacity(0.7))
+				.padding(10)
+		}
+		.background(
+			.ultraThinMaterial
+				.opacity(0.5)
+				.shadow(.drop(radius: 3)),
+			in: RoundedRectangle(cornerRadius: 15)
+		)
+		.background(.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
+	}
 }
 
 struct PrimaryButtonStyle: ButtonStyle {

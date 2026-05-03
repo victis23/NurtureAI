@@ -96,8 +96,40 @@ struct OnboardingView: View {
             BabyBirthdayStepView(birthDate: $viewModel.draft.birthDate)
 		case .kidCount:
 			KidCountStepView(firstChild: $viewModel.draft.kidCount)
+		case .familySupport:
+			FamilySupportStepView(familySupport: $viewModel.draft.familySupport)
+		case .overwhelmed:
+			OverWhelmLevelStepView(stepState: $viewModel.draft.overwhelmLevel)
+		case .wellBeing:
+			EmotionalWellbeingStepView(stepState: $viewModel.draft.emotionalWellbeing)
+		case .household:
+			HouseHoldTypeStepView(stepState: $viewModel.draft.householdType)
+		case .challenges:
+			ChildcareChallengeStepView(selection: $viewModel.draft.childcareChallenges)
         case .feedingMethod:
             FeedingMethodStepView(feedingMethod: $viewModel.draft.feedingMethod)
+		case .feedingFrequency:
+			FeedingFrequencyStepView(stepState: $viewModel.draft.feedingFrequency)
+		case .solidFoods:
+			SolidFoodStatusStepView(stepState: $viewModel.draft.solidFoodStatus)
+		case .teething:
+			TeethingStatusStepView(stepState: $viewModel.draft.teethingStatus)
+		case .bathing:
+			BathingFrequencyStepView(stepState: $viewModel.draft.bathingFrequency)
+		case .pediatrician:
+			PediatricianVisitStepView(stepState: $viewModel.draft.pediatricianVisitFrequency)
+		case .birthWeight:
+			BirthWeightStepView(grams: $viewModel.draft.birthWeightGrams)
+		case .currentWeight:
+			CurrentWeightStepView(grams: $viewModel.draft.currentWeightGrams)
+		case .features:
+			DesiredFeaturesStepView(selection: $viewModel.draft.desiredFeatures)
+		case .internetUsage:
+			InternetUsageStepView(stepState: $viewModel.draft.internetUsageFrequency)
+		case .aiUsage:
+			AIUsageHistoryStepView(stepState: $viewModel.draft.aiUsageHistory)
+		case .appDiscovery:
+			AppDiscoveryStepView(stepState: $viewModel.draft.appDiscoverySource)
 		case .upsale:
 			PaywallView(isOnboarding: true)
         }

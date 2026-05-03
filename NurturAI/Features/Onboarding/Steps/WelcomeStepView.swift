@@ -24,26 +24,8 @@ struct WelcomeStepView: View {
 				
 				VStack {
 					Text(Strings.Onboarding.Greeting.greeting1)
-						.multilineTextAlignment(.center)
-						.font(NurturTypography.bodyMedium)
-						.lineSpacing(10)
-						.fontWeight(.light)
-						.foregroundStyle(.black.opacity(0.7))
-						.padding(10)
-//					Text(Strings.Onboarding.Greeting.greeting3)
-//						.multilineTextAlignment(.center)
-//						.font(NurturTypography.title2)
-//						.fontWeight(.light)
-//						.padding(.horizontal, 20)
-//						.padding(.top, 5)
+						.onboardingText()
 				}
-				.background(
-					.ultraThinMaterial
-						.opacity(0.5)
-						.shadow(.drop(radius: 3)),
-					in: RoundedRectangle(cornerRadius: 15)
-				)
-				.background(.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
 			}
 		}
 		

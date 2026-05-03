@@ -14,7 +14,23 @@ final class OnboardingViewModel {
         case name
 		case birthday
 		case kidCount
+		case familySupport
+		case overwhelmed
+		case wellBeing
+		case household
+		case challenges
 		case feedingMethod
+		case feedingFrequency
+		case solidFoods
+		case teething
+		case bathing
+		case pediatrician
+		case birthWeight
+		case currentWeight
+		case features
+		case internetUsage
+		case aiUsage
+		case appDiscovery
 		case upsale
 
         var progress: Double {
@@ -50,7 +66,7 @@ final class OnboardingViewModel {
         switch currentStep {
         case .name:           return !draft.name.trimmingCharacters(in: .whitespaces).isEmpty
         case .birthday:       return draft.birthDate <= .now
-		case .feedingMethod, .upsale, .welcome, .kidCount:  return true
+		default: return true
         }
     }
 
