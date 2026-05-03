@@ -132,6 +132,10 @@ struct OnboardingView: View {
 			AppDiscoveryStepView(stepState: $viewModel.draft.appDiscoverySource)
 		case .aiPreview:
 			OnboardingPreviewStepView(draft: viewModel.draft, cached: $viewModel.cachedPreview)
+		case .rating:
+			RatingPromptStepView(onSkip: {
+				transitionStep { viewModel.advance() }
+			})
 		case .upsale:
 			PaywallView(isOnboarding: true)
         }

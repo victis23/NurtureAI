@@ -166,6 +166,15 @@ enum Strings {
             static let loadingTitle     = "Personalizing your first insight…"
             static let loadingSubtitle  = "Drawing from what you shared about your little one."
         }
+
+        enum Rating {
+            static let heading          = "Help other parents find us"
+            static let subheading       = "If NurturAI is starting to feel like a helpful corner for you, a quick rating means the world."
+            static let encourageTitle   = "Why your rating matters"
+            static let encourageBody    = "Real reviews from parents like you help tired families find help when they need it most. It takes about 10 seconds — and every star genuinely counts."
+            static let actionLabel      = "Leave a rating"
+            static let skipLabel        = "Maybe later"
+        }
     }
 
     // MARK: - Home
