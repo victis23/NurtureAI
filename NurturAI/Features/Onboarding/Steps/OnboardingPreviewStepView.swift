@@ -3,11 +3,13 @@ import SwiftUI
 struct OnboardingPreviewStepView: View {
     let draft: OnboardingViewModel.OnboardingDraft
 
-    @State private var preview: OnboardingPreview?
-    @State private var phase: Phase = .loading
-    @State private var pulse: Bool = false
+    /// Cached on the OnboardingViewModel so this view's result survives the
+    /// view recreation that happens during back/forward step navigation.
+    /// Once non-nil, the screen renders the existing result and skips the
+    /// network call entirely.
+    @Binding var cached: OnboardingPreview?
 
-    private enum Phase { case loading, loaded }
+    @State private var pulse: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -20,13 +22,18 @@ struct OnboardingPreviewStepView: View {
                     .foregroundStyle(NurturColors.textSecondary)
             }
 
-            switch phase {
-            case .loading:  loadingState
-            case .loaded:   loadedState
+            if let preview = cached {
+                loadedContent(preview: preview)
+            } else {
+                loadingState
             }
         }
         .task {
-            await loadPreview()
+            // Only generate if we don't already have a result. Subsequent visits
+            // (after going back/forward) will see the cached value and skip.
+            if cached == nil {
+                await loadPreview()
+            }
         }
     }
 
@@ -56,22 +63,19 @@ struct OnboardingPreviewStepView: View {
         .padding(.vertical, 48)
     }
 
-    @ViewBuilder
-    private var loadedState: some View {
-        if let preview {
-            VStack(alignment: .leading, spacing: 16) {
-                GreetingCard(text: preview.greeting)
+    private func loadedContent(preview: OnboardingPreview) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            GreetingCard(text: preview.greeting)
 
-                VStack(spacing: 12) {
-                    ForEach(preview.focuses) { focus in
-                        FocusCard(focus: focus)
-                    }
+            VStack(spacing: 12) {
+                ForEach(preview.focuses) { focus in
+                    FocusCard(focus: focus)
                 }
-
-                ReassuranceCard(text: preview.reassurance)
             }
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
+
+            ReassuranceCard(text: preview.reassurance)
         }
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
     }
 
     // MARK: - Networking
@@ -94,8 +98,7 @@ struct OnboardingPreviewStepView: View {
         }
 
         withAnimation(.easeOut(duration: 0.4)) {
-            preview = result
-            phase = .loaded
+            cached = result
         }
     }
 }
@@ -161,7 +164,10 @@ private struct ReassuranceCard: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 4)
-        .padding(.top, 4)
+        .padding(16)
+        .glassEffect(
+            .regular.tint(NurturColors.accent.opacity(0.4)),
+            in: RoundedRectangle(cornerRadius: 14)
+        )
     }
 }

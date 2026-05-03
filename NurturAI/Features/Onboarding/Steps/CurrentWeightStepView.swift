@@ -39,44 +39,74 @@ struct CurrentWeightStepView: View {
     }
 }
 
-/// Shared lb/oz wheel picker used by both weight steps. Shows a large lb/oz
-/// readout (and approximate grams) above two wheel pickers so the value the
-/// parent is dialing in stays the focal point.
+/// Shared lb/oz wheel picker used by both weight steps. The big two-column
+/// readout (pounds + ounces with unit labels) is the focal point; the wheel
+/// pickers below drive it. Background is Liquid Glass with selection haptics
+/// on each wheel turn.
+///
+/// Pounds range covers 0–40 lb so the same picker works for newborn weights
+/// and the toddler-stage current-weight check-ins.
 struct WeightWheelPicker: View {
     @Binding var pounds: Int
     @Binding var ounces: Int
     let grams: Int
 
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 4) {
-                Text("\(pounds) lb \(ounces) oz")
-                    .font(NurturTypography.title2)
-                    .foregroundStyle(NurturColors.accent)
-                    .contentTransition(.numericText())
-                    .animation(.snappy, value: pounds)
-                    .animation(.snappy, value: ounces)
+        VStack(spacing: 20) {
+            VStack(spacing: 6) {
+                HStack(alignment: .firstTextBaseline, spacing: 28) {
+                    readoutColumn(value: pounds, unit: "lb")
+                    readoutColumn(value: ounces, unit: "oz")
+                }
                 Text(grams > 0 ? "≈ \(grams) g" : "Tap to set")
                     .font(NurturTypography.caption)
                     .foregroundStyle(NurturColors.textFaint)
+                    .padding(.top, 2)
             }
+            .frame(maxWidth: .infinity)
 
             HStack(spacing: 0) {
                 Picker("Pounds", selection: $pounds) {
-                    ForEach(0..<16, id: \.self) { Text("\($0) lb").tag($0) }
+                    ForEach(0..<41, id: \.self) { value in
+                        Text("\(value) lb")
+                            .foregroundStyle(NurturColors.textPrimary)
+                            .tag(value)
+                    }
                 }
                 .pickerStyle(.wheel)
                 .frame(maxWidth: .infinity)
 
                 Picker("Ounces", selection: $ounces) {
-                    ForEach(0..<16, id: \.self) { Text("\($0) oz").tag($0) }
+                    ForEach(0..<16, id: \.self) { value in
+                        Text("\(value) oz")
+                            .foregroundStyle(NurturColors.textPrimary)
+                            .tag(value)
+                    }
                 }
                 .pickerStyle(.wheel)
                 .frame(maxWidth: .infinity)
             }
             .frame(maxHeight: 180)
+            .tint(NurturColors.accent)
         }
-        .padding(18)
-        .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 14))
+        .padding(20)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
+        .sensoryFeedback(.selection, trigger: pounds)
+        .sensoryFeedback(.selection, trigger: ounces)
+    }
+
+    private func readoutColumn(value: Int, unit: String) -> some View {
+        VStack(spacing: 0) {
+            Text("\(value)")
+                .font(NurturTypography.title)
+                .foregroundStyle(NurturColors.accent)
+                .contentTransition(.numericText(value: Double(value)))
+                .animation(.snappy, value: value)
+            Text(unit)
+                .font(NurturTypography.caption2)
+                .foregroundStyle(NurturColors.textFaint)
+                .textCase(.uppercase)
+                .tracking(1.2)
+        }
     }
 }

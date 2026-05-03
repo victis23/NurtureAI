@@ -9,6 +9,12 @@ final class OnboardingViewModel {
     var isSaving: Bool = false
     var error: String?
 
+    /// Cached AI preview result. Stored on the ViewModel (not the step view's
+    /// @State) so it survives the view recreation that happens when the user
+    /// navigates back and forward through onboarding — once generated, the
+    /// preview screen shows the same response on revisit instead of refetching.
+    var cachedPreview: OnboardingPreview?
+
     enum OnboardingStep: Int, CaseIterable {
 		case welcome
         case name
