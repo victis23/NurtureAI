@@ -137,6 +137,9 @@ final class OnboardingViewModel {
             try await syncService.syncBaby(baby)
             appState.currentBaby = baby
             appState.hasCompletedOnboarding = true
+            // Fire the root-level confetti — this is a first-completion event
+            // by definition (we only reach `complete()` once per install).
+            appState.confettiTrigger = UUID()
         } catch {
             self.error = Strings.Errors.Onboarding.saveFailed
         }

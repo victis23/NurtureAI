@@ -20,6 +20,12 @@ final class AppState {
 
     var isSubscribed: Bool = false
 
+    /// One-shot celebration trigger watched by the root-level confetti overlay.
+    /// Setting it to a new UUID fires the Lottie; the overlay clears it back
+    /// to nil after the animation. Set on first onboarding completion and on
+    /// successful subscription purchase.
+    var confettiTrigger: UUID? = nil
+
     static let shared = AppState()
     private init() {}
 

@@ -209,6 +209,10 @@ final class StoreKitSubscriptionService: SubscriptionServiceProtocol {
             let transaction = try checkVerified(verification)
             await refreshSubscriptionStatus()
             await transaction.finish()
+            // Fire the root-level confetti only on user-initiated success —
+            // not on the launch-time `refreshSubscriptionStatus()` path that
+            // also flips `isSubscribed` for already-subscribed users.
+            appState.confettiTrigger = UUID()
 
         case .userCancelled:
             return
