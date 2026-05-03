@@ -25,22 +25,21 @@ struct FeedingMethodStepView: View {
                             Spacer()
                             if feedingMethod == method {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(NurturColors.accent)
+                                    .foregroundStyle(.white)
                             }
                         }
                         .padding(18)
-                        .background(
-                            feedingMethod == method ? NurturColors.accentSoft : NurturColors.surfaceWarm,
+                        .glassEffect(
+                            feedingMethod == method
+                                ? .regular.tint(NurturColors.accent).interactive()
+                                : .regular.interactive(),
                             in: RoundedRectangle(cornerRadius: 14)
                         )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(feedingMethod == method ? NurturColors.accent : Color.clear, lineWidth: 2)
-                        )
-                        .foregroundStyle(NurturColors.textPrimary)
+                        .foregroundStyle(feedingMethod == method ? .white : NurturColors.textPrimary)
                     }
                 }
             }
+            .sensoryFeedback(.selection, trigger: feedingMethod)
         }
     }
 }

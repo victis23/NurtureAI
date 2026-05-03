@@ -32,22 +32,21 @@ struct KidCountStepView: View {
 							Spacer()
 							if firstChild == hasSiblings {
 								Image(systemName: "checkmark.circle.fill")
-									.foregroundStyle(NurturColors.accent)
+									.foregroundStyle(.white)
 							}
 						}
 						.padding(18)
-						.background(
-							firstChild == hasSiblings ? NurturColors.accentSoft : NurturColors.surfaceWarm,
+						.glassEffect(
+							firstChild == hasSiblings
+								? .regular.tint(NurturColors.accent).interactive()
+								: .regular.interactive(),
 							in: RoundedRectangle(cornerRadius: 14)
 						)
-						.overlay(
-							RoundedRectangle(cornerRadius: 14)
-								.stroke(firstChild == hasSiblings ? NurturColors.accent : Color.clear, lineWidth: 2)
-						)
-						.foregroundStyle(NurturColors.textPrimary)
+						.foregroundStyle(firstChild == hasSiblings ? .white : NurturColors.textPrimary)
 					}
 				}
 			}
+			.sensoryFeedback(.selection, trigger: firstChild)
 		}
 	}
 }

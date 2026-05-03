@@ -25,22 +25,21 @@ struct AppDiscoveryStepView: View {
                             Spacer()
                             if stepState == selectedAnswer {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(NurturColors.accent)
+                                    .foregroundStyle(.white)
                             }
                         }
                         .padding(18)
-                        .background(
-                            stepState == selectedAnswer ? NurturColors.accentSoft : NurturColors.surfaceWarm,
+                        .glassEffect(
+                            stepState == selectedAnswer
+                                ? .regular.tint(NurturColors.accent).interactive()
+                                : .regular.interactive(),
                             in: RoundedRectangle(cornerRadius: 14)
                         )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(stepState == selectedAnswer ? NurturColors.accent : Color.clear, lineWidth: 2)
-                        )
-                        .foregroundStyle(NurturColors.textPrimary)
+                        .foregroundStyle(stepState == selectedAnswer ? .white : NurturColors.textPrimary)
                     }
                 }
             }
+            .sensoryFeedback(.selection, trigger: stepState)
         }
     }
 }

@@ -40,22 +40,21 @@ struct FamilySupportStepView: View {
 							Spacer()
 							if familySupport == hasSupport {
 								Image(systemName: "checkmark.circle.fill")
-									.foregroundStyle(NurturColors.accent)
+									.foregroundStyle(.white)
 							}
 						}
 						.padding(18)
-						.background(
-							familySupport == hasSupport ? NurturColors.accentSoft : NurturColors.surfaceWarm,
+						.glassEffect(
+							familySupport == hasSupport
+								? .regular.tint(NurturColors.accent).interactive()
+								: .regular.interactive(),
 							in: RoundedRectangle(cornerRadius: 14)
 						)
-						.overlay(
-							RoundedRectangle(cornerRadius: 14)
-								.stroke(familySupport == hasSupport ? NurturColors.accent : Color.clear, lineWidth: 2)
-						)
-						.foregroundStyle(NurturColors.textPrimary)
+						.foregroundStyle(familySupport == hasSupport ? .white : NurturColors.textPrimary)
 					}
 				}
 			}
+			.sensoryFeedback(.selection, trigger: familySupport)
 		}
 	}
 }
