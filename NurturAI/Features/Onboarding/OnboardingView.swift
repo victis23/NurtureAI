@@ -10,6 +10,10 @@ struct OnboardingView: View {
 	private let fadeDuration: Double = 0.2
 	private var showProgressBar: Bool = false
 	@State private var buttonTap: Bool = false
+	/// Guards against rapid Continue taps that could otherwise queue a second
+	/// transition during the fade window — letting `advance()` fire twice and
+	/// skip a step's gate (e.g. the birth weight check).
+	@State private var isTransitioning: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -44,7 +48,7 @@ struct OnboardingView: View {
 						advanceToNextView()
                     }
                     .buttonStyle(PrimaryButtonStyle())
-                    .disabled(!viewModel.canAdvance || viewModel.isSaving)
+                    .disabled(!viewModel.canAdvance || viewModel.isSaving || isTransitioning)
                     .overlay {
                         if viewModel.isSaving { ProgressView() }
                     }
@@ -144,7 +148,7 @@ struct OnboardingView: View {
 	fileprivate func getButtonText(_ step: OnboardingViewModel.OnboardingStep) -> String {
 		switch step {
 		case .upsale:
-			return Strings.Onboarding.getStarted
+			return Strings.Onboarding.tryForFree
 		default:
 			return Strings.Onboarding.continueButton
 		}
@@ -166,6 +170,8 @@ struct OnboardingView: View {
 	}
 
 	private func transitionStep(_ change: @escaping () -> Void) {
+		guard !isTransitioning else { return }
+		isTransitioning = true
 		Task { @MainActor in
 			withAnimation(.easeOut(duration: fadeDuration)) {
 				contentOpacity = 0
@@ -175,6 +181,7 @@ struct OnboardingView: View {
 			withAnimation(.easeIn(duration: fadeDuration)) {
 				contentOpacity = 1
 			}
+			isTransitioning = false
 		}
 	}
 }

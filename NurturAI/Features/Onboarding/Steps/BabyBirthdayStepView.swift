@@ -3,6 +3,15 @@ import SwiftUI
 struct BabyBirthdayStepView: View {
     @Binding var birthDate: Date
 
+    /// Bumping this id forces the DatePicker to be re-created. Used to collapse
+    /// the month/year scrubber back to calendar-grid mode after a few seconds
+    /// of inactivity (see `scheduleCollapse`).
+    @State private var pickerID = UUID()
+
+    /// Holds the in-flight debounce so consecutive month/year changes within
+    /// 3 seconds reset the timer instead of stacking.
+    @State private var collapseTask: Task<Void, Never>? = nil
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
@@ -31,6 +40,33 @@ struct BabyBirthdayStepView: View {
             .labelsHidden()
             .padding(12)
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+            .id(pickerID)
+            .onChange(of: monthYearKey) { _, _ in
+                scheduleCollapse()
+            }
+            .onDisappear { collapseTask?.cancel() }
+        }
+    }
+
+    // MARK: - Auto-collapse
+
+    /// DatePicker.graphical swaps the calendar grid for a wheel-style month/
+    /// year scrubber when the parent taps the title. Returning to the calendar
+    /// requires tapping the title again — which is easy to miss, leaving a
+    /// fresh month/year on a stale day. After 3 seconds of no further month/
+    /// year changes, force the picker to recreate so it lands back in calendar
+    /// mode with the new month/year showing — inviting the parent to pick a day.
+    private var monthYearKey: String {
+        let comps = Calendar.current.dateComponents([.month, .year], from: birthDate)
+        return "\(comps.year ?? 0)-\(comps.month ?? 0)"
+    }
+
+    private func scheduleCollapse() {
+        collapseTask?.cancel()
+        collapseTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            pickerID = UUID()
         }
     }
 

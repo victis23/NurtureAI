@@ -42,6 +42,7 @@ enum Strings {
         static let navigationTitle  = "Welcome to NurturAI"
         static let continueButton   = "Continue"
         static let getStarted       = "Get Started"
+		static let tryForFree       = "Try For Free"
 		
 		enum Greeting {
 			static let welcome = "Welcome to Nurtur"
@@ -135,7 +136,7 @@ enum Strings {
 
         enum CurrentWeight {
             static let heading      = "And what was their weight at the last check?"
-            static let subheading   = "It's okay if you're not sure — you can always update this later."
+            static let subheading   = "Their latest weigh-in helps us spot growth patterns. You can update it any time later."
             static let placeholder  = "Current weight"
         }
 

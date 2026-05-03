@@ -74,13 +74,19 @@ final class OnboardingViewModel {
         switch currentStep {
         case .name:           return !draft.name.trimmingCharacters(in: .whitespaces).isEmpty
         case .birthday:       return draft.birthDate <= .now
+        case .birthWeight:    return draft.birthWeightGrams > 0
+        case .currentWeight:  return draft.currentWeightGrams > 0
 		default: return true
         }
     }
 
     func advance() {
+        // Defensive: respect the gate even if the View layer somehow calls
+        // through (e.g. a queued transition after a rapid double-tap that
+        // slipped past the button's disabled state).
         let steps = OnboardingStep.allCases
-        guard let idx = steps.firstIndex(of: currentStep),
+        guard canAdvance,
+              let idx = steps.firstIndex(of: currentStep),
               idx + 1 < steps.count
         else { return }
         currentStep = steps[idx + 1]

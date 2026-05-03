@@ -81,17 +81,17 @@ struct RatingPromptStepView: View {
             // a quieter visual weight (untinted glass, secondary text color)
             // so it never competes with the rating ask, but is always there
             // as an unambiguous way out.
-            Button {
-                onSkip()
-            } label: {
-                Text(Strings.Onboarding.Rating.skipLabel)
-                    .font(NurturTypography.subheadline)
-                    .foregroundStyle(NurturColors.textSecondary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 14))
-            }
-            .buttonStyle(.plain)
+//            Button {
+//                onSkip()
+//            } label: {
+//                Text(Strings.Onboarding.Rating.skipLabel)
+//                    .font(NurturTypography.subheadline)
+//                    .foregroundStyle(NurturColors.textSecondary)
+//                    .frame(maxWidth: .infinity)
+//                    .padding(.vertical, 12)
+//                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 14))
+//            }
+//            .buttonStyle(.plain)
         }
         .onAppear { starsAppeared = true }
     }
