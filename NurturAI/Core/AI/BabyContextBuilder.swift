@@ -61,6 +61,8 @@ final class BabyContextBuilder {
 
         let gramsToLbs = { (grams: Int) -> Double in Double(grams) * 0.00220462 }
 
+        let challenges = baby.childcareChallenges.compactMap(ChildcareChallenge.init(rawValue:))
+
         let ctx = BabyContext(
             babyName: baby.name,
             ageInWeeks: baby.ageInWeeks,
@@ -69,6 +71,17 @@ final class BabyContextBuilder {
             currentWeightLbs: gramsToLbs(baby.currentWeightGrams),
             sensitivities: baby.sensitivities,
             developmentalStage: BabyContext.developmentalStage(ageInWeeks: baby.ageInWeeks),
+            isFirstChild: baby.isFirstChild,
+            familySupport: baby.familySupport,
+            overwhelmLevel: baby.overwhelmLevel,
+            emotionalWellbeing: baby.emotionalWellbeing,
+            householdType: baby.householdType,
+            pediatricianVisitFrequency: baby.pediatricianVisitFrequency,
+            childcareChallenges: challenges,
+            teethingStatus: baby.teethingStatus,
+            solidFoodStatus: baby.solidFoodStatus,
+            typicalFeedingFrequency: baby.feedingFrequency,
+            bathingFrequency: baby.bathingFrequency,
             lastFeedMinutesAgo: patterns.lastFeedMinutesAgo,
             lastFeedDurationMinutes: lastFeedDurationMinutes,
             lastFeedSide: lastFeedSide,

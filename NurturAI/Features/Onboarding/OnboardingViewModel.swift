@@ -26,6 +26,24 @@ final class OnboardingViewModel {
         var birthDate: Date = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
         var feedingMethod: FeedingMethod = .breast
 		var kidCount: FirstChild = .onlyChild
+
+		// Extended onboarding answers
+		var birthWeightGrams: Int = 0
+		var currentWeightGrams: Int = 0
+		var familySupport: FamilySupport = .preferNotToSay
+		var overwhelmLevel: OverwhelmLevel = .preferNotToSay
+		var emotionalWellbeing: EmotionalWellbeing = .preferNotToSay
+		var householdType: HouseholdType = .preferNotToSay
+		var desiredFeatures: Set<DesiredFeature> = []
+		var internetUsageFrequency: InternetUsageFrequency = .sometimes
+		var appDiscoverySource: AppDiscoverySource = .other
+		var teethingStatus: TeethingStatus = .unsure
+		var solidFoodStatus: SolidFoodStatus = .notYet
+		var pediatricianVisitFrequency: PediatricianVisitFrequency = .everyFewMonths
+		var feedingFrequency: FeedingFrequency = .onDemand
+		var childcareChallenges: Set<ChildcareChallenge> = []
+		var bathingFrequency: BathingFrequency = .everyFewDays
+		var aiUsageHistory: AIUsageHistory = .never
     }
 
     var canAdvance: Bool {
@@ -64,10 +82,24 @@ final class OnboardingViewModel {
             name: draft.name.trimmingCharacters(in: .whitespaces),
             birthDate: draft.birthDate,
 			feedingMethod: draft.feedingMethod,
-            birthWeightGrams: 0,
-            currentWeightGrams: 0,
+			birthWeightGrams: draft.birthWeightGrams,
+			currentWeightGrams: draft.currentWeightGrams,
 			caregiverFirebaseUIDs: [uid],
-			isFirstChild: draft.kidCount == .onlyChild
+			isFirstChild: draft.kidCount == .onlyChild,
+			familySupport: draft.familySupport,
+			overwhelmLevel: draft.overwhelmLevel,
+			emotionalWellbeing: draft.emotionalWellbeing,
+			householdType: draft.householdType,
+			desiredFeatures: draft.desiredFeatures.map { $0.rawValue },
+			internetUsageFrequency: draft.internetUsageFrequency,
+			appDiscoverySource: draft.appDiscoverySource,
+			teethingStatus: draft.teethingStatus,
+			solidFoodStatus: draft.solidFoodStatus,
+			pediatricianVisitFrequency: draft.pediatricianVisitFrequency,
+			feedingFrequency: draft.feedingFrequency,
+			childcareChallenges: draft.childcareChallenges.map { $0.rawValue },
+			bathingFrequency: draft.bathingFrequency,
+			aiUsageHistory: draft.aiUsageHistory
         )
         context.insert(baby)
         do {
