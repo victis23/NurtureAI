@@ -40,9 +40,8 @@ struct FeedTimerView: View {
                 }
             } label: {
                 Text(viewModel.isFeedTimerRunning ? Strings.Log.Feed.stopFeed : Strings.Log.Feed.startFeed)
-                    .primaryButton()
             }
-            .tint(viewModel.isFeedTimerRunning ? NurturColors.danger : NurturColors.accent)
+            .buttonStyle(PrimaryButtonStyle(tint: viewModel.isFeedTimerRunning ? NurturColors.danger : NurturColors.accent))
 
             // Bottle amount (optional)
             if viewModel.feedSide == .bottle {

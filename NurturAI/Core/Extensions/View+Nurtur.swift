@@ -14,15 +14,6 @@ extension View {
             .nurturCard()
     }
 
-    func primaryButton() -> some View {
-        self
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(NurturColors.accent, in: RoundedRectangle(cornerRadius: 14))
-            .foregroundStyle(.white)
-            .font(NurturTypography.headline)
-    }
-
     func pillButton(isSelected: Bool = false) -> some View {
         self
             .padding(.horizontal, 20)
@@ -46,5 +37,40 @@ extension View {
                 Text(err.errorDescription ?? Strings.Common.unknownError)
             }
         }
+    }
+
+	func onboardingText() -> some View {
+		VStack {
+			self
+				.multilineTextAlignment(.center)
+				.font(NurturTypography.bodyMedium)
+				.lineSpacing(10)
+				.fontWeight(.light)
+				.foregroundStyle(.black.opacity(0.7))
+				.padding(10)
+		}
+		.background(
+			.ultraThinMaterial
+				.opacity(0.5)
+				.shadow(.drop(radius: 3)),
+			in: RoundedRectangle(cornerRadius: 15)
+		)
+		.background(.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
+	}
+}
+
+struct PrimaryButtonStyle: ButtonStyle {
+	@Environment(\.isEnabled) var isEnabled
+    var tint: Color = NurturColors.accent
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+			.background(isEnabled ? tint : .disbledAccentOrange, in: RoundedRectangle(cornerRadius: 14))
+            .foregroundStyle(.white)
+            .font(NurturTypography.headline)
+            .opacity(configuration.isPressed ? 0.85 : 1)
+			.animation(.easeOut, value: isEnabled)
     }
 }

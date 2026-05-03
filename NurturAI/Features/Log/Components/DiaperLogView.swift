@@ -34,7 +34,7 @@ struct DiaperLogView: View {
             Button(Strings.Common.logNow) {
                 Task { await viewModel.logDiaper(baby: baby) }
             }
-            .primaryButton()
+            .buttonStyle(PrimaryButtonStyle())
         }
     }
 }

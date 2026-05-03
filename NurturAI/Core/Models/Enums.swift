@@ -12,6 +12,213 @@ enum FeedingMethod: String, Codable, CaseIterable {
     }
 }
 
+enum FirstChild: String, Codable, CaseIterable {
+	case onlyChild, hasSiblings
+
+	var displayName: String {
+		switch self {
+		case .onlyChild: return Strings.ChildCount.hasOneKid
+		case .hasSiblings: return Strings.ChildCount.hasManyKids
+		}
+	}
+}
+
+// MARK: - Extended Onboarding Answers
+// Populated by the expanded onboarding flow. Each maps 1:1 with a question/screen
+// and ultimately feeds Baby state used by the AI context builder.
+
+enum FamilySupport: String, Codable, CaseIterable {
+    case strong, occasional, noSupport, preferNotToSay
+
+    var displayName: String {
+        switch self {
+        case .strong:           return Strings.FamilySupport.strong
+        case .occasional:       return Strings.FamilySupport.occasional
+        case .noSupport:        return Strings.FamilySupport.noSupport
+        case .preferNotToSay:   return Strings.FamilySupport.preferNotToSay
+        }
+    }
+}
+
+enum OverwhelmLevel: String, Codable, CaseIterable {
+    case rarely, sometimes, often, almostAlways, preferNotToSay
+
+    var displayName: String {
+        switch self {
+        case .rarely:           return Strings.OverwhelmLevel.rarely
+        case .sometimes:        return Strings.OverwhelmLevel.sometimes
+        case .often:            return Strings.OverwhelmLevel.often
+        case .almostAlways:     return Strings.OverwhelmLevel.almostAlways
+        case .preferNotToSay:   return Strings.OverwhelmLevel.preferNotToSay
+        }
+    }
+}
+
+enum EmotionalWellbeing: String, Codable, CaseIterable {
+    case doingOkay, someHardDays, struggling, preferNotToSay
+
+    var displayName: String {
+        switch self {
+        case .doingOkay:        return Strings.EmotionalWellbeing.doingOkay
+        case .someHardDays:     return Strings.EmotionalWellbeing.someHardDays
+        case .struggling:       return Strings.EmotionalWellbeing.struggling
+        case .preferNotToSay:   return Strings.EmotionalWellbeing.preferNotToSay
+        }
+    }
+}
+
+enum HouseholdType: String, Codable, CaseIterable {
+    case twoParent, singleParent, coParenting, extendedFamily, other, preferNotToSay
+
+    var displayName: String {
+        switch self {
+        case .twoParent:        return Strings.HouseholdType.twoParent
+        case .singleParent:     return Strings.HouseholdType.singleParent
+        case .coParenting:      return Strings.HouseholdType.coParenting
+        case .extendedFamily:   return Strings.HouseholdType.extendedFamily
+        case .other:            return Strings.HouseholdType.other
+        case .preferNotToSay:   return Strings.HouseholdType.preferNotToSay
+        }
+    }
+}
+
+enum DesiredFeature: String, Codable, CaseIterable {
+    case sleepTracking, feedingTracking, aiAdvice, milestones, growthTracking, diaperTracking, communitySupport
+
+    var displayName: String {
+        switch self {
+        case .sleepTracking:    return Strings.DesiredFeature.sleepTracking
+        case .feedingTracking:  return Strings.DesiredFeature.feedingTracking
+        case .aiAdvice:         return Strings.DesiredFeature.aiAdvice
+        case .milestones:       return Strings.DesiredFeature.milestones
+        case .growthTracking:   return Strings.DesiredFeature.growthTracking
+        case .diaperTracking:   return Strings.DesiredFeature.diaperTracking
+        case .communitySupport: return Strings.DesiredFeature.communitySupport
+        }
+    }
+}
+
+enum InternetUsageFrequency: String, Codable, CaseIterable {
+    case rarely, sometimes, daily, manyTimesDaily
+
+    var displayName: String {
+        switch self {
+        case .rarely:           return Strings.InternetUsageFrequency.rarely
+        case .sometimes:        return Strings.InternetUsageFrequency.sometimes
+        case .daily:            return Strings.InternetUsageFrequency.daily
+        case .manyTimesDaily:   return Strings.InternetUsageFrequency.manyTimesDaily
+        }
+    }
+}
+
+enum AppDiscoverySource: String, Codable, CaseIterable {
+    case friendOrFamily, appStore, socialMedia, advertisement, webSearch, other
+
+    var displayName: String {
+        switch self {
+        case .friendOrFamily:   return Strings.AppDiscoverySource.friendOrFamily
+        case .appStore:         return Strings.AppDiscoverySource.appStore
+        case .socialMedia:      return Strings.AppDiscoverySource.socialMedia
+        case .advertisement:    return Strings.AppDiscoverySource.advertisement
+        case .webSearch:        return Strings.AppDiscoverySource.webSearch
+        case .other:            return Strings.AppDiscoverySource.other
+        }
+    }
+}
+
+enum TeethingStatus: String, Codable, CaseIterable {
+    case teething, notYet, unsure
+
+    var displayName: String {
+        switch self {
+        case .teething:         return Strings.TeethingStatus.teething
+        case .notYet:           return Strings.TeethingStatus.notYet
+        case .unsure:           return Strings.TeethingStatus.unsure
+        }
+    }
+}
+
+enum SolidFoodStatus: String, Codable, CaseIterable {
+    case notYet, justStarting, regularly, mostly
+
+    var displayName: String {
+        switch self {
+        case .notYet:           return Strings.SolidFoodStatus.notYet
+        case .justStarting:     return Strings.SolidFoodStatus.justStarting
+        case .regularly:        return Strings.SolidFoodStatus.regularly
+        case .mostly:           return Strings.SolidFoodStatus.mostly
+        }
+    }
+}
+
+enum PediatricianVisitFrequency: String, Codable, CaseIterable {
+    case whenSick, everyFewMonths, monthly, frequently
+
+    var displayName: String {
+        switch self {
+        case .whenSick:         return Strings.PediatricianVisitFrequency.whenSick
+        case .everyFewMonths:   return Strings.PediatricianVisitFrequency.everyFewMonths
+        case .monthly:          return Strings.PediatricianVisitFrequency.monthly
+        case .frequently:       return Strings.PediatricianVisitFrequency.frequently
+        }
+    }
+}
+
+enum FeedingFrequency: String, Codable, CaseIterable {
+    case every2Hours, every3Hours, every4Hours, onDemand, varies
+
+    var displayName: String {
+        switch self {
+        case .every2Hours:      return Strings.FeedingFrequency.every2Hours
+        case .every3Hours:      return Strings.FeedingFrequency.every3Hours
+        case .every4Hours:      return Strings.FeedingFrequency.every4Hours
+        case .onDemand:         return Strings.FeedingFrequency.onDemand
+        case .varies:           return Strings.FeedingFrequency.varies
+        }
+    }
+}
+
+enum ChildcareChallenge: String, Codable, CaseIterable {
+    case feeding, sleeping, diapering, soothing, selfCare, allOfIt
+
+    var displayName: String {
+        switch self {
+        case .feeding:          return Strings.ChildcareChallenge.feeding
+        case .sleeping:         return Strings.ChildcareChallenge.sleeping
+        case .diapering:        return Strings.ChildcareChallenge.diapering
+        case .soothing:         return Strings.ChildcareChallenge.soothing
+        case .selfCare:         return Strings.ChildcareChallenge.selfCare
+        case .allOfIt:          return Strings.ChildcareChallenge.allOfIt
+        }
+    }
+}
+
+enum BathingFrequency: String, Codable, CaseIterable {
+    case daily, everyFewDays, weekly, asNeeded
+
+    var displayName: String {
+        switch self {
+        case .daily:            return Strings.BathingFrequency.daily
+        case .everyFewDays:     return Strings.BathingFrequency.everyFewDays
+        case .weekly:           return Strings.BathingFrequency.weekly
+        case .asNeeded:         return Strings.BathingFrequency.asNeeded
+        }
+    }
+}
+
+enum AIUsageHistory: String, Codable, CaseIterable {
+    case regularly, occasionally, onceOrTwice, never
+
+    var displayName: String {
+        switch self {
+        case .regularly:        return Strings.AIUsageHistory.regularly
+        case .occasionally:     return Strings.AIUsageHistory.occasionally
+        case .onceOrTwice:      return Strings.AIUsageHistory.onceOrTwice
+        case .never:            return Strings.AIUsageHistory.never
+        }
+    }
+}
+
 enum LogType: String, Codable, CaseIterable {
     case feed, sleep, diaper, mood
 }

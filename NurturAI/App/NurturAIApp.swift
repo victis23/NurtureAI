@@ -69,8 +69,25 @@ struct AppRootView: View {
                                 name: restore.name,
                                 birthDate: restore.birthDate,
                                 feedingMethod: restore.feedingMethod,
+                                birthWeightGrams: restore.birthWeightGrams,
+                                currentWeightGrams: restore.currentWeightGrams,
                                 caregiverFirebaseUIDs: restore.caregiverFirebaseUIDs,
-                                createdAt: restore.createdAt
+                                createdAt: restore.createdAt,
+                                isFirstChild: restore.isFirstChild,
+                                familySupport: restore.familySupport,
+                                overwhelmLevel: restore.overwhelmLevel,
+                                emotionalWellbeing: restore.emotionalWellbeing,
+                                householdType: restore.householdType,
+                                desiredFeatures: restore.desiredFeatures,
+                                internetUsageFrequency: restore.internetUsageFrequency,
+                                appDiscoverySource: restore.appDiscoverySource,
+                                teethingStatus: restore.teethingStatus,
+                                solidFoodStatus: restore.solidFoodStatus,
+                                pediatricianVisitFrequency: restore.pediatricianVisitFrequency,
+                                feedingFrequency: restore.feedingFrequency,
+                                childcareChallenges: restore.childcareChallenges,
+                                bathingFrequency: restore.bathingFrequency,
+                                aiUsageHistory: restore.aiUsageHistory
                             )
                             try c.babyRepository.save(baby)
                             appState.hasCompletedOnboarding = true
@@ -86,33 +103,41 @@ struct AppRootView: View {
 }
 
 struct MainTabView: View {
+	@State private var tabtapped: Int = 0
+
     var body: some View {
-        TabView {
+		TabView(selection: $tabtapped) {
 			NavigationStack {
 				HomeView()
 			}
 			.tabItem { Label("Today", systemImage: "sun.max") }
+			.tag(0)
 
 			NavigationStack {
 				AssistView()
 			}
 			.tabItem { Label("Ask AI", systemImage: "bubble.left.and.bubble.right") }
+			.tag(1)
 
 			NavigationStack {
 				QuickLogView()
 			}
 			.tabItem { Label("Log", systemImage: "plus.circle.fill") }
+			.tag(2)
 
 			NavigationStack {
 				LogHistoryView()
 			}
 			.tabItem { Label("History", systemImage: "clock") }
+			.tag(3)
 
 			NavigationStack {
 				SettingsView()
 			}
-			.tabItem { Label("Settings", systemImage: "gear") }     
+			.tabItem { Label("Settings", systemImage: "gear") }
+			.tag(4)
         }
         .tint(NurturColors.accent)
+		.sensoryFeedback(.selection, trigger: tabtapped)
     }
 }

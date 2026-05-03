@@ -48,7 +48,7 @@ extension Strings {
 		static let contact = Contact(
 			entity:  "Michael Wells",
 			address: "",
-			email:   "support@getnurtur.com"
+			email:   "support@trynurtur.com"
 		)
 
 		// MARK: - Sections

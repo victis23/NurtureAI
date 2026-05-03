@@ -12,6 +12,23 @@ final class Baby {
     var sensitivities: [String]
     var caregiverFirebaseUIDs: [String]
     var createdAt: Date
+	var isFirstChild: Bool
+
+	// Extended onboarding answers
+	var familySupport: FamilySupport
+	var overwhelmLevel: OverwhelmLevel
+	var emotionalWellbeing: EmotionalWellbeing
+	var householdType: HouseholdType
+	var desiredFeatures: [String]      // raw values of DesiredFeature
+	var internetUsageFrequency: InternetUsageFrequency
+	var appDiscoverySource: AppDiscoverySource
+	var teethingStatus: TeethingStatus
+	var solidFoodStatus: SolidFoodStatus
+	var pediatricianVisitFrequency: PediatricianVisitFrequency
+	var feedingFrequency: FeedingFrequency
+	var childcareChallenges: [String]  // raw values of ChildcareChallenge
+	var bathingFrequency: BathingFrequency
+	var aiUsageHistory: AIUsageHistory
 
     @Relationship(deleteRule: .cascade)
     var logs: [BabyLog]
@@ -43,7 +60,22 @@ final class Baby {
         currentWeightGrams: Int = 0,
         sensitivities: [String] = [],
         caregiverFirebaseUIDs: [String] = [],
-        createdAt: Date = .now
+        createdAt: Date = .now,
+		isFirstChild: Bool = true,
+		familySupport: FamilySupport = .preferNotToSay,
+		overwhelmLevel: OverwhelmLevel = .preferNotToSay,
+		emotionalWellbeing: EmotionalWellbeing = .preferNotToSay,
+		householdType: HouseholdType = .preferNotToSay,
+		desiredFeatures: [String] = [],
+		internetUsageFrequency: InternetUsageFrequency = .sometimes,
+		appDiscoverySource: AppDiscoverySource = .other,
+		teethingStatus: TeethingStatus = .unsure,
+		solidFoodStatus: SolidFoodStatus = .notYet,
+		pediatricianVisitFrequency: PediatricianVisitFrequency = .everyFewMonths,
+		feedingFrequency: FeedingFrequency = .onDemand,
+		childcareChallenges: [String] = [],
+		bathingFrequency: BathingFrequency = .everyFewDays,
+		aiUsageHistory: AIUsageHistory = .never
     ) {
         self.id = id
         self.name = name
@@ -56,5 +88,20 @@ final class Baby {
         self.createdAt = createdAt
         self.logs = []
         self.insights = []
+		self.isFirstChild = isFirstChild
+		self.familySupport = familySupport
+		self.overwhelmLevel = overwhelmLevel
+		self.emotionalWellbeing = emotionalWellbeing
+		self.householdType = householdType
+		self.desiredFeatures = desiredFeatures
+		self.internetUsageFrequency = internetUsageFrequency
+		self.appDiscoverySource = appDiscoverySource
+		self.teethingStatus = teethingStatus
+		self.solidFoodStatus = solidFoodStatus
+		self.pediatricianVisitFrequency = pediatricianVisitFrequency
+		self.feedingFrequency = feedingFrequency
+		self.childcareChallenges = childcareChallenges
+		self.bathingFrequency = bathingFrequency
+		self.aiUsageHistory = aiUsageHistory
     }
 }

@@ -42,6 +42,16 @@ enum Strings {
         static let navigationTitle  = "Welcome to NurturAI"
         static let continueButton   = "Continue"
         static let getStarted       = "Get Started"
+		
+		enum Greeting {
+			static let welcome = "Welcome to Nurtur"
+			static let welcomeSubTitle = "Your ai parenting helper"
+
+			static let greeting1 = "We know parenting can feel overwhelming—especially when it’s all new. That’s exactly why we created this app."
+			
+			static let greeting2 = "Our goal is simple: to support you with guidance you can trust, so you can focus on what matters most—your baby."
+			static let greeting3 = "Get instant, personalized answers tailored to your child, powered by AI and grounded in real pediatric research. Because you deserve confidence, not guesswork."
+		}
 
         enum Name {
             static let heading      = "What's your baby's name?"
@@ -58,6 +68,96 @@ enum Strings {
         enum Feeding {
             static let heading      = "How are you feeding?"
             static let subheading   = "NurturAI tailors feed tracking and AI responses to your method."
+        }
+
+		enum KidCount {
+			static let heading      = "Is this your first child?"
+			static let subheading   = "NurturAI tailors tracking and AI responses to your experience level, stress indicators, and other data points."
+			static let dataProtectionStatement = "Remember your data will always be protected and confidential."
+		}
+
+        enum Support {
+            static let heading      = "Do you have someone you can lean on?"
+            static let subheading   = "Parenting feels lighter when there's a hand to hold. We'd love to know who's in your corner."
+        }
+
+        enum Overwhelm {
+            static let heading      = "Have things felt like a lot lately?"
+            static let subheading   = "It's okay if they have. Even the gentlest days of parenthood can feel like a lot — there's no judgement here."
+        }
+
+        enum Wellbeing {
+            static let heading      = "How has your heart been feeling?"
+            static let subheading   = "Becoming a parent can stir up emotions that are hard to name. Whatever you share stays private — we'll always meet you with care."
+        }
+
+        enum Household {
+            static let heading      = "Who's part of your parenting team at home?"
+            static let subheading   = "Every family looks different, and we want to support yours just as it is."
+        }
+
+        enum Features {
+            static let heading      = "What would feel most helpful right now?"
+            static let subheading   = "Pick anything that catches your eye — we'll personalize the app to you."
+            static let multiSelectHint = "Select all that apply."
+        }
+
+        enum InternetUsage {
+            static let heading      = "How often do you turn to the internet for answers about your little one?"
+            static let subheading   = "We've all done it. Knowing this helps us bring trustworthy info closer to you, so you don't have to dig."
+        }
+
+        enum AppDiscovery {
+            static let heading      = "How did you find your way to us?"
+            static let subheading   = "We're so glad you're here."
+        }
+
+        enum Teething {
+            static let heading      = "Has teething started yet?"
+            static let subheading   = "Those first little teeth bring big feelings — for everyone."
+        }
+
+        enum SolidFoods {
+            static let heading      = "Has your little one started exploring solid foods?"
+            static let subheading   = "Every tiny taste is a milestone. We'll meet you wherever you are."
+        }
+
+        enum Pediatrician {
+            static let heading      = "How often do you visit the pediatrician?"
+            static let subheading   = "We'll tailor reminders and tips to fit your rhythm."
+        }
+
+        enum BirthWeight {
+            static let heading      = "How much did your little one weigh at birth?"
+            static let subheading   = "We use this to gently track growth over time."
+            static let placeholder  = "Birth weight"
+        }
+
+        enum CurrentWeight {
+            static let heading      = "And what was their weight at the last check?"
+            static let subheading   = "It's okay if you're not sure — you can always update this later."
+            static let placeholder  = "Current weight"
+        }
+
+        enum FeedingFreq {
+            static let heading      = "How often does your little one feed in a typical day?"
+            static let subheading   = "Every baby has their own rhythm — there's no wrong answer."
+        }
+
+        enum Challenges {
+            static let heading      = "What's been feeling the hardest right now?"
+            static let subheading   = "We all have those moments. Knowing this helps us focus where you need us most."
+            static let multiSelectHint = "Select all that apply."
+        }
+
+        enum Bathing {
+            static let heading      = "How often does bath time happen at your house?"
+            static let subheading   = "Splashy and daily or weekly and calm — both are perfect."
+        }
+
+        enum AIUsage {
+            static let heading      = "Have you used AI for parenting support before?"
+            static let subheading   = "There's no right or wrong answer — we'll meet you wherever you are."
         }
     }
 
@@ -132,6 +232,9 @@ enum Strings {
         static let noLogsMessage    = "Start logging feeds, sleep, and diapers."
         static let today            = "Today"
         static let yesterday        = "Yesterday"
+        static let editStartLabel   = "Start"
+        static let editEndLabel     = "End"
+        static func editTitle(_ type: String) -> String { "Edit \(type)" }
     }
 
     // MARK: - Assist
@@ -244,6 +347,119 @@ enum Strings {
         static let breast   = "Breastfeeding"
         static let formula  = "Formula"
         static let combo    = "Combo"
+    }
+
+	enum ChildCount {
+		static let hasOneKid = "Yes, this is my first kid."
+		static let hasManyKids = "No, this isn't my first kid."
+	}
+
+    enum FamilySupport {
+        static let strong           = "Yes, I have a strong support system"
+        static let occasional       = "Sometimes, when I really need it"
+        static let noSupport        = "It's mostly on me right now"
+        static let preferNotToSay   = "I'd rather not say"
+    }
+
+    enum OverwhelmLevel {
+        static let rarely           = "Rarely — I feel mostly steady"
+        static let sometimes        = "Sometimes, on the harder days"
+        static let often            = "Often"
+        static let almostAlways     = "Almost always"
+        static let preferNotToSay   = "I'd rather not say"
+    }
+
+    enum EmotionalWellbeing {
+        static let doingOkay        = "I'm doing okay"
+        static let someHardDays     = "I have some hard days"
+        static let struggling       = "I've been struggling"
+        static let preferNotToSay   = "I'd rather not say"
+    }
+
+    enum HouseholdType {
+        static let twoParent        = "Two parents at home"
+        static let singleParent     = "Just me, parenting solo"
+        static let coParenting      = "Co-parenting across two homes"
+        static let extendedFamily   = "With extended family"
+        static let other            = "Something else"
+        static let preferNotToSay   = "I'd rather not say"
+    }
+
+    enum DesiredFeature {
+        static let sleepTracking    = "Sleep tracking"
+        static let feedingTracking  = "Feeding tracking"
+        static let aiAdvice         = "AI guidance and answers"
+        static let milestones       = "Milestone tracking"
+        static let growthTracking   = "Growth tracking"
+        static let diaperTracking   = "Diaper tracking"
+        static let communitySupport = "Community and support"
+    }
+
+    enum InternetUsageFrequency {
+        static let rarely           = "Rarely"
+        static let sometimes        = "Sometimes"
+        static let daily            = "Most days"
+        static let manyTimesDaily   = "Many times a day"
+    }
+
+    enum AppDiscoverySource {
+        static let friendOrFamily   = "A friend or family member"
+        static let appStore         = "Browsing the App Store"
+        static let socialMedia      = "Social media"
+        static let advertisement    = "An ad"
+        static let webSearch        = "A web search"
+        static let other            = "Somewhere else"
+    }
+
+    enum TeethingStatus {
+        static let teething         = "Yes, we're in it"
+        static let notYet           = "Not yet"
+        static let unsure           = "I'm not sure"
+    }
+
+    enum SolidFoodStatus {
+        static let notYet           = "Not yet — still milk only"
+        static let justStarting     = "Just starting to explore"
+        static let regularly        = "Eating solids regularly"
+        static let mostly           = "Mostly solids now"
+    }
+
+    enum PediatricianVisitFrequency {
+        static let whenSick         = "Mostly when something feels off"
+        static let everyFewMonths   = "Every few months"
+        static let monthly          = "About once a month"
+        static let frequently       = "More often than monthly"
+    }
+
+    enum FeedingFrequency {
+        static let every2Hours      = "About every 2 hours"
+        static let every3Hours      = "About every 3 hours"
+        static let every4Hours      = "About every 4 hours"
+        static let onDemand         = "On demand"
+        static let varies           = "It varies day to day"
+    }
+
+    enum ChildcareChallenge {
+        static let feeding          = "Feeding"
+        static let sleeping         = "Sleeping"
+        static let diapering        = "Diaper changes"
+        static let soothing         = "Soothing"
+        static let selfCare         = "Taking care of myself"
+        static let allOfIt          = "Honestly, all of it"
+    }
+
+    enum BathingFrequency {
+        static let daily            = "Every day"
+        static let everyFewDays     = "Every few days"
+        static let weekly           = "About once a week"
+        static let asNeeded         = "Whenever it's needed"
+    }
+
+    enum AIUsageHistory {
+        static let regularly        = "Yes, regularly"
+        static let occasionally     = "Occasionally"
+        static let onceOrTwice      = "Just once or twice"
+        static let never            = "Not yet"
     }
 
     enum Mood {

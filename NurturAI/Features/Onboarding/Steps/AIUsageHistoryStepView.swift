@@ -1,45 +1,45 @@
 import SwiftUI
 
-struct FeedingMethodStepView: View {
-    @Binding var feedingMethod: FeedingMethod
+struct AIUsageHistoryStepView: View {
+    @Binding var stepState: AIUsageHistory
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
-                Text(Strings.Onboarding.Feeding.heading)
+                Text(Strings.Onboarding.AIUsage.heading)
                     .font(NurturTypography.title2)
                     .foregroundStyle(NurturColors.textPrimary)
-                Text(Strings.Onboarding.Feeding.subheading)
+                Text(Strings.Onboarding.AIUsage.subheading)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
             }
 
             VStack(spacing: 12) {
-                ForEach(FeedingMethod.allCases, id: \.self) { method in
+                ForEach(AIUsageHistory.allCases, id: \.self) { selectedAnswer in
                     Button {
-                        feedingMethod = method
+                        stepState = selectedAnswer
                     } label: {
                         HStack {
-                            Text(method.displayName)
+                            Text(selectedAnswer.displayName)
                                 .font(NurturTypography.headline)
                             Spacer()
-                            if feedingMethod == method {
+                            if stepState == selectedAnswer {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.white)
                             }
                         }
                         .padding(18)
                         .glassEffect(
-                            feedingMethod == method
+                            stepState == selectedAnswer
                                 ? .regular.tint(NurturColors.accent).interactive()
                                 : .regular.interactive(),
                             in: RoundedRectangle(cornerRadius: 14)
                         )
-                        .foregroundStyle(feedingMethod == method ? .white : NurturColors.textPrimary)
+                        .foregroundStyle(stepState == selectedAnswer ? .white : NurturColors.textPrimary)
                     }
                 }
             }
-            .sensoryFeedback(.selection, trigger: feedingMethod)
+            .sensoryFeedback(.selection, trigger: stepState)
         }
     }
 }
