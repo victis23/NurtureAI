@@ -12,6 +12,7 @@ final class Baby {
     var sensitivities: [String]
     var caregiverFirebaseUIDs: [String]
     var createdAt: Date
+	var isFirstChild: Bool
 
     @Relationship(deleteRule: .cascade)
     var logs: [BabyLog]
@@ -43,7 +44,8 @@ final class Baby {
         currentWeightGrams: Int = 0,
         sensitivities: [String] = [],
         caregiverFirebaseUIDs: [String] = [],
-        createdAt: Date = .now
+        createdAt: Date = .now,
+		isFirstChild: Bool = true
     ) {
         self.id = id
         self.name = name
@@ -56,5 +58,6 @@ final class Baby {
         self.createdAt = createdAt
         self.logs = []
         self.insights = []
+		self.isFirstChild = isFirstChild
     }
 }

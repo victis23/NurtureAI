@@ -22,6 +22,25 @@ struct BabyNameStepView: View {
                 .focused($isFocused)
                 .padding(16)
                 .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 14))
+			
+			Spacer()
+			
+			VStack {
+				Text(Strings.Onboarding.Greeting.greeting2)
+					.multilineTextAlignment(.center)
+					.font(NurturTypography.bodyMedium)
+					.lineSpacing(10)
+					.fontWeight(.light)
+					.foregroundStyle(.black.opacity(0.7))
+					.padding(10)
+			}
+			.background(
+				.ultraThinMaterial
+					.opacity(0.5)
+					.shadow(.drop(radius: 3)),
+				in: RoundedRectangle(cornerRadius: 15)
+			)
+			.background(.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
         }
         .onAppear { isFocused = true }
     }

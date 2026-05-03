@@ -94,6 +94,8 @@ struct OnboardingView: View {
             BabyNameStepView(name: $viewModel.draft.name)
         case .birthday:
             BabyBirthdayStepView(birthDate: $viewModel.draft.birthDate)
+		case .kidCount:
+			KidCountStepView(firstChild: $viewModel.draft.kidCount)
         case .feedingMethod:
             FeedingMethodStepView(feedingMethod: $viewModel.draft.feedingMethod)
 		case .upsale:

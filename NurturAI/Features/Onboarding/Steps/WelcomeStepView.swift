@@ -19,25 +19,23 @@ struct WelcomeStepView: View {
 					.font(NurturTypography.caption)
 					.italic()
 
-				Text(Strings.Onboarding.Greeting.greeting1)
-					.multilineTextAlignment(.center)
-					.font(NurturTypography.title3)
-					.fontWeight(.heavy)
-					.foregroundStyle(.accentOrange.opacity(0.7))
-					.padding(5)
+				Spacer()
+					.frame(height: 50)
 				
 				VStack {
-					Text(Strings.Onboarding.Greeting.greeting2)
+					Text(Strings.Onboarding.Greeting.greeting1)
 						.multilineTextAlignment(.center)
-						.font(NurturTypography.title2)
+						.font(NurturTypography.bodyMedium)
+						.lineSpacing(10)
 						.fontWeight(.light)
-						.padding(.horizontal, 20)
-					Text(Strings.Onboarding.Greeting.greeting3)
-						.multilineTextAlignment(.center)
-						.font(NurturTypography.title2)
-						.fontWeight(.light)
-						.padding(.horizontal, 20)
-						.padding(.top, 5)
+						.foregroundStyle(.black.opacity(0.7))
+						.padding(10)
+//					Text(Strings.Onboarding.Greeting.greeting3)
+//						.multilineTextAlignment(.center)
+//						.font(NurturTypography.title2)
+//						.fontWeight(.light)
+//						.padding(.horizontal, 20)
+//						.padding(.top, 5)
 				}
 				.background(
 					.ultraThinMaterial

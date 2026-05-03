@@ -20,6 +20,7 @@ actor FirestoreSyncService {
         let feedingMethod: FeedingMethod
         let caregiverFirebaseUIDs: [String]
         let createdAt: Date
+        let isFirstChild: Bool
     }
 
     // Queries Firestore for a baby document that lists uid in caregiverFirebaseUIDs.
@@ -45,6 +46,7 @@ actor FirestoreSyncService {
 
         let caregiverUIDs = data["caregiverFirebaseUIDs"] as? [String] ?? [uid]
         let createdAt     = (data["createdAt"] as? Timestamp)?.dateValue() ?? .now
+        let isFirstChild  = data["isFirstChild"] as? Bool ?? true
 
         return BabyRestoreData(
             id: id,
@@ -52,7 +54,8 @@ actor FirestoreSyncService {
             birthDate: birthDate,
             feedingMethod: feedingMethod,
             caregiverFirebaseUIDs: caregiverUIDs,
-            createdAt: createdAt
+            createdAt: createdAt,
+            isFirstChild: isFirstChild
         )
     }
 
@@ -77,7 +80,8 @@ actor FirestoreSyncService {
             "birthDate":             Timestamp(date: baby.birthDate),
             "feedingMethod":         baby.feedingMethod.rawValue,
             "caregiverFirebaseUIDs": uids,
-            "createdAt":             Timestamp(date: baby.createdAt)
+            "createdAt":             Timestamp(date: baby.createdAt),
+            "isFirstChild":          baby.isFirstChild
         ]
         try await db
             .collection("babies")

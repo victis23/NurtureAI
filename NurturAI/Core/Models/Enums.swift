@@ -12,6 +12,17 @@ enum FeedingMethod: String, Codable, CaseIterable {
     }
 }
 
+enum FirstChild: String, Codable, CaseIterable {
+	case onlyChild, hasSiblings
+
+	var displayName: String {
+		switch self {
+		case .onlyChild: return Strings.ChildCount.hasOneKid
+		case .hasSiblings: return Strings.ChildCount.hasManyKids
+		}
+	}
+}
+
 enum LogType: String, Codable, CaseIterable {
     case feed, sleep, diaper, mood
 }

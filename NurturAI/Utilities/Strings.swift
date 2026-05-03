@@ -69,6 +69,12 @@ enum Strings {
             static let heading      = "How are you feeding?"
             static let subheading   = "NurturAI tailors feed tracking and AI responses to your method."
         }
+
+		enum KidCount {
+			static let heading      = "Is this your first child?"
+			static let subheading   = "NurturAI tailors tracking and AI responses to your experience level, stress indicators, and other data points."
+			static let dataProtectionStatement = "Remember your data will always be protected and confidential."
+		}
     }
 
     // MARK: - Home
@@ -258,6 +264,11 @@ enum Strings {
         static let formula  = "Formula"
         static let combo    = "Combo"
     }
+
+	enum ChildCount {
+		static let hasOneKid = "Yes, this is my first kid."
+		static let hasManyKids = "No, this isn't my first kid."
+	}
 
     enum Mood {
         static let content  = "Content"

@@ -13,6 +13,7 @@ final class OnboardingViewModel {
 		case welcome
         case name
 		case birthday
+		case kidCount
 		case feedingMethod
 		case upsale
 
@@ -24,13 +25,14 @@ final class OnboardingViewModel {
         var name: String = ""
         var birthDate: Date = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
         var feedingMethod: FeedingMethod = .breast
+		var kidCount: FirstChild = .onlyChild
     }
 
     var canAdvance: Bool {
         switch currentStep {
         case .name:           return !draft.name.trimmingCharacters(in: .whitespaces).isEmpty
         case .birthday:       return draft.birthDate <= .now
-		case .feedingMethod, .upsale, .welcome:  return true
+		case .feedingMethod, .upsale, .welcome, .kidCount:  return true
         }
     }
 
@@ -64,7 +66,8 @@ final class OnboardingViewModel {
 			feedingMethod: draft.feedingMethod,
             birthWeightGrams: 0,
             currentWeightGrams: 0,
-            caregiverFirebaseUIDs: [uid]
+			caregiverFirebaseUIDs: [uid],
+			isFirstChild: draft.kidCount == .onlyChild
         )
         context.insert(baby)
         do {

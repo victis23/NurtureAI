@@ -70,7 +70,8 @@ struct AppRootView: View {
                                 birthDate: restore.birthDate,
                                 feedingMethod: restore.feedingMethod,
                                 caregiverFirebaseUIDs: restore.caregiverFirebaseUIDs,
-                                createdAt: restore.createdAt
+								createdAt: restore.createdAt,
+								isFirstChild: restore.isFirstChild
                             )
                             try c.babyRepository.save(baby)
                             appState.hasCompletedOnboarding = true
