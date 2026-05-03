@@ -159,6 +159,13 @@ enum Strings {
             static let heading      = "Have you used AI for parenting support before?"
             static let subheading   = "There's no right or wrong answer — we'll meet you wherever you are."
         }
+
+        enum AIPreview {
+            static let heading          = "A first taste, just for you"
+            static let subheading       = "Based on what you shared, here's a personalized first insight from NurturAI."
+            static let loadingTitle     = "Personalizing your first insight…"
+            static let loadingSubtitle  = "Drawing from what you shared about your little one."
+        }
     }
 
     // MARK: - Home

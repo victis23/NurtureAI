@@ -130,6 +130,8 @@ struct OnboardingView: View {
 			AIUsageHistoryStepView(stepState: $viewModel.draft.aiUsageHistory)
 		case .appDiscovery:
 			AppDiscoveryStepView(stepState: $viewModel.draft.appDiscoverySource)
+		case .aiPreview:
+			OnboardingPreviewStepView(draft: viewModel.draft)
 		case .upsale:
 			PaywallView(isOnboarding: true)
         }

@@ -31,6 +31,7 @@ final class OnboardingViewModel {
 		case internetUsage
 		case aiUsage
 		case appDiscovery
+		case aiPreview
 		case upsale
 
         var progress: Double {
