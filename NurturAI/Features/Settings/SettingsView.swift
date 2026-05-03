@@ -69,30 +69,15 @@ private struct SettingsContentView: View {
 	@Binding var showDeleteConfirmation: Bool
     @Environment(AppState.self) private var appState
 
+    /// Drives the field edit sheet. Set by tapping any editable row; the
+    /// sheet binds to it via `.sheet(item:)`.
+    @State private var fieldToEdit: EditableField? = nil
+
     var body: some View {
         List {
-            // Baby profile
-            Section(Strings.Settings.BabyProfile.sectionTitle) {
-                if viewModel.isEditing {
-                    VStack(alignment: .leading, spacing: 12) {
-                        TextField(Strings.Settings.BabyProfile.nameLabel, text: $viewModel.editingName)
-                            .textFieldStyle(.roundedBorder)
-                        DatePicker(Strings.Settings.BabyProfile.birthdayLabel, selection: $viewModel.editingBirthDate, in: ...Date(), displayedComponents: .date)
-                        HStack {
-                            Button(Strings.Common.cancel) {
-                                viewModel.isEditing = false
-                            }
-                            .foregroundStyle(NurturColors.textSecondary)
-                            Spacer()
-                            Button(Strings.Common.save) {
-                                viewModel.saveEdits()
-                            }
-                            .fontWeight(.semibold)
-                            .foregroundStyle(NurturColors.accent)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                } else if let baby = viewModel.baby {
+            // Baby identity hero row (read-only summary; details are edited via the rows below)
+            if let baby = viewModel.baby {
+                Section {
                     HStack {
                         BabyAvatar(name: baby.name, size: 44)
                         VStack(alignment: .leading, spacing: 2) {
@@ -104,10 +89,42 @@ private struct SettingsContentView: View {
                                 .foregroundStyle(NurturColors.textSecondary)
                         }
                         Spacer()
-                        Button(Strings.Common.edit) { viewModel.isEditing = true }
-                            .font(NurturTypography.subheadline)
-                            .foregroundStyle(NurturColors.accent)
                     }
+                }
+
+                Section(Strings.Settings.Edit.yourBabySection) {
+                    editableRow(.name, baby: baby)
+                    editableRow(.birthday, baby: baby)
+                    editableRow(.kidCount, baby: baby)
+                    editableRow(.birthWeight, baby: baby)
+                    editableRow(.currentWeight, baby: baby)
+                    editableRow(.teething, baby: baby)
+                    editableRow(.solidFoods, baby: baby)
+                }
+
+                Section(Strings.Settings.Edit.dailyCareSection) {
+                    editableRow(.feedingMethod, baby: baby)
+                    editableRow(.feedingFrequency, baby: baby)
+                    editableRow(.bathing, baby: baby)
+                    editableRow(.pediatrician, baby: baby)
+                }
+
+                Section(Strings.Settings.Edit.familySection) {
+                    editableRow(.household, baby: baby)
+                    editableRow(.familySupport, baby: baby)
+                    editableRow(.challenges, baby: baby)
+                }
+
+                Section(Strings.Settings.Edit.wellbeingSection) {
+                    editableRow(.wellbeing, baby: baby)
+                    editableRow(.overwhelm, baby: baby)
+                }
+
+                Section(Strings.Settings.Edit.appSection) {
+                    editableRow(.features, baby: baby)
+                    editableRow(.internetUsage, baby: baby)
+                    editableRow(.aiUsage, baby: baby)
+                    editableRow(.appDiscovery, baby: baby)
                 }
             }
 
@@ -187,6 +204,38 @@ private struct SettingsContentView: View {
         .listStyle(.insetGrouped)
         .background(NurturColors.background)
         .errorAlert(error: $viewModel.error)
+        .sheet(item: $fieldToEdit) { field in
+            if let baby = viewModel.baby {
+                FieldEditSheet(field: field, baby: baby) {
+                    viewModel.saveBaby()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func editableRow(_ field: EditableField, baby: Baby) -> some View {
+        Button {
+            fieldToEdit = field
+        } label: {
+            HStack {
+                Text(field.label)
+                    .font(NurturTypography.subheadline)
+                    .foregroundStyle(NurturColors.textPrimary)
+                Spacer(minLength: 12)
+                Text(field.currentValueText(for: baby))
+                    .font(NurturTypography.subheadline)
+                    .foregroundStyle(NurturColors.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(NurturColors.textFaint)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

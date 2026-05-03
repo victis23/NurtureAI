@@ -299,6 +299,14 @@ enum Strings {
             static let birthdayLabel    = "Birthday"
         }
 
+        enum Edit {
+            static let yourBabySection      = "Your Baby"
+            static let dailyCareSection     = "Daily Care"
+            static let familySection        = "Family & Support"
+            static let wellbeingSection     = "How You're Feeling"
+            static let appSection           = "App Preferences"
+        }
+
         enum Subscription {
             static let sectionTitle     = "Subscription"
             static let proPlan          = "Pro Plan"
