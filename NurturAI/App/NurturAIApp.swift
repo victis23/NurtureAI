@@ -27,6 +27,8 @@ struct AppRootView: View {
 	@State private var showTermsAndConditions = false
 
     var body: some View {
+        @Bindable var appState = appState
+
         Group {
             if let container {
                 Group {
@@ -49,6 +51,9 @@ struct AppRootView: View {
             } else {
                 ProgressView()
             }
+        }
+        .overlay {
+            ConfettiOverlayView(trigger: $appState.confettiTrigger)
         }
         .task {
             if container == nil {

@@ -42,6 +42,7 @@ enum Strings {
         static let navigationTitle  = "Welcome to NurturAI"
         static let continueButton   = "Continue"
         static let getStarted       = "Get Started"
+		static let tryForFree       = "Try For Free"
 		
 		enum Greeting {
 			static let welcome = "Welcome to Nurtur"
@@ -135,7 +136,7 @@ enum Strings {
 
         enum CurrentWeight {
             static let heading      = "And what was their weight at the last check?"
-            static let subheading   = "It's okay if you're not sure — you can always update this later."
+            static let subheading   = "Their latest weigh-in helps us spot growth patterns. You can update it any time later."
             static let placeholder  = "Current weight"
         }
 
@@ -158,6 +159,22 @@ enum Strings {
         enum AIUsage {
             static let heading      = "Have you used AI for parenting support before?"
             static let subheading   = "There's no right or wrong answer — we'll meet you wherever you are."
+        }
+
+        enum AIPreview {
+            static let heading          = "A first taste, just for you"
+            static let subheading       = "Based on what you shared, here's a personalized first insight from NurturAI."
+            static let loadingTitle     = "Personalizing your first insight…"
+            static let loadingSubtitle  = "Drawing from what you shared about your little one."
+        }
+
+        enum Rating {
+            static let heading          = "Help other parents find us"
+            static let subheading       = "If NurturAI is starting to feel like a helpful corner for you, a quick rating means the world."
+            static let encourageTitle   = "Why your rating matters"
+            static let encourageBody    = "Real reviews from parents like you help tired families find help when they need it most. It takes about 10 seconds — and every star genuinely counts."
+            static let actionLabel      = "Leave a rating"
+            static let skipLabel        = "Maybe later"
         }
     }
 
@@ -280,6 +297,14 @@ enum Strings {
             static let sectionTitle     = "Baby Profile"
             static let nameLabel        = "Name"
             static let birthdayLabel    = "Birthday"
+        }
+
+        enum Edit {
+            static let yourBabySection      = "Your Baby"
+            static let dailyCareSection     = "Daily Care"
+            static let familySection        = "Family & Support"
+            static let wellbeingSection     = "How You're Feeling"
+            static let appSection           = "App Preferences"
         }
 
         enum Subscription {

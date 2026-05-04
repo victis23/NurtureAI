@@ -9,6 +9,12 @@ final class OnboardingViewModel {
     var isSaving: Bool = false
     var error: String?
 
+    /// Cached AI preview result. Stored on the ViewModel (not the step view's
+    /// @State) so it survives the view recreation that happens when the user
+    /// navigates back and forward through onboarding — once generated, the
+    /// preview screen shows the same response on revisit instead of refetching.
+    var cachedPreview: OnboardingPreview?
+
     enum OnboardingStep: Int, CaseIterable {
 		case welcome
         case name
@@ -31,6 +37,8 @@ final class OnboardingViewModel {
 		case internetUsage
 		case aiUsage
 		case appDiscovery
+		case aiPreview
+		case rating
 		case upsale
 
         var progress: Double {
@@ -66,13 +74,19 @@ final class OnboardingViewModel {
         switch currentStep {
         case .name:           return !draft.name.trimmingCharacters(in: .whitespaces).isEmpty
         case .birthday:       return draft.birthDate <= .now
+        case .birthWeight:    return draft.birthWeightGrams > 0
+        case .currentWeight:  return draft.currentWeightGrams > 0
 		default: return true
         }
     }
 
     func advance() {
+        // Defensive: respect the gate even if the View layer somehow calls
+        // through (e.g. a queued transition after a rapid double-tap that
+        // slipped past the button's disabled state).
         let steps = OnboardingStep.allCases
-        guard let idx = steps.firstIndex(of: currentStep),
+        guard canAdvance,
+              let idx = steps.firstIndex(of: currentStep),
               idx + 1 < steps.count
         else { return }
         currentStep = steps[idx + 1]
@@ -123,6 +137,9 @@ final class OnboardingViewModel {
             try await syncService.syncBaby(baby)
             appState.currentBaby = baby
             appState.hasCompletedOnboarding = true
+            // Fire the root-level confetti — this is a first-completion event
+            // by definition (we only reach `complete()` once per install).
+            appState.confettiTrigger = UUID()
         } catch {
             self.error = Strings.Errors.Onboarding.saveFailed
         }

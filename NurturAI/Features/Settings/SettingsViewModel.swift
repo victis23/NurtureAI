@@ -11,9 +11,6 @@ final class SettingsViewModel {
     private let appState: AppState
 
     var baby: Baby?
-    var editingName: String = ""
-    var editingBirthDate: Date = .now
-    var isEditing: Bool = false
     var error: AppError?
     var isDeletingAccount: Bool = false
 
@@ -34,22 +31,18 @@ final class SettingsViewModel {
     func load() {
         do {
             baby = try babyRepository.fetchAll().first
-            if let baby {
-                editingName = baby.name
-                editingBirthDate = baby.birthDate
-            }
         } catch {
             self.error = .data(error)
         }
     }
 
-    func saveEdits() {
+    /// Persists the in-memory mutations made by `FieldEditSheet`. The sheet
+    /// writes new values onto the Baby (a SwiftData @Model reference type)
+    /// when the user taps Save; this just commits them to disk.
+    func saveBaby() {
         guard let baby else { return }
-        baby.name = editingName.trimmingCharacters(in: .whitespaces)
-        baby.birthDate = editingBirthDate
         do {
             try babyRepository.save(baby)
-            isEditing = false
         } catch {
             self.error = .data(error)
         }
