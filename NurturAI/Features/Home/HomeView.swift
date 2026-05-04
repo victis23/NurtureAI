@@ -63,6 +63,7 @@ private struct HomeContentView: View {
 						// Header
 						HStack(spacing: 12) {
 							BabyAvatar(name: baby.name, size: 56)
+								.glassEffect(.regular, in: Circle())
 							VStack(alignment: .leading, spacing: 2) {
 								Text(baby.name)
 									.font(NurturTypography.title3)
@@ -87,7 +88,12 @@ private struct HomeContentView: View {
 						}
 						
 						// Prediction card
+						// Suppressed during an active sleep session — the awake
+						// window the saved patterns report is from before sleep
+						// started, so the "approaching the limit" warning would
+						// be stale (and contradicting what the parent is doing).
 						if let patterns = viewModel.patterns,
+						   viewModel.activeTimerSession?.type != .sleep,
 						   patterns.currentAwakeWindowMinutes > 0,
 						   patterns.currentAwakeWindowMinutes >= patterns.ageAppropriateMaxAwakeMinutes - 15 {
 							PredictionCard(
