@@ -1,6 +1,38 @@
 import Foundation
 import SwiftData
 
+/// One round in a conversation: the parent's question + the AI's reply (or
+/// the error / in-flight placeholder). Persisted as part of the conversation
+/// array so the thread survives app relaunches.
+struct AssistTurn: Codable, Identifiable {
+    let id: UUID
+    let question: String
+    var response: AIResponse?
+    var errorMessage: String?
+    /// Set once the response has been saved as an AIInsight, so we can later
+    /// look it up in SwiftData to persist thumbs-up/down feedback.
+    var insightID: UUID?
+    /// Mirror of `AIInsight.wasHelpful` so feedback state survives relaunch
+    /// without a SwiftData fetch on every render.
+    var wasHelpful: Bool?
+
+    init(
+        id: UUID = UUID(),
+        question: String,
+        response: AIResponse? = nil,
+        errorMessage: String? = nil,
+        insightID: UUID? = nil,
+        wasHelpful: Bool? = nil
+    ) {
+        self.id = id
+        self.question = question
+        self.response = response
+        self.errorMessage = errorMessage
+        self.insightID = insightID
+        self.wasHelpful = wasHelpful
+    }
+}
+
 @MainActor
 @Observable
 final class AssistViewModel {
@@ -12,32 +44,51 @@ final class AssistViewModel {
 
     var query: String = ""
 
-    /// UserDefaults key for the persisted last response. Lives outside the
-    /// instance so the stored-property initializer below can reference it.
-    private static let lastResponseKey = "assist.lastResponse"
+    /// UserDefaults keys for the persisted conversation. Live outside the
+    /// instance so the stored-property initializers below can reference them.
+    private static let conversationKey      = "assist.conversation"
+    private static let historicalContextKey = "assist.historicalContext"
+    /// Pre-conversation key — single `AIResponse` cached as the "last reply".
+    /// Replaced by the conversation array; cleared on first launch after
+    /// upgrade so we don't leak stale state into the new model.
+    private static let legacyLastResponseKey = "assist.lastResponse"
 
-    /// Stored backing for `parsedResponse` — the property `@Observable`
-    /// actually tracks. The computed `parsedResponse` below mirrors writes
-    /// to UserDefaults so the previous AI answer survives leaving the
-    /// Assist tab and even an app relaunch. Mirrors the
-    /// `_hasCompletedOnboarding` / `hasCompletedOnboarding` pattern used
-    /// in `AppState`.
-    private var _parsedResponse: AIResponse? = {
-        guard let data = UserDefaults.standard.data(forKey: AssistViewModel.lastResponseKey),
-              let response = try? JSONDecoder().decode(AIResponse.self, from: data)
-        else { return nil }
-        return response
+    /// Stored backing for `turns` — what `@Observable` actually tracks. The
+    /// computed `turns` below mirrors writes to UserDefaults so the
+    /// conversation survives leaving the Assist tab and even a relaunch.
+    /// Mirrors the pattern previously used for `parsedResponse`.
+    private var _turns: [AssistTurn] = {
+        // One-time cleanup of the pre-conversation single-response cache.
+        UserDefaults.standard.removeObject(forKey: AssistViewModel.legacyLastResponseKey)
+
+        guard let data = UserDefaults.standard.data(forKey: AssistViewModel.conversationKey),
+              let decoded = try? JSONDecoder().decode([AssistTurn].self, from: data)
+        else { return [] }
+        return decoded
     }()
 
-    var parsedResponse: AIResponse? {
-        get { _parsedResponse }
+    var turns: [AssistTurn] {
+        get { _turns }
         set {
-            _parsedResponse = newValue
-            if let response = newValue,
-               let data = try? JSONEncoder().encode(response) {
-                UserDefaults.standard.set(data, forKey: Self.lastResponseKey)
+            _turns = newValue
+            persistTurns()
+        }
+    }
+
+    private var _historicalContext: String? = {
+        UserDefaults.standard.string(forKey: AssistViewModel.historicalContextKey)
+    }()
+
+    /// Rolling 1–3 sentence summary the model emits and we feed back in on
+    /// each follow-up so it can tailor replies to what's already been said.
+    var historicalContext: String? {
+        get { _historicalContext }
+        set {
+            _historicalContext = newValue
+            if let value = newValue, !value.isEmpty {
+                UserDefaults.standard.set(value, forKey: Self.historicalContextKey)
             } else {
-                UserDefaults.standard.removeObject(forKey: Self.lastResponseKey)
+                UserDefaults.standard.removeObject(forKey: Self.historicalContextKey)
             }
         }
     }
@@ -91,7 +142,12 @@ final class AssistViewModel {
             return
         }
 
-        parsedResponse = nil
+        // Append the in-flight turn FIRST so the user's question shows on
+        // screen immediately under any prior turns, before the network call.
+        let turn = AssistTurn(question: trimmedQuery)
+        turns.append(turn)
+        let turnID = turn.id
+
         isStreaming = true
         error = nil
         emergencyMode = false
@@ -104,9 +160,13 @@ final class AssistViewModel {
 
         do {
             let context = try await contextBuilder.context(for: baby)
-            let responseJSON = try await orchestrator.ask(query: trimmedQuery, context: context)
+            let responseJSON = try await orchestrator.ask(
+                query: trimmedQuery,
+                context: context,
+                historicalContext: historicalContext
+            )
             let response = try AIResponseParser().parse(responseJSON)
-            parsedResponse = response
+            updateTurn(id: turnID) { $0.response = response }
 
             let isOffTopic = response.causes.isEmpty && response.confidence == 0
             if !isOffTopic {
@@ -119,11 +179,24 @@ final class AssistViewModel {
                 insight.baby = baby
                 try insightRepository.save(insight)
                 incrementDailyCount()
+
+                // Stash the insight's ID on the turn so feedback taps can
+                // look it back up to persist `wasHelpful` to SwiftData.
+                updateTurn(id: turnID) { $0.insightID = insight.id }
+
+                // Only refresh the rolling summary on on-topic turns —
+                // off-topic replies aren't useful conversational context.
+                if let newContext = response.historicalContext?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   !newContext.isEmpty {
+                    historicalContext = newContext
+                }
             }
         } catch let err as AIError {
             error = err
+            updateTurn(id: turnID) { $0.errorMessage = err.errorDescription ?? Strings.Assist.errorFallback }
         } catch {
             self.error = .parseError
+            updateTurn(id: turnID) { $0.errorMessage = AIError.parseError.errorDescription ?? Strings.Assist.errorFallback }
         }
 
         isStreaming = false
@@ -131,10 +204,64 @@ final class AssistViewModel {
 
     func clearQuery() {
         query = ""
-        parsedResponse = nil
+        turns = []
+        // `historicalContext` intentionally NOT cleared — the rolling summary
+        // is the AI's long-term memory of this parent across conversations.
+        // It only resets via Settings → Reset AI Memory or sign-out / wipe.
         emergencyMode = false
         showEscalationBanner = false
         error = nil
+    }
+
+    /// Records a thumbs-up/thumbs-down on the response for a given turn:
+    /// updates the in-memory mirror so the UI flips immediately, then
+    /// persists `wasHelpful` to the saved `AIInsight` in SwiftData. Silently
+    /// no-ops if the turn predates `insightID` wiring (older persisted
+    /// conversations) or if the insight has been deleted.
+    func recordFeedback(turnID: UUID, wasHelpful: Bool) {
+        updateTurn(id: turnID) { $0.wasHelpful = wasHelpful }
+
+        guard let insightID = _turns.first(where: { $0.id == turnID })?.insightID else { return }
+        do {
+            if let insight = try insightRepository.fetch(id: insightID) {
+                try insightRepository.updateFeedback(insight, wasHelpful: wasHelpful)
+            }
+        } catch {
+            // In-memory state is already updated; surfacing a SwiftData
+            // failure on a feedback tap would just be noisy for the user.
+        }
+    }
+
+    /// Hard reset of every persisted Assist artefact: the visible conversation,
+    /// the rolling `historical_context` the AI uses as long-term memory, and
+    /// the legacy single-response cache. Triggered from Settings → Reset AI
+    /// Memory. The next AssistViewModel init will read empty state on the
+    /// next visit to the Assist tab.
+    ///
+    /// Does NOT touch saved `AIInsight` history, daily-quota counters, or
+    /// any account / subscription state.
+    static func resetAIMemory() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: conversationKey)
+        defaults.removeObject(forKey: historicalContextKey)
+        defaults.removeObject(forKey: legacyLastResponseKey)
+    }
+
+    private func updateTurn(id: UUID, _ mutate: (inout AssistTurn) -> Void) {
+        guard let index = _turns.firstIndex(where: { $0.id == id }) else { return }
+        var copy = _turns
+        mutate(&copy[index])
+        turns = copy
+    }
+
+    private func persistTurns() {
+        if _turns.isEmpty {
+            UserDefaults.standard.removeObject(forKey: Self.conversationKey)
+            return
+        }
+        if let data = try? JSONEncoder().encode(_turns) {
+            UserDefaults.standard.set(data, forKey: Self.conversationKey)
+        }
     }
 
     private func incrementDailyCount() {

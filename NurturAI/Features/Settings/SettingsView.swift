@@ -9,6 +9,7 @@ struct SettingsView: View {
 	@State private var showPendingFeature: Bool = false
 	@State private var showDeleteConfirmation: Bool = false
 	@State private var showReauthSheet: Bool = false
+	@State private var showResetAIMemoryConfirmation: Bool = false
 
     var body: some View {
             Group {
@@ -18,7 +19,8 @@ struct SettingsView: View {
 							viewModel: vm,
 							showPaywall: $showPaywall,
 							showIsPendingFeature: $showPendingFeature,
-							showDeleteConfirmation: $showDeleteConfirmation
+							showDeleteConfirmation: $showDeleteConfirmation,
+							showResetAIMemoryConfirmation: $showResetAIMemoryConfirmation
 						)
 
 						PendingFeatureView()
@@ -35,6 +37,14 @@ struct SettingsView: View {
 						}
 					} message: {
 						Text(Strings.Settings.Account.deleteAlertBody)
+					}
+					.alert(Strings.Settings.AI.resetAlertTitle, isPresented: $showResetAIMemoryConfirmation) {
+						Button(Strings.Common.cancel, role: .cancel) { }
+						Button(Strings.Settings.AI.resetConfirm, role: .destructive) {
+							vm.resetAIMemory()
+						}
+					} message: {
+						Text(Strings.Settings.AI.resetAlertBody)
 					}
 					.sheet(isPresented: $showReauthSheet) {
 						DeleteReauthSheet(viewModel: vm) {
@@ -67,6 +77,7 @@ private struct SettingsContentView: View {
     @Binding var showPaywall: Bool
 	@Binding var showIsPendingFeature: Bool
 	@Binding var showDeleteConfirmation: Bool
+	@Binding var showResetAIMemoryConfirmation: Bool
     @Environment(AppState.self) private var appState
 
     /// Drives the field edit sheet. Set by tapping any editable row; the
@@ -182,6 +193,15 @@ private struct SettingsContentView: View {
 						hideDoneButton: true
 					)
 				}
+            }
+
+            // AI memory
+            Section(Strings.Settings.AI.sectionTitle) {
+                Button(role: .destructive) {
+                    showResetAIMemoryConfirmation = true
+                } label: {
+                    Label(Strings.Settings.AI.resetMemory, systemImage: "brain")
+                }
             }
 
             // Sign out

@@ -2,7 +2,15 @@ import Foundation
 import FirebaseFunctions
 
 protocol AIOrchestrating {
-    func ask(query: String, context: BabyContext) async throws -> String
+    func ask(query: String, context: BabyContext, historicalContext: String?) async throws -> String
+}
+
+extension AIOrchestrating {
+    /// Default-arg shim so existing call sites that don't carry a rolling
+    /// summary (and any future single-shot callers) keep compiling.
+    func ask(query: String, context: BabyContext) async throws -> String {
+        try await ask(query: query, context: context, historicalContext: nil)
+    }
 }
 
 final class AIOrchestrator: AIOrchestrating {
@@ -11,10 +19,10 @@ final class AIOrchestrator: AIOrchestrating {
 
     init() {}
 
-    func ask(query: String, context: BabyContext) async throws -> String {
+    func ask(query: String, context: BabyContext, historicalContext: String?) async throws -> String {
         let payload: [String: Any] = [
             "query": query,
-            "systemPrompt": context.buildSystemPrompt(),
+            "systemPrompt": context.buildSystemPrompt(historicalContext: historicalContext),
         ]
 
         let result = try await functions.httpsCallable("askAI").call(payload)

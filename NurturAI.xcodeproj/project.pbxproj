@@ -12,6 +12,7 @@
 		7D6885AA2F9A527400196734 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885A92F9A527400196734 /* FirebaseFirestore */; };
 		7D6885AC2F9A527E00196734 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6885AB2F9A527E00196734 /* FirebaseAppCheck */; };
 		7D6886E32F9A76D100196734 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6886E22F9A76D100196734 /* FirebaseFunctions */; };
+		7DD98DF82FA9776500F2C935 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DD98DF72FA9776500F2C935 /* StoreKit.framework */; };
 		7DF6C23F2FA29C6200E6DB27 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 7DF6C23E2FA29C6200E6DB27 /* Lottie */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		7D0B1F2F2F996AAB008EDA41 /* NurturAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NurturAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DD98DF72FA9776500F2C935 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D6885AC2F9A527E00196734 /* FirebaseAppCheck in Frameworks */,
+				7DD98DF82FA9776500F2C935 /* StoreKit.framework in Frameworks */,
 				7D6885A62F9A525D00196734 /* FirebaseCore in Frameworks */,
 				7D6886E32F9A76D100196734 /* FirebaseFunctions in Frameworks */,
 				7D6885A82F9A526200196734 /* FirebaseAuth in Frameworks */,
@@ -90,6 +93,7 @@
 		7D6885A42F9A525D00196734 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7DD98DF72FA9776500F2C935 /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -311,6 +315,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = NurturAI/NurturAIRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -328,7 +333,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.1;
+				MARKETING_VERSION = 5.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.uathelp.nurturAI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -350,6 +355,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = NurturAI/NurturAIRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -367,7 +373,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.1;
+				MARKETING_VERSION = 5.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.uathelp.nurturAI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
