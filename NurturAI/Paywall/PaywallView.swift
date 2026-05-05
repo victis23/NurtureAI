@@ -8,6 +8,8 @@ struct PaywallView: View {
     @State private var isPurchasing: Bool = false
     @State private var inlineError: String?
     @State private var restoreMessage: String?
+    @State private var showPrivacyPolicy: Bool = false
+    @State private var showTermsOfUse: Bool = false
 	var isOnboarding: Bool = false
 
     var body: some View {
@@ -54,10 +56,24 @@ struct PaywallView: View {
 				.font(NurturTypography.subheadline)
 				.foregroundStyle(NurturColors.textSecondary)
 				.disabled(isPurchasing)
-				
+
+				// Apple Guideline 3.1.2(c): functional Privacy Policy + Terms of
+				// Use links must be reachable from the purchase flow itself, not
+				// just from Settings.
+				HStack(spacing: 12) {
+					Button(Strings.Paywall.privacyPolicy) { showPrivacyPolicy = true }
+					Text("·")
+						.foregroundStyle(NurturColors.textFaint)
+					Button(Strings.Paywall.termsOfUse) { showTermsOfUse = true }
+				}
+				.font(NurturTypography.caption)
+				.foregroundStyle(NurturColors.accent)
+
 				Text(Strings.Paywall.footer)
 					.font(NurturTypography.caption2)
 					.foregroundStyle(NurturColors.textFaint)
+					.multilineTextAlignment(.center)
+					.padding(.horizontal, 24)
 					.padding(.bottom, 32)
 			}
 		}
@@ -73,6 +89,20 @@ struct PaywallView: View {
 						.disabled(isPurchasing)
 				}
 			}
+		}
+		.sheet(isPresented: $showPrivacyPolicy) {
+			NavigationStack {
+				PrivacyPolicy()
+					.toolbar {
+						ToolbarItem(placement: .topBarTrailing) {
+							Button(Strings.Common.done) { showPrivacyPolicy = false }
+								.foregroundStyle(NurturColors.accent)
+						}
+					}
+			}
+		}
+		.sheet(isPresented: $showTermsOfUse) {
+			TermsAndConditions(showTermsAndConditions: $showTermsOfUse)
 		}
 	}
 
@@ -225,9 +255,36 @@ private struct ProductCard: View {
         storeProduct?.displayPrice ?? product.price
     }
 
+    /// Human-readable subscription period (e.g. "1 month · auto-renewing").
+    /// Required by App Store Guideline 3.1.2(c). Reads from the loaded
+    /// StoreKit `Product` so the value is always accurate to the
+    /// configured subscription; falls back to a hardcoded label keyed off
+    /// `NurturProduct` while StoreKit is still loading.
+    private var lengthText: String {
+        if let period = storeProduct?.subscription?.subscriptionPeriod {
+            return Self.formatLength(period)
+        }
+        return Self.fallbackLength(for: product)
+    }
+
+    /// Per-month equivalent for multi-month plans (e.g. "≈$8.25/mo" for an
+    /// annual). `nil` for monthly plans where the per-unit price *is* the
+    /// price. Apple's review note specifically calls out price-per-unit
+    /// disclosure where appropriate.
+    private var perMonthText: String? {
+        if let storeProduct,
+           let period = storeProduct.subscription?.subscriptionPeriod,
+           let months = Self.monthsIn(period),
+           months > 1 {
+            let perMonth = storeProduct.price / Decimal(months)
+            return "≈\(perMonth.formatted(storeProduct.priceFormatStyle))\(Strings.Paywall.perMonthSuffix)"
+        }
+        return Self.fallbackPerMonth(for: product)
+    }
+
     var body: some View {
         Button(action: onTap) {
-            HStack {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     if isHighlighted {
                         Text(Strings.Paywall.bestValue)
@@ -238,12 +295,22 @@ private struct ProductCard: View {
                     Text(product.displayName)
                         .font(NurturTypography.headline)
                         .foregroundStyle(NurturColors.textPrimary)
+                    Text(lengthText)
+                        .font(NurturTypography.caption)
+                        .foregroundStyle(NurturColors.textSecondary)
                 }
                 Spacer()
-                Text(priceText)
-                    .font(NurturTypography.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(isHighlighted ? NurturColors.accent : NurturColors.textPrimary)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(priceText)
+                        .font(NurturTypography.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(isHighlighted ? NurturColors.accent : NurturColors.textPrimary)
+                    if let perMonthText {
+                        Text(perMonthText)
+                            .font(NurturTypography.caption2)
+                            .foregroundStyle(NurturColors.textFaint)
+                    }
+                }
             }
             .padding(16)
             .background(
@@ -259,6 +326,48 @@ private struct ProductCard: View {
         // hasn't loaded — tapping a nil product would have thrown productNotFound.
         .disabled(isPurchasing || storeProduct == nil)
         .opacity(storeProduct == nil ? 0.5 : 1.0)
+    }
+
+    // MARK: - Period formatting helpers
+
+    private static func formatLength(_ period: Product.SubscriptionPeriod) -> String {
+        let unitWord: String
+        switch period.unit {
+        case .day:    unitWord = period.value == 1 ? "day"   : "days"
+        case .week:   unitWord = period.value == 1 ? "week"  : "weeks"
+        case .month:  unitWord = period.value == 1 ? "month" : "months"
+        case .year:   unitWord = period.value == 1 ? "year"  : "years"
+        @unknown default: return Strings.Paywall.autoRenewSuffix
+        }
+        return "\(period.value) \(unitWord) · \(Strings.Paywall.autoRenewSuffix)"
+    }
+
+    private static func monthsIn(_ period: Product.SubscriptionPeriod) -> Int? {
+        switch period.unit {
+        case .month: return period.value
+        case .year:  return period.value * 12
+        case .day, .week: return nil
+        @unknown default: return nil
+        }
+    }
+
+    private static func fallbackLength(for product: NurturProduct) -> String {
+        switch product {
+        case .proMonthly:   return "1 month · \(Strings.Paywall.autoRenewSuffix)"
+        case .proAnnual:    return "1 year · \(Strings.Paywall.autoRenewSuffix)"
+        case .familyAnnual: return "1 year · \(Strings.Paywall.autoRenewSuffix)"
+        }
+    }
+
+    private static func fallbackPerMonth(for product: NurturProduct) -> String? {
+        // Hardcoded fallbacks mirror Strings.Products.* prices so they read
+        // correctly even before StoreKit returns. Once the real product
+        // loads, the dynamic computation above takes over.
+        switch product {
+        case .proMonthly:   return nil
+        case .proAnnual:    return "≈$8.25\(Strings.Paywall.perMonthSuffix)"
+        case .familyAnnual: return "≈$12.42\(Strings.Paywall.perMonthSuffix)"
+        }
     }
 }
 

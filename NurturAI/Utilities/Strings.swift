@@ -359,7 +359,14 @@ enum Strings {
         static let subtitle             = "Unlimited AI questions, priority responses,\nand caregiver sharing."
         static let bestValue            = "BEST VALUE"
         static let restorePurchases     = "Restore Purchases"
-        static let footer               = "Prices shown in USD. Cancel anytime."
+        // Apple Guideline 3.1.2(c) requires a clear auto-renew disclosure in
+        // the purchase flow itself. Do not soften this — Apple's reviewers
+        // look for this exact pattern of language.
+        static let footer               = "Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period. Your Apple ID will be charged for renewal within 24 hours prior to the end of the current period. Manage or cancel anytime in Settings → Apple ID → Subscriptions."
+        static let privacyPolicy        = "Privacy Policy"
+        static let termsOfUse           = "Terms of Use"
+        static let autoRenewSuffix      = "auto-renewing"
+        static let perMonthSuffix       = "/mo"
         static let loadingProducts      = "Loading subscription options…"
         static let tryAgain             = "Try again"
         static let restored             = "Subscription restored."
