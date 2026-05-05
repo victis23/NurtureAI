@@ -54,14 +54,14 @@ private struct AssistContentView: View {
         viewModel.query.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isStreaming
     }
 
-    private func scrollToBottom(_ proxy: ScrollViewProxy) {
-        // Defer one runloop so the layout containing the just-added turn /
-        // newly-arrived response is in the hierarchy before we ask SwiftUI
-        // to scroll to it. Without this, the scroll target is sometimes the
-        // pre-update layout and the new content stays clipped below the fold.
+    private func scrollTurnIntoView(_ id: UUID, proxy: ScrollViewProxy) {
+        // Defer one runloop so the just-appended turn is in the hierarchy
+        // before we ask SwiftUI to scroll to it. Without this, the scroll
+        // target is sometimes the pre-update layout and the new turn lands
+        // off-screen.
         DispatchQueue.main.async {
             withAnimation(.spring(duration: 0.4, bounce: 0.1)) {
-                proxy.scrollTo("assist.bottom", anchor: .bottom)
+                proxy.scrollTo(id, anchor: .top)
             }
         }
     }
@@ -168,10 +168,6 @@ private struct AssistContentView: View {
                                 }
                             }
 
-                            // Anchor — used for auto-scroll-to-bottom on each new turn / response.
-                            Color.clear
-                                .frame(height: 1)
-                                .id("assist.bottom")
                         }
                         .padding(.vertical, 12)
                         .animation(.spring(duration: 0.5, bounce: 0.15), value: viewModel.turns.count)
@@ -180,14 +176,17 @@ private struct AssistContentView: View {
                     }
                     .scrollDismissesKeyboard(.interactively)
                     .scrollEdgeEffectStyle(.soft, for: .all)
-                    .onChange(of: viewModel.turns.count) { _, _ in
-                        scrollToBottom(proxy)
-                    }
-                    .onChange(of: viewModel.turns.last?.response == nil) { _, _ in
-                        scrollToBottom(proxy)
-                    }
-                    .onChange(of: viewModel.isStreaming) { _, _ in
-                        scrollToBottom(proxy)
+                    // Only auto-scroll when the user just sent a new question:
+                    // park their question at the TOP of the viewport so the
+                    // loader / response renders below it. We deliberately
+                    // do NOT scroll on response arrival or `isStreaming`
+                    // changes — that lets the parent read at their own pace
+                    // without the view yanking them around mid-scroll.
+                    .onChange(of: viewModel.turns.count) { oldCount, newCount in
+                        guard newCount > oldCount,
+                              let latestID = viewModel.turns.last?.id
+                        else { return }
+                        scrollTurnIntoView(latestID, proxy: proxy)
                     }
                 }
 
