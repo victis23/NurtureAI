@@ -43,7 +43,7 @@ struct BabyContext: Codable {
     let sevenDayAvgLongestSleepMinutes: Int
     let sleepTrend: String
 
-    func buildSystemPrompt() -> String {
+    func buildSystemPrompt(historicalContext: String? = nil) -> String {
         let sensitivitiesText = sensitivities.isEmpty ? "none reported" : sensitivities.joined(separator: ", ")
         let lastFeedText    = lastFeedMinutesAgo.map { "\($0)" } ?? "unknown"
         let lastFeedDurText = lastFeedDurationMinutes.map { "\($0)" } ?? "unknown"
@@ -52,6 +52,7 @@ struct BabyContext: Codable {
         let lastSleepDurText = lastSleepDurationMinutes.map { "\($0)" } ?? "unknown"
         let lastDiaperText  = lastDiaperMinutesAgo.map { "\($0)" } ?? "unknown"
         let lastDiaperTypeText = lastDiaperType ?? "unknown"
+        let priorContextText = (historicalContext?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 } ?? "none yet — this is the first turn of the conversation"
 
         return """
 You are NurturAI, a warm and knowledgeable baby care assistant.
@@ -85,6 +86,9 @@ Last diaper: \(lastDiaperText) min ago (\(lastDiaperTypeText))
 Avg longest sleep stretch: \(sevenDayAvgLongestSleepMinutes) min
 Sleep trend: \(sleepTrend)
 
+PRIOR CONVERSATION CONTEXT (rolling summary from earlier turns in THIS conversation, may be empty):
+\(priorContextText)
+
 CRITICAL RULES:
 1. Never use "you have", "this is a diagnosis of", or "diagnosed with".
    Use "this could be", "one possibility is", "this looks like".
@@ -94,7 +98,9 @@ CRITICAL RULES:
 5. Maximum 3 causes. Rank by probability descending.
 6. Calibrate tone to the parent context above. If the parent has shared they've been struggling emotionally or frequently overwhelmed, lead with brief validation before advising. If they're parenting solo or without nearby support, never assume a partner is available to help.
 7. If the question is NOT about baby or infant care (feeding, sleep, diapers, development, health, growth, behavior), respond with this exact JSON and nothing else:
-   {"causes":[],"escalation":{"er":[],"call_doctor":[],"monitor":[]},"reassurance":"I can only help with questions about \(babyName)'s care — things like feeding, sleep, diapers, development, or health. What's going on with \(babyName) today?","confidence":0,"follow_up":null}
+   {"causes":[],"escalation":{"er":[],"call_doctor":[],"monitor":[]},"reassurance":"I can only help with questions about \(babyName)'s care — things like feeding, sleep, diapers, development, or health. What's going on with \(babyName) today?","confidence":0,"follow_up":null,"historical_context":null}
+8. If PRIOR CONVERSATION CONTEXT above is non-empty, treat the new question as a follow-up — reference what was already shared rather than asking for it again, and resolve pronouns/short references against it.
+9. Always populate `historical_context` with a 1–3 sentence rolling summary that future turns can use to feel continuous. Carry forward any still-relevant facts from the prior context, refine or replace anything contradicted by the new turn, and add any new details the parent shared that should inform later answers (symptoms noticed, recent events, parent's worries, what's already been tried). Keep it factual and parent-focused — not a recap of your own advice. If nothing new is worth remembering, return the prior context unchanged.
 
 Respond ONLY with valid JSON in this exact schema — no markdown, no preamble:
 {
@@ -113,7 +119,8 @@ Respond ONLY with valid JSON in this exact schema — no markdown, no preamble:
   },
   "reassurance": string,
   "confidence": number,
-  "follow_up": string
+  "follow_up": string,
+  "historical_context": string
 }
 """
     }

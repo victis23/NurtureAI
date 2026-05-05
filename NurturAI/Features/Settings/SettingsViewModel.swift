@@ -56,6 +56,13 @@ final class SettingsViewModel {
         appState.currentBaby = nil
     }
 
+    /// Wipes the Assist conversation thread + the rolling `historical_context`
+    /// summary the AI uses as long-term memory. The next visit to the Assist
+    /// tab will rebuild a fresh `AssistViewModel` reading empty state.
+    func resetAIMemory() {
+        AssistViewModel.resetAIMemory()
+    }
+
     /// Permanently deletes the user's account and all associated data.
     ///
     /// Order is critical:

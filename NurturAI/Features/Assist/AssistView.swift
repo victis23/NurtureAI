@@ -54,6 +54,18 @@ private struct AssistContentView: View {
         viewModel.query.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isStreaming
     }
 
+    private func scrollToBottom(_ proxy: ScrollViewProxy) {
+        // Defer one runloop so the layout containing the just-added turn /
+        // newly-arrived response is in the hierarchy before we ask SwiftUI
+        // to scroll to it. Without this, the scroll target is sometimes the
+        // pre-update layout and the new content stays clipped below the fold.
+        DispatchQueue.main.async {
+            withAnimation(.spring(duration: 0.4, bounce: 0.1)) {
+                proxy.scrollTo("assist.bottom", anchor: .bottom)
+            }
+        }
+    }
+
     var body: some View {
         ZStack {
             // Animated gradient background
@@ -98,92 +110,84 @@ private struct AssistContentView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Emergency banner
-                        if viewModel.emergencyMode {
-                            EscalationBannerView(isEmergency: true, callDoctorItems: [])
-                                .padding(.horizontal)
-                                .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-
-                        // Doctor banner (pre-response)
-                        if viewModel.showEscalationBanner && !viewModel.emergencyMode && viewModel.parsedResponse == nil {
-                            EscalationBannerView(
-                                isEmergency: false,
-                                callDoctorItems: [Strings.Assist.doctorEscalation]
-                            )
-                            .padding(.horizontal)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-
-                        if !viewModel.emergencyMode {
-                            // Quick picks
-                            if viewModel.parsedResponse == nil && !viewModel.isStreaming {
-                                QuickPicksView { pick in
-                                    viewModel.query = pick
-                                    isInputFocused = true
-                                }
-                                .padding(.top, 8)
-                                .transition(.blurReplace)
-                            }
-
-                            // Loading indicator
-                            if viewModel.isStreaming {
-                                VStack(spacing: 12) {
-                                    ProgressView()
-                                        .controlSize(.regular)
-                                        .tint(NurturColors.accent)
-                                    Text(Strings.Assist.loadingMessage)
-                                        .font(NurturTypography.subheadline)
-                                        .foregroundStyle(NurturColors.textFaint)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, 40)
-                                .transition(.blurReplace)
-                            }
-
-                            // Parsed response
-                            if let response = viewModel.parsedResponse {
-                                AIResponseView(
-                                    response: response,
-                                    insight: nil,
-                                    insightRepository: container?.insightRepository
-                                )
-                                .padding(.horizontal)
-                                .transition(.opacity.combined(with: .offset(y: 20)))
-
-                                Button {
-                                    withAnimation(.spring(duration: 0.4, bounce: 0.2)) {
-                                        viewModel.clearQuery()
-                                    }
-                                } label: {
-                                    Label(Strings.Assist.askAnother, systemImage: "arrow.counterclockwise")
-                                        .font(NurturTypography.subheadline)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                }
-                                .buttonStyle(.glass)
-                                .padding(.horizontal)
-                                .transition(.blurReplace)
-                            }
-
-                            // Error
-                            if let error = viewModel.error {
-                                Text(error.errorDescription ?? Strings.Assist.errorFallback)
-                                    .font(NurturTypography.subheadline)
-                                    .foregroundStyle(NurturColors.danger)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            // Emergency banner
+                            if viewModel.emergencyMode {
+                                EscalationBannerView(isEmergency: true, callDoctorItems: [])
                                     .padding(.horizontal)
-                                    .transition(.opacity)
+                                    .transition(.move(edge: .top).combined(with: .opacity))
                             }
+
+                            if !viewModel.emergencyMode {
+                                // Quick picks — only at the start of a fresh conversation.
+                                if viewModel.turns.isEmpty && !viewModel.isStreaming {
+                                    QuickPicksView { pick in
+                                        viewModel.query = pick
+                                        isInputFocused = true
+                                    }
+                                    .padding(.top, 8)
+                                    .transition(.blurReplace)
+                                }
+
+                                // Conversation turns
+                                ForEach(Array(viewModel.turns.enumerated()), id: \.element.id) { index, turn in
+                                    let isLatest = index == viewModel.turns.count - 1
+                                    AssistTurnView(
+                                        turn: turn,
+                                        isLatest: isLatest,
+                                        isStreaming: viewModel.isStreaming && isLatest,
+                                        showDoctorBanner: viewModel.showEscalationBanner && !viewModel.emergencyMode && isLatest && turn.response == nil,
+                                        insightRepository: container?.insightRepository
+                                    )
+                                    .id(turn.id)
+                                    .transition(.opacity.combined(with: .offset(y: 12)))
+                                }
+
+                                // Ask another / new conversation
+                                if !viewModel.turns.isEmpty,
+                                   !viewModel.isStreaming,
+                                   viewModel.turns.last?.response != nil {
+                                    Button {
+                                        withAnimation(.spring(duration: 0.4, bounce: 0.2)) {
+                                            viewModel.clearQuery()
+                                        }
+                                    } label: {
+                                        Label(Strings.Assist.askAnother, systemImage: "arrow.counterclockwise")
+                                            .font(NurturTypography.subheadline)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 8)
+                                    }
+                                    .buttonStyle(.glass)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal)
+                                    .transition(.blurReplace)
+                                }
+                            }
+
+                            // Anchor — used for auto-scroll-to-bottom on each new turn / response.
+                            Color.clear
+                                .frame(height: 1)
+                                .id("assist.bottom")
                         }
+                        .padding(.vertical, 12)
+                        .animation(.spring(duration: 0.5, bounce: 0.15), value: viewModel.turns.count)
+                        .animation(.spring(duration: 0.4, bounce: 0.15), value: viewModel.isStreaming)
+                        .animation(.spring(duration: 0.4, bounce: 0.15), value: viewModel.turns.last?.response == nil)
                     }
-                    .padding(.vertical, 12)
-                    .animation(.spring(duration: 0.5, bounce: 0.15), value: viewModel.parsedResponse == nil)
-                    .animation(.spring(duration: 0.4, bounce: 0.15), value: viewModel.isStreaming)
+                    .scrollDismissesKeyboard(.interactively)
+                    .scrollEdgeEffectStyle(.soft, for: .all)
+                    .onChange(of: viewModel.turns.count) { _, _ in
+                        scrollToBottom(proxy)
+                    }
+                    .onChange(of: viewModel.turns.last?.response == nil) { _, _ in
+                        scrollToBottom(proxy)
+                    }
+                    .onChange(of: viewModel.isStreaming) { _, _ in
+                        scrollToBottom(proxy)
+                    }
                 }
-                .scrollDismissesKeyboard(.interactively)
-                .scrollEdgeEffectStyle(.soft, for: .all)
 
                 // Input bar
                 if !viewModel.emergencyMode {
@@ -218,6 +222,72 @@ private struct AssistContentView: View {
                     .padding(.horizontal, 12)
                     .padding(.bottom, 8)
                 }
+            }
+        }
+    }
+}
+
+/// One conversation row: the parent's question bubble + the AI reply (or
+/// inline loading / inline error / inline doctor banner) underneath. Kept
+/// private to AssistView since it only makes sense inside this layout.
+private struct AssistTurnView: View {
+    let turn: AssistTurn
+    let isLatest: Bool
+    let isStreaming: Bool
+    let showDoctorBanner: Bool
+    let insightRepository: InsightRepositoryProtocol?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Right-aligned question bubble.
+            HStack {
+                Spacer(minLength: 32)
+                Text(turn.question)
+                    .font(NurturTypography.subheadline)
+                    .foregroundStyle(NurturColors.textPrimary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 16))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .padding(.horizontal)
+
+            // Pre-response doctor banner — attached to the in-flight turn so
+            // it sits visually with the question that triggered it.
+            if showDoctorBanner {
+                EscalationBannerView(
+                    isEmergency: false,
+                    callDoctorItems: [Strings.Assist.doctorEscalation]
+                )
+                .padding(.horizontal)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
+            if let response = turn.response {
+                AIResponseView(
+                    response: response,
+                    insight: nil,
+                    insightRepository: insightRepository
+                )
+                .padding(.horizontal)
+                .transition(.opacity.combined(with: .offset(y: 12)))
+            } else if let errorMessage = turn.errorMessage {
+                Text(errorMessage)
+                    .font(NurturTypography.subheadline)
+                    .foregroundStyle(NurturColors.danger)
+                    .padding(.horizontal)
+                    .transition(.opacity)
+            } else if isLatest && isStreaming {
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(NurturColors.accent)
+                    Text(Strings.Assist.loadingMessage)
+                        .font(NurturTypography.subheadline)
+                        .foregroundStyle(NurturColors.textFaint)
+                }
+                .padding(.horizontal)
+                .transition(.blurReplace)
             }
         }
     }

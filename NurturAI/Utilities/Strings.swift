@@ -328,6 +328,14 @@ enum Strings {
             static let termsOfService   = "Terms of Service"
         }
 
+        enum AI {
+            static let sectionTitle      = "AI"
+            static let resetMemory       = "Reset AI Memory"
+            static let resetAlertTitle   = "Reset AI Memory?"
+            static let resetAlertBody    = "This clears the current conversation and the AI's memory of past chats. Your logs, saved history, and account stay intact. Future replies will start fresh until you've had more conversations."
+            static let resetConfirm      = "Reset"
+        }
+
         enum Account {
             static let signOut          = "Sign Out"
 			static let deleteAccount     = "Delete Account"
