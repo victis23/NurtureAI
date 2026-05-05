@@ -4,6 +4,7 @@ import SwiftData
 @MainActor
 protocol InsightRepositoryProtocol {
     func save(_ insight: AIInsight) throws
+    func fetch(id: UUID) throws -> AIInsight?
     func fetchAll(for baby: Baby) throws -> [AIInsight]
     func updateFeedback(_ insight: AIInsight, wasHelpful: Bool) throws
     func delete(_ insight: AIInsight) throws
@@ -20,6 +21,13 @@ final class InsightRepository: InsightRepositoryProtocol, @unchecked Sendable {
     func save(_ insight: AIInsight) throws {
         context.insert(insight)
         try context.save()
+    }
+
+    func fetch(id: UUID) throws -> AIInsight? {
+        let descriptor = FetchDescriptor<AIInsight>(
+            predicate: #Predicate { $0.id == id }
+        )
+        return try context.fetch(descriptor).first
     }
 
     func fetchAll(for baby: Baby) throws -> [AIInsight] {

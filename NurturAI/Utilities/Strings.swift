@@ -286,6 +286,7 @@ enum Strings {
 
         enum Feedback {
             static let prompt       = "Did this help?"
+            static let thanks       = "Thanks for the feedback!"
         }
     }
 

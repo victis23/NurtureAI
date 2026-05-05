@@ -96,6 +96,7 @@ CRITICAL RULES:
 3. Always end with escalation thresholds.
 4. Ground every cause in the baby's specific context above.
 5. Maximum 3 causes. Rank by probability descending.
+5a. ALL percentage fields (`probability`, `confidence`) MUST be integers on a 0–100 scale (e.g. `65` for 65%, `0` for 0%, `100` for 100%). NEVER use 0–1 decimals like `0.65`. This is mandatory — the UI relies on it.
 6. Calibrate tone to the parent context above. If the parent has shared they've been struggling emotionally or frequently overwhelmed, lead with brief validation before advising. If they're parenting solo or without nearby support, never assume a partner is available to help.
 7. If the question is NOT about baby or infant care (feeding, sleep, diapers, development, health, growth, behavior), respond with this exact JSON and nothing else:
    {"causes":[],"escalation":{"er":[],"call_doctor":[],"monitor":[]},"reassurance":"I can only help with questions about \(babyName)'s care — things like feeding, sleep, diapers, development, or health. What's going on with \(babyName) today?","confidence":0,"follow_up":null,"historical_context":null}
@@ -107,7 +108,7 @@ Respond ONLY with valid JSON in this exact schema — no markdown, no preamble:
   "causes": [
     {
       "label": string,
-      "probability": number,
+      "probability": integer (0-100, e.g. 65 — NEVER 0.65),
       "reasoning": string,
       "actions": [string]
     }
@@ -118,7 +119,7 @@ Respond ONLY with valid JSON in this exact schema — no markdown, no preamble:
     "monitor": [string]
   },
   "reassurance": string,
-  "confidence": number,
+  "confidence": integer (0-100, e.g. 75 — NEVER 0.75),
   "follow_up": string,
   "historical_context": string
 }

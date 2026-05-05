@@ -9,12 +9,27 @@ struct AssistTurn: Codable, Identifiable {
     let question: String
     var response: AIResponse?
     var errorMessage: String?
+    /// Set once the response has been saved as an AIInsight, so we can later
+    /// look it up in SwiftData to persist thumbs-up/down feedback.
+    var insightID: UUID?
+    /// Mirror of `AIInsight.wasHelpful` so feedback state survives relaunch
+    /// without a SwiftData fetch on every render.
+    var wasHelpful: Bool?
 
-    init(id: UUID = UUID(), question: String, response: AIResponse? = nil, errorMessage: String? = nil) {
+    init(
+        id: UUID = UUID(),
+        question: String,
+        response: AIResponse? = nil,
+        errorMessage: String? = nil,
+        insightID: UUID? = nil,
+        wasHelpful: Bool? = nil
+    ) {
         self.id = id
         self.question = question
         self.response = response
         self.errorMessage = errorMessage
+        self.insightID = insightID
+        self.wasHelpful = wasHelpful
     }
 }
 
@@ -165,6 +180,10 @@ final class AssistViewModel {
                 try insightRepository.save(insight)
                 incrementDailyCount()
 
+                // Stash the insight's ID on the turn so feedback taps can
+                // look it back up to persist `wasHelpful` to SwiftData.
+                updateTurn(id: turnID) { $0.insightID = insight.id }
+
                 // Only refresh the rolling summary on on-topic turns —
                 // off-topic replies aren't useful conversational context.
                 if let newContext = response.historicalContext?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -192,6 +211,25 @@ final class AssistViewModel {
         emergencyMode = false
         showEscalationBanner = false
         error = nil
+    }
+
+    /// Records a thumbs-up/thumbs-down on the response for a given turn:
+    /// updates the in-memory mirror so the UI flips immediately, then
+    /// persists `wasHelpful` to the saved `AIInsight` in SwiftData. Silently
+    /// no-ops if the turn predates `insightID` wiring (older persisted
+    /// conversations) or if the insight has been deleted.
+    func recordFeedback(turnID: UUID, wasHelpful: Bool) {
+        updateTurn(id: turnID) { $0.wasHelpful = wasHelpful }
+
+        guard let insightID = _turns.first(where: { $0.id == turnID })?.insightID else { return }
+        do {
+            if let insight = try insightRepository.fetch(id: insightID) {
+                try insightRepository.updateFeedback(insight, wasHelpful: wasHelpful)
+            }
+        } catch {
+            // In-memory state is already updated; surfacing a SwiftData
+            // failure on a feedback tap would just be noisy for the user.
+        }
     }
 
     /// Hard reset of every persisted Assist artefact: the visible conversation,

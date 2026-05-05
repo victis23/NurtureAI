@@ -139,7 +139,9 @@ private struct AssistContentView: View {
                                         isLatest: isLatest,
                                         isStreaming: viewModel.isStreaming && isLatest,
                                         showDoctorBanner: viewModel.showEscalationBanner && !viewModel.emergencyMode && isLatest && turn.response == nil,
-                                        insightRepository: container?.insightRepository
+                                        onFeedback: { wasHelpful in
+                                            viewModel.recordFeedback(turnID: turn.id, wasHelpful: wasHelpful)
+                                        }
                                     )
                                     .id(turn.id)
                                     .transition(.opacity.combined(with: .offset(y: 12)))
@@ -235,11 +237,13 @@ private struct AssistTurnView: View {
     let isLatest: Bool
     let isStreaming: Bool
     let showDoctorBanner: Bool
-    let insightRepository: InsightRepositoryProtocol?
+    let onFeedback: (Bool) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Right-aligned question bubble.
+            // Right-aligned question bubble. Tinted with a soft accent so
+            // the parent's voice reads as "yours" against the AI's neutral
+            // reassurance card below.
             HStack {
                 Spacer(minLength: 32)
                 Text(turn.question)
@@ -247,7 +251,11 @@ private struct AssistTurnView: View {
                     .foregroundStyle(NurturColors.textPrimary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 16))
+                    .background(NurturColors.accentSoft, in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(NurturColors.accent.opacity(0.18), lineWidth: 0.5)
+                    )
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(.horizontal)
@@ -266,8 +274,8 @@ private struct AssistTurnView: View {
             if let response = turn.response {
                 AIResponseView(
                     response: response,
-                    insight: nil,
-                    insightRepository: insightRepository
+                    wasHelpful: turn.wasHelpful,
+                    onFeedback: turn.insightID == nil ? nil : onFeedback
                 )
                 .padding(.horizontal)
                 .transition(.opacity.combined(with: .offset(y: 12)))
