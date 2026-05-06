@@ -14,6 +14,13 @@ struct OnboardingView: View {
 	/// transition during the fade window — letting `advance()` fire twice and
 	/// skip a step's gate (e.g. the birth weight check).
 	@State private var isTransitioning: Bool = false
+	/// True while the StoreKit purchase sheet is in flight from the upsale
+	/// CTA. Locks both onboarding buttons so a second tap can't queue a
+	/// duplicate purchase or finish-flow before StoreKit returns.
+	@State private var isStartingTrial: Bool = false
+	/// Surfaced under the upsale CTA when the trial purchase fails. Cleared
+	/// on the next attempt.
+	@State private var trialError: String?
 
     var body: some View {
         NavigationStack {
@@ -45,24 +52,40 @@ struct OnboardingView: View {
                 VStack(spacing: 12) {
 					Button(getButtonText(viewModel.currentStep)) {
 						buttonTap.toggle()
-						advanceToNextView()
+						if viewModel.currentStep == .upsale {
+							setupTrial()
+						} else {
+							advanceToNextView()
+						}
                     }
                     .buttonStyle(PrimaryButtonStyle())
-                    .disabled(!viewModel.canAdvance || viewModel.isSaving || isTransitioning)
+                    .disabled(!viewModel.canAdvance || viewModel.isSaving || isTransitioning || isStartingTrial)
                     .overlay {
-                        if viewModel.isSaving { ProgressView() }
+                        if viewModel.isSaving || isStartingTrial { ProgressView() }
                     }
 					.sensoryFeedback(.impact, trigger: buttonTap)
 
-					Button(Strings.Common.back) {
+					if viewModel.currentStep == .upsale, let trialError {
+						Text(trialError)
+							.font(NurturTypography.caption)
+							.foregroundStyle(NurturColors.danger)
+							.multilineTextAlignment(.center)
+							.padding(.horizontal, 8)
+					}
+
+					Button(viewModel.currentStep == .upsale ? Strings.Onboarding.tryForFree : Strings.Common.back) {
 						transitionStep {
 							buttonTap.toggle()
-							viewModel.back()
+							if viewModel.currentStep == .upsale {
+								advanceToNextView()
+							} else {
+								viewModel.back()
+							}
 						}
 					}
 					.font(NurturTypography.subheadline)
 					.foregroundStyle(viewModel.currentStep != .welcome ? NurturColors.textSecondary : .clear)
-					.disabled(viewModel.currentStep == .welcome)
+					.disabled(viewModel.currentStep == .welcome || isStartingTrial)
 					.sensoryFeedback(.impact, trigger: buttonTap)
                 }
                 .padding(.horizontal, 24)
@@ -148,7 +171,7 @@ struct OnboardingView: View {
 	fileprivate func getButtonText(_ step: OnboardingViewModel.OnboardingStep) -> String {
 		switch step {
 		case .upsale:
-			return Strings.Onboarding.tryForFree
+			return Strings.Onboarding.useFreeTrial
 		default:
 			return Strings.Onboarding.continueButton
 		}
@@ -166,6 +189,27 @@ struct OnboardingView: View {
 			}
 		} else {
 			transitionStep { viewModel.advance() }
+		}
+	}
+
+	/// Initiates the StoreKit purchase flow against Pro Monthly — the
+	/// product configured with the 3-day Introductory Offer in App Store
+	/// Connect. On success, `appState.isSubscribed` flips and the existing
+	/// `.onChange` listener routes to `advanceToNextView()` which finishes
+	/// onboarding. On user-cancel StoreKit returns without throwing and we
+	/// stay on the upsale step. On a real error we surface it inline so
+	/// the parent can retry or take the free plan via "Try Free Version".
+	fileprivate func setupTrial() {
+		guard let service = container?.subscriptionService else { return }
+		isStartingTrial = true
+		trialError = nil
+		Task {
+			do {
+				try await service.purchase(product: .proMonthly)
+			} catch {
+				trialError = error.localizedDescription
+			}
+			isStartingTrial = false
 		}
 	}
 

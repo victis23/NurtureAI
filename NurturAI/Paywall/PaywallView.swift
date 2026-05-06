@@ -25,7 +25,7 @@ struct PaywallView: View {
 	
 	private var contentBody: some View {
 		ScrollView {
-			VStack(spacing: 32) {
+			VStack(spacing: 10) {
 				header
 				
 				// Product cards area — replaced by a loader / error view
