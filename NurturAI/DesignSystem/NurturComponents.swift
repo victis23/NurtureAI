@@ -50,9 +50,10 @@ struct NurturStatusCard: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .nurturCardPadded()
+		.padding(16)
+		.glassEffect(.regular, in: .rect(cornerRadius: 16))
+		.shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         .scaleEffect(pulseScale)
-		.glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
         .shadow(color: isUrgent ? Color.red.opacity(0.35) : .clear, radius: 8)
         .onAppear { applyPulseState(isUrgent) }
         .onChange(of: isUrgent) { _, newValue in applyPulseState(newValue) }

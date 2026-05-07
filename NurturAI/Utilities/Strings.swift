@@ -42,6 +42,7 @@ enum Strings {
         static let navigationTitle  = "Welcome to NurturAI"
         static let continueButton   = "Continue"
         static let getStarted       = "Get Started"
+		static let useFreeTrial     = "Start 3-Day Free Trial"
 		static let tryForFree       = "Try For Free"
 		
 		enum Greeting {

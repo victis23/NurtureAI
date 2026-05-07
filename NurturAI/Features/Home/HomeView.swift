@@ -123,43 +123,45 @@ private struct HomeContentView: View {
 									|| viewModel.isDiaperUrgent(baby: baby, at: context.date)
 									return urgent ? .crying : .relaxing
 								}()
-								
-								LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-									NurturStatusCard(
-										title: Strings.Home.Status.lastFed,
-										value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
-										subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
-										icon: "drop.fill",
-										iconColor: NurturColors.info,
-										isUrgent: viewModel.isFeedUrgent(at: context.date)
-									)
-									
-									NurturStatusCard(
-										title: Strings.Home.Status.awake,
-										value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
-										subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
-										icon: "sun.max.fill",
-										iconColor: NurturColors.warning,
-										isUrgent: viewModel.isAwakeUrgent(at: context.date)
-									)
-									
-									NurturStatusCard(
-										title: Strings.Home.Status.sleepToday,
-										value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
-										icon: "moon.fill",
-										iconColor: NurturColors.accent
-									)
-									
-									NurturStatusCard(
-										title: Strings.Home.Status.lastDiaper,
-										value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
-										icon: "bubbles.and.sparkles",
-										iconColor: NurturColors.success,
-										isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
-									)
-								}
-								.onChange(of: nextState, initial: true) { _, new in
-									babyState = new
+
+								GlassEffectContainer {
+									LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+										NurturStatusCard(
+											title: Strings.Home.Status.lastFed,
+											value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
+											subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
+											icon: "drop.fill",
+											iconColor: NurturColors.info,
+											isUrgent: viewModel.isFeedUrgent(at: context.date)
+										)
+										
+										NurturStatusCard(
+											title: Strings.Home.Status.awake,
+											value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
+											subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
+											icon: "sun.max.fill",
+											iconColor: NurturColors.warning,
+											isUrgent: viewModel.isAwakeUrgent(at: context.date)
+										)
+										
+										NurturStatusCard(
+											title: Strings.Home.Status.sleepToday,
+											value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
+											icon: "moon.fill",
+											iconColor: NurturColors.accent
+										)
+										
+										NurturStatusCard(
+											title: Strings.Home.Status.lastDiaper,
+											value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
+											icon: "bubbles.and.sparkles",
+											iconColor: NurturColors.success,
+											isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
+										)
+									}
+									.onChange(of: nextState, initial: true) { _, new in
+										babyState = new
+									}
 								}
 							}
 							.padding(.horizontal)
