@@ -1,19 +1,43 @@
 import SwiftUI
 import SwiftData
+import FacebookCore
 import FirebaseCore
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        FirebaseApp.configure()
+        ApplicationDelegate.shared.application(
+            application,
+            didFinishLaunchingWithOptions: launchOptions
+        )
+        return true
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        AppEvents.shared.activateApp()
+    }
+}
 
 @main
 struct NurturAIApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var appState = AppState.shared
-
-    init() {
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
         WindowGroup {
             AppRootView()
                 .environment(appState)
+                .onOpenURL { url in
+                    ApplicationDelegate.shared.application(
+                        UIApplication.shared,
+                        open: url,
+                        sourceApplication: nil,
+                        annotation: UIApplication.OpenURLOptionsKey.annotation
+                    )
+                }
         }
         .modelContainer(for: [Baby.self, BabyLog.self, AIInsight.self])
     }

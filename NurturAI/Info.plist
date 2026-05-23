@@ -20,5 +20,26 @@
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<false/>
 	</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb1819512479454791</string>
+			</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>1819512479454791</string>
+	<key>FacebookDisplayName</key>
+	<string>Nutur Ai</string>
+	<key>FacebookClientToken</key>
+	<string>86349574a12c1af97dd8cdaa3613f3bb</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<true/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>We use this to make NurturAI feel more personal — so the guidance and content you see fit you better.</string>
 </dict>
 </plist>
