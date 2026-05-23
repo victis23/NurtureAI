@@ -15,16 +15,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         )
         return true
     }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        AppEvents.shared.activateApp()
-    }
 }
 
 @main
 struct NurturAIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var appState = AppState.shared
+	@Environment(\.scenePhase) var activityState
 
     var body: some Scene {
         WindowGroup {
@@ -34,12 +31,19 @@ struct NurturAIApp: App {
                     ApplicationDelegate.shared.application(
                         UIApplication.shared,
                         open: url,
-                        sourceApplication: nil,
-                        annotation: UIApplication.OpenURLOptionsKey.annotation
+						options: [:]
                     )
                 }
         }
         .modelContainer(for: [Baby.self, BabyLog.self, AIInsight.self])
+		.onChange(of: activityState) { _, state in
+			switch state {
+			case .active:
+				AppEvents.shared.activateApp()
+			default:
+				print("State Change")
+			}
+		}
     }
 }
 

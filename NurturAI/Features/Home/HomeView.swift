@@ -1,9 +1,11 @@
 import SwiftUI
 import SwiftData
 import Combine
+import AppTrackingTransparency
 
 struct HomeView: View {
     @Environment(AppState.self) private var appState
+	@Environment(\.scenePhase) var scenePhase
     @Environment(\.appContainer) private var container
     // Bug #4 fix: default sort order is .forward, which means after a
     // delete-and-recreate cycle the *oldest* surviving baby gets selected.
@@ -33,6 +35,13 @@ struct HomeView: View {
 				viewModel = vm
 				await vm.load(baby: baby)
 			}
+			.onChange(of: scenePhase, { _, newPhase in
+				if newPhase == .active && !appState.permissionsGranted {
+					Task {
+						await ATTrackingManager.requestTrackingAuthorization()
+					}
+				}
+			})
     }
 }
 

@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseAuth
+import AppTrackingTransparency
 
 @MainActor
 @Observable
@@ -7,6 +8,7 @@ final class AppState {
     var currentBaby: Baby?
     var isAuthenticated: Bool = false
     var firebaseUID: String?
+	var permissionsGranted = ATTrackingManager.trackingAuthorizationStatus == .authorized
 
     private var _hasCompletedOnboarding: Bool = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
 
