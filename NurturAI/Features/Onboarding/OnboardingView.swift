@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import FacebookCore
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
@@ -77,6 +78,10 @@ struct OnboardingView: View {
 						transitionStep {
 							buttonTap.toggle()
 							if viewModel.currentStep == .upsale {
+								AppEvents.shared.logEvent(
+									AppEvents.Name("Onboarding_FreeUse")
+								)
+
 								advanceToNextView()
 							} else {
 								viewModel.back()
@@ -206,6 +211,10 @@ struct OnboardingView: View {
 		Task {
 			do {
 				try await service.purchase(product: .proMonthly)
+
+				AppEvents.shared.logEvent(
+					AppEvents.Name("Onboarding_StartFreeTrial")
+				)
 			} catch {
 				trialError = error.localizedDescription
 			}
