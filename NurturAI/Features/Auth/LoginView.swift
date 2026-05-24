@@ -1,6 +1,5 @@
 import SwiftUI
 import AuthenticationServices
-import FacebookLogin
 
 struct LoginView: View {
     @Environment(AppState.self) private var appState
