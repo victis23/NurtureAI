@@ -2,6 +2,8 @@ import SwiftUI
 
 struct DiaperLogView: View {
     @Bindable var viewModel: QuickLogViewModel
+	@Environment(\.appContainer) private var container
+
     let baby: Baby
 
     var body: some View {
@@ -36,5 +38,8 @@ struct DiaperLogView: View {
             }
             .buttonStyle(PrimaryButtonStyle())
         }
+		.onAppear {
+			container?.analyticsService.logPageView("diaperLogView")
+		}
     }
 }

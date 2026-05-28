@@ -78,10 +78,7 @@ struct OnboardingView: View {
 						transitionStep {
 							buttonTap.toggle()
 							if viewModel.currentStep == .upsale {
-								AppEvents.shared.logEvent(
-									AppEvents.Name("Onboarding_FreeUse")
-								)
-
+								container?.analyticsService.logEvent("Onboarding_FreeUse")
 								advanceToNextView()
 							} else {
 								viewModel.back()
@@ -193,7 +190,10 @@ struct OnboardingView: View {
 				)
 			}
 		} else {
-			transitionStep { viewModel.advance() }
+			transitionStep {
+				viewModel.advance()
+				container?.analyticsService.logPageView(viewModel.currentStep.stringValue)
+			}
 		}
 	}
 
@@ -211,10 +211,7 @@ struct OnboardingView: View {
 		Task {
 			do {
 				try await service.purchase(product: .proMonthly)
-
-				AppEvents.shared.logEvent(
-					AppEvents.Name("Onboarding_StartFreeTrial")
-				)
+				container?.analyticsService.logEvent("Onboarding_StartFreeTrial")
 			} catch {
 				trialError = error.localizedDescription
 			}

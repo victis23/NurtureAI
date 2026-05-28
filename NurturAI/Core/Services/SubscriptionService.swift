@@ -143,11 +143,13 @@ final class StoreKitSubscriptionService: SubscriptionServiceProtocol {
     /// same in-flight `Task` so we make at most one StoreKit request at a time.
     private var inFlightProductLoad: Task<Void, Never>?
     private let appState: AppState
+	private let analyticsService: AnalyticsService
 
     private static let log = Logger(subsystem: "com.uathelp.nurturAI", category: "Subscription")
 
-    init(appState: AppState) {
+	init(appState: AppState, analyticsService: AnalyticsService) {
         self.appState = appState
+		self.analyticsService = analyticsService
     }
 
     // No `deinit` cleanup of `transactionListenerTask`: the task is
@@ -209,6 +211,14 @@ final class StoreKitSubscriptionService: SubscriptionServiceProtocol {
             let transaction = try checkVerified(verification)
             await refreshSubscriptionStatus()
             await transaction.finish()
+
+			analyticsService.logEvent(
+				"inAppSubscription",
+				parameters: [
+					"productName" : "\(product.displayName)"
+				],
+				transaction: transaction
+			)
             // Fire the root-level confetti only on user-initiated success —
             // not on the launch-time `refreshSubscriptionStatus()` path that
             // also flips `isSubscribed` for already-subscribed users.

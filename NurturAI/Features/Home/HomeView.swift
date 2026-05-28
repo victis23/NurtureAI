@@ -42,6 +42,9 @@ struct HomeView: View {
 					}
 				}
 			})
+			.onAppear {
+				container?.analyticsService.logPageView("homeView")
+			}
     }
 }
 

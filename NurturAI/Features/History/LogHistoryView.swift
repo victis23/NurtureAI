@@ -25,6 +25,9 @@ struct LogHistoryView: View {
 				viewModel = vm
 				await vm.load(baby: baby)
 			}
+			.onAppear {
+				container?.analyticsService.logPageView("logHistoryView")
+			}
     }
 }
 

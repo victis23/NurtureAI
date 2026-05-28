@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TermsAndConditions: View {
 	@Binding var showTermsAndConditions: Bool
+	@Environment(\.appContainer) private var container 
 	var hideDoneButton: Bool = false
 
 	var body: some View {
@@ -39,6 +40,9 @@ struct TermsAndConditions: View {
 						.foregroundStyle(NurturColors.accent)
 					}
 				}
+			}
+			.onAppear {
+				container?.analyticsService.logPageView("termsAndConditions")
 			}
 		}
 	}

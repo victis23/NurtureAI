@@ -3,6 +3,8 @@ import Combine
 
 struct FeedTimerView: View {
     @Bindable var viewModel: QuickLogViewModel
+	@Environment(\.appContainer) private var container
+
     let baby: Baby
     @State private var elapsed: TimeInterval = 0
 	let feedTimerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -75,6 +77,7 @@ struct FeedTimerView: View {
             if let start = viewModel.feedStartTime {
                 elapsed = Date().timeIntervalSince(start)
             }
+			container?.analyticsService.logPageView("feedTimerView")
         }
     }
 }

@@ -161,6 +161,7 @@ extension Strings {
 // MARK: - View
 
 struct PrivacyPolicy: View {
+	@Environment(\.appContainer) private var container
 
 	var body: some View {
 		ScrollView {
@@ -179,6 +180,9 @@ struct PrivacyPolicy: View {
 		.background(NurturColors.background.ignoresSafeArea())
 		.navigationTitle(Strings.Common.privacyTitle)
 		.navigationBarTitleDisplayMode(.inline)
+		.onAppear {
+			container?.analyticsService.logPageView("privacyPolicy")
+		}
 	}
 
 	// MARK: - Header

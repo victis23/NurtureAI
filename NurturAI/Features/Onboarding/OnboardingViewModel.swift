@@ -41,8 +41,62 @@ final class OnboardingViewModel {
 		case rating
 		case upsale
 
-        var progress: Double {
-			Double(rawValue + 1) / Double(OnboardingStep.allCases.count)        }
+		var progress: Double {
+			Double(rawValue + 1) / Double(OnboardingStep.allCases.count)
+		}
+
+		var stringValue: String {
+			switch self {
+			case .welcome:
+				"welcome"
+			case .name:
+			    "name"
+			case .birthday:
+			    "birthday"
+			case .kidCount:
+			    "kidCount"
+			case .familySupport:
+			    "familySupport"
+			case .overwhelmed:
+			    "overwhelmed"
+			case .wellBeing:
+			    "wellBeing"
+			case .household:
+			    "household"
+			case .challenges:
+			    "challenges"
+			case .feedingMethod:
+			    "feedingMethod"
+			case .feedingFrequency:
+			    "feedingFrequency"
+			case .solidFoods:
+			    "solidFoods"
+			case .teething:
+			    "teething"
+			case .bathing:
+			    "bathing"
+			case .pediatrician:
+			    "pediatrician"
+			case .birthWeight:
+			    "birthWeight"
+			case .currentWeight:
+			    "currentWeight"
+			case .features:
+			    "features"
+			case .internetUsage:
+			    "internetUsage"
+			case .aiUsage:
+			    "aiUsage"
+			case .appDiscovery:
+			    "appDiscovery"
+			case .aiPreview:
+			    "aiPreview"
+			case .rating:
+			    "rating"
+			case .upsale:
+			    "upsale"
+			}
+		}
     }
 
     struct OnboardingDraft {

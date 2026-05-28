@@ -19,6 +19,7 @@ struct AppContainer {
     let subscriptionService: StoreKitSubscriptionService
     let authService: AuthServiceProtocol
     let notificationService: NotificationService
+	let analyticsService: AnalyticsService
 
     @MainActor
     static func live(modelContext: ModelContext) -> AppContainer {
@@ -34,7 +35,8 @@ struct AppContainer {
             syncService: syncService,
             contextBuilder: builder
         )
-        let subscriptionService = StoreKitSubscriptionService(appState: AppState.shared)
+		let analyticsService = AnalyticsService()
+		let subscriptionService = StoreKitSubscriptionService(appState: AppState.shared, analyticsService: analyticsService)
         subscriptionService.start()
 
         return AppContainer(
@@ -50,7 +52,8 @@ struct AppContainer {
             timerService: timerService,
             subscriptionService: subscriptionService,
             authService: AuthService(),
-            notificationService: NotificationService()
+			notificationService: NotificationService(),
+			analyticsService: analyticsService
         )
     }
 }

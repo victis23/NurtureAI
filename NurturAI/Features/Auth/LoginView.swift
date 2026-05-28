@@ -72,6 +72,9 @@ struct LoginView: View {
             .padding(.bottom, 52)
         }
         .background(NurturColors.background)
+		.onAppear {
+			container?.analyticsService.logPageView("loginView")
+		}
     }
 
     private func handleResult(_ result: Result<ASAuthorization, Error>) async {
@@ -83,6 +86,7 @@ struct LoginView: View {
 
 			if let skipOnboarding = await skipOnBoarding(syncService: syncService, uID: authService.currentUID) {
 				appState.hasCompletedOnboarding = skipOnboarding
+				container?.analyticsService.logEvent("recoveredAccount")
 			}
 			
             appState.isAuthenticated = true

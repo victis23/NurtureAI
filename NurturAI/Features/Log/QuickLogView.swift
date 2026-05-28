@@ -26,6 +26,9 @@ struct QuickLogView: View {
 					viewModel = QuickLogViewModel(timerService: container.timerService)
 				}
 			}
+			.onAppear {
+				container?.analyticsService.logPageView("QuickLogView")
+			}
     }
 }
 

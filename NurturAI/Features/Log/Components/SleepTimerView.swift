@@ -3,6 +3,8 @@ import Combine
 
 struct SleepTimerView: View {
     @Bindable var viewModel: QuickLogViewModel
+	@Environment(\.appContainer) private var container
+
     let baby: Baby
     @State private var elapsed: TimeInterval = 0
 	let sleepTimerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -39,6 +41,7 @@ struct SleepTimerView: View {
             if let start = viewModel.sleepStartTime {
                 elapsed = Date().timeIntervalSince(start)
             }
+			container?.analyticsService.logPageView("sleepTimerView")
         }
     }
 }
