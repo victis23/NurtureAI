@@ -8,27 +8,26 @@ struct DiaperLogView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text(Strings.Log.Diaper.typeLabel)
-                    .font(NurturTypography.subheadline)
-                    .foregroundStyle(NurturColors.textSecondary)
+                    .font(NurturTypography.headline)
+                    .foregroundStyle(NurturColors.textPrimary)
 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(DiaperType.allCases, id: \.self) { type in
+                        let isSelected = viewModel.selectedDiaperType == type
                         Button {
                             viewModel.selectedDiaperType = type
                         } label: {
                             Text(type.rawValue.capitalized)
                                 .font(NurturTypography.subheadline)
-                                .fontWeight(viewModel.selectedDiaperType == type ? .semibold : .regular)
+                                .fontWeight(isSelected ? .bold : .medium)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(
-                                    viewModel.selectedDiaperType == type ? NurturColors.accent : NurturColors.surfaceWarm,
-                                    in: RoundedRectangle(cornerRadius: 12)
-                                )
-                                .foregroundStyle(viewModel.selectedDiaperType == type ? .white : NurturColors.textPrimary)
+                                .padding(.vertical, 16)
+                                .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
+                                .modifier(SelectionChipBackground(isSelected: isSelected, color: NurturColors.success))
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -38,6 +37,8 @@ struct DiaperLogView: View {
             }
             .buttonStyle(PrimaryButtonStyle())
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.selectedDiaperType)
+        .sensoryFeedback(.selection, trigger: viewModel.selectedDiaperType)
 		.onAppear {
 			container?.analyticsService.logPageView("diaperLogView")
 		}

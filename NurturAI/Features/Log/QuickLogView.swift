@@ -39,42 +39,57 @@ private struct QuickLogContentView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                // 4-tab segmented control
-                Picker(Strings.Log.pickerLabel, selection: $selectedTab) {
-                    Text(Strings.Log.tabFeed).tag(LogType.feed)
-                    Text(Strings.Log.tabSleep).tag(LogType.sleep)
-                    Text(Strings.Log.tabDiaper).tag(LogType.diaper)
-                    Text(Strings.Log.tabMood).tag(LogType.mood)
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
-                .padding(.vertical, 12)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header — mirrors HomeView
+                    HStack(spacing: 12) {
+                        BabyAvatar(name: baby.name, size: 56)
+                            .glassEffect(.regular, in: Circle())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(baby.name)
+                                .font(NurturTypography.title3)
+                                .foregroundStyle(NurturColors.textPrimary)
+                            Text(Strings.Log.headerPrompt)
+                                .font(NurturTypography.subheadline)
+                                .foregroundStyle(NurturColors.textSecondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal)
 
-                ScrollView {
-                    VStack(spacing: 0) {
+                    // Animated liquid-glass type selector
+                    LogTypeSelector(selectedTab: $selectedTab)
+                        .padding(.horizontal)
+
+                    // Active control panel
+                    Group {
                         switch selectedTab {
-                        case .feed:
-                            FeedTimerView(viewModel: viewModel, baby: baby)
-                                .padding()
-                        case .sleep:
-                            SleepTimerView(viewModel: viewModel, baby: baby)
-                                .padding()
-                        case .diaper:
-                            DiaperLogView(viewModel: viewModel, baby: baby)
-                                .padding()
-                        case .mood:
-                            MoodLogView(viewModel: viewModel, baby: baby)
-                                .padding()
+                        case .feed:   FeedTimerView(viewModel: viewModel, baby: baby)
+                        case .sleep:  SleepTimerView(viewModel: viewModel, baby: baby)
+                        case .diaper: DiaperLogView(viewModel: viewModel, baby: baby)
+                        case .mood:   MoodLogView(viewModel: viewModel, baby: baby)
                         }
                     }
+                    .padding(20)
+                    .frame(maxWidth: .infinity)
+                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+                    .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .id(selectedTab)
                 }
+                .padding(.top, 25)
+                .padding(.bottom, 40)
+                .animation(.spring(response: 0.4, dampingFraction: 0.85), value: selectedTab)
             }
-			.background(LinearGradient(
-				colors: [NurturColors.accentSoft, .accentOrange.opacity(0.2)],
-				startPoint: .topLeading,
-				endPoint: .bottomTrailing)
-			)
+            .background(
+                LinearGradient(
+                    colors: [.background, .accentColor.opacity(0.1)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            )
 
             // Toast confirmation
             ToastOverlay(
@@ -86,42 +101,88 @@ private struct QuickLogContentView: View {
     }
 }
 
+/// Liquid-glass segmented selector. Each segment carries its own brand color
+/// and the selected pill slides between them via a matched-geometry animation.
+private struct LogTypeSelector: View {
+    @Binding var selectedTab: LogType
+    @Namespace private var namespace
+
+    private struct Tab { let type: LogType; let label: String; let icon: String; let color: Color }
+
+    private let tabs: [Tab] = [
+        Tab(type: .feed,   label: Strings.Log.tabFeed,   icon: "drop.fill",              color: NurturColors.info),
+        Tab(type: .sleep,  label: Strings.Log.tabSleep,  icon: "moon.fill",              color: NurturColors.accent),
+        Tab(type: .diaper, label: Strings.Log.tabDiaper, icon: "bubbles.and.sparkles",   color: NurturColors.success),
+        Tab(type: .mood,   label: Strings.Log.tabMood,   icon: "face.smiling",           color: NurturColors.warning)
+    ]
+
+    var body: some View {
+        GlassEffectContainer {
+            HStack(spacing: 6) {
+                ForEach(tabs, id: \.type) { tab in
+                    let isSelected = selectedTab == tab.type
+                    Button {
+                        selectedTab = tab.type
+                    } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: tab.icon)
+                                .font(.system(size: 18, weight: .semibold))
+                            Text(tab.label)
+                                .font(NurturTypography.caption)
+                                .fontWeight(.bold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundStyle(isSelected ? .white : tab.color)
+                        .background {
+                            if isSelected {
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(tab.color)
+                                    .shadow(color: tab.color.opacity(0.4), radius: 6, x: 0, y: 3)
+                                    .matchedGeometryEffect(id: "selectedTab", in: namespace)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(6)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24))
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.78), value: selectedTab)
+        .sensoryFeedback(.selection, trigger: selectedTab)
+    }
+}
+
 private struct MoodLogView: View {
     @Bindable var viewModel: QuickLogViewModel
     let baby: Baby
 
     var body: some View {
         VStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text(Strings.Log.moodHeading(baby.name))
-                    .font(NurturTypography.subheadline)
-                    .foregroundStyle(NurturColors.textSecondary)
+                    .font(NurturTypography.headline)
+                    .foregroundStyle(NurturColors.textPrimary)
 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(MoodState.allCases, id: \.self) { mood in
+                        let isSelected = viewModel.selectedMood == mood
                         Button {
                             viewModel.selectedMood = mood
                         } label: {
                             VStack(spacing: 6) {
-                                Text(mood.emoji).font(.title2)
+                                Text(mood.emoji).font(.title)
                                 Text(mood.label)
                                     .font(NurturTypography.caption)
-                                    .fontWeight(viewModel.selectedMood == mood ? .semibold : .regular)
+                                    .fontWeight(isSelected ? .bold : .medium)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                viewModel.selectedMood == mood ? NurturColors.accentSoft : NurturColors.surfaceWarm,
-                                in: RoundedRectangle(cornerRadius: 12)
-                            )
-                            .foregroundStyle(
-                                viewModel.selectedMood == mood ? NurturColors.accent : NurturColors.textPrimary
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(viewModel.selectedMood == mood ? NurturColors.accent : Color.clear, lineWidth: 2)
-                            )
+                            .padding(.vertical, 18)
+                            .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
+                            .modifier(SelectionChipBackground(isSelected: isSelected, color: NurturColors.accent))
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -130,6 +191,56 @@ private struct MoodLogView: View {
                 Task { await viewModel.logMood(baby: baby) }
             }
             .buttonStyle(PrimaryButtonStyle())
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.selectedMood)
+        .sensoryFeedback(.selection, trigger: viewModel.selectedMood)
+    }
+}
+
+/// Wraps a timer's content with a soft brand-colored halo that gently breathes
+/// while the timer is running, so the screen feels alive instead of static.
+struct TimerHalo<Content: View>: View {
+    let isRunning: Bool
+    var color: Color = NurturColors.accent
+    @ViewBuilder var content: Content
+
+    @State private var pulse = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(color.opacity(0.14))
+                .frame(width: 190, height: 190)
+                .scaleEffect(pulse ? 1.06 : 0.9)
+                .opacity(isRunning ? 1 : 0)
+                .blur(radius: 4)
+                .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: pulse)
+                .animation(.easeOut(duration: 0.4), value: isRunning)
+            content
+        }
+        .frame(maxWidth: .infinity)
+        .onAppear { pulse = true }
+    }
+}
+
+/// Shared selection-chip styling for the Log screen: a liquid-glass capsule when
+/// idle, a filled brand-colored pill with a soft glow when selected.
+struct SelectionChipBackground: ViewModifier {
+    let isSelected: Bool
+    var color: Color = NurturColors.accent
+    var cornerRadius: CGFloat = 18
+
+    func body(content: Content) -> some View {
+        if isSelected {
+            content
+                .background(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(color)
+                        .shadow(color: color.opacity(0.4), radius: 6, x: 0, y: 3)
+                )
+        } else {
+            content
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
     }
 }

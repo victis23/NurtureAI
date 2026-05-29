@@ -11,15 +11,19 @@ struct SleepTimerView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            VStack(spacing: 8) {
-                Image(systemName: "moon.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(NurturColors.accent)
-                TimerDisplay(elapsed: elapsed, isRunning: viewModel.isSleepTimerRunning)
-                Text(viewModel.isSleepTimerRunning ? Strings.Log.Sleep.inProgress : Strings.Log.Sleep.readyToStart)
-                    .font(NurturTypography.caption)
-                    .foregroundStyle(NurturColors.textFaint)
+            TimerHalo(isRunning: viewModel.isSleepTimerRunning, color: NurturColors.accent) {
+                VStack(spacing: 8) {
+                    Image(systemName: "moon.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(NurturColors.accent)
+                        .symbolEffect(.pulse, isActive: viewModel.isSleepTimerRunning)
+                    TimerDisplay(elapsed: elapsed, isRunning: viewModel.isSleepTimerRunning)
+                    Text(viewModel.isSleepTimerRunning ? Strings.Log.Sleep.inProgress : Strings.Log.Sleep.readyToStart)
+                        .font(NurturTypography.caption)
+                        .foregroundStyle(NurturColors.textFaint)
+                }
             }
+            .padding(.vertical, 8)
 
             Button {
                 if viewModel.isSleepTimerRunning {

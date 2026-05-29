@@ -261,6 +261,7 @@ enum Strings {
     // MARK: - Log
     enum Log {
         static let navigationTitle  = String(localized: "Log")
+        static let headerPrompt     = String(localized: "What would you like to log?")
         static let pickerLabel      = String(localized: "Log type")
         static let tabFeed          = String(localized: "Feed")
         static let tabSleep         = String(localized: "Sleep")
