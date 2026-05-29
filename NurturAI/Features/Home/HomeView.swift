@@ -222,6 +222,10 @@ private struct HomeContentView: View {
 							}.sensoryFeedback(.impact, trigger: buttonTap)
 						}
 						.padding(.horizontal)
+
+						// Today's timeline
+						TodayTimelineSection(logs: viewModel.todaysLogs)
+							.padding(.horizontal)
 					}
 					.padding(.top, 25)
 					.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
@@ -318,5 +322,180 @@ private struct ActiveTimerWidget: View {
 		case .mood:
 			return (Strings.Home.Timer.moodLogged, "face.smiling")
 		}
+	}
+}
+
+// MARK: - Today's timeline
+
+private struct TodayTimelineSection: View {
+	let logs: [BabyLog]
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 12) {
+			HStack(spacing: 8) {
+				Circle()
+					.fill(NurturColors.accent)
+					.frame(width: 6, height: 6)
+				Text("Today's timeline")
+					.font(NurturTypography.caption)
+					.fontWeight(.bold)
+					.textCase(.uppercase)
+					.kerning(0.8)
+					.foregroundStyle(NurturColors.textSecondary)
+			}
+			.padding(.leading, 4)
+
+			if logs.isEmpty {
+				EmptyTimelineCard()
+			} else {
+				ZStack(alignment: .topLeading) {
+					Rectangle()
+						.fill(
+							LinearGradient(
+								colors: [NurturColors.accent.opacity(0.35), NurturColors.accent.opacity(0.08)],
+								startPoint: .top,
+								endPoint: .bottom
+							)
+						)
+						.frame(width: 2)
+						.padding(.leading, 16)
+						.padding(.vertical, 17)
+
+					VStack(spacing: 12) {
+						ForEach(Array(logs.enumerated()), id: \.element.id) { index, log in
+							TimelineEventRow(log: log, isNow: index == 0)
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+private struct TimelineEventRow: View {
+	let log: BabyLog
+	let isNow: Bool
+
+	var body: some View {
+		HStack(alignment: .top, spacing: 12) {
+			TimelineNode(log: log, isNow: isNow)
+
+			VStack(alignment: .leading, spacing: 2) {
+				HStack(alignment: .firstTextBaseline) {
+					Text(title)
+						.font(NurturTypography.subheadline)
+						.fontWeight(.bold)
+						.foregroundStyle(NurturColors.textPrimary)
+					Spacer()
+					Text(log.timestamp.timeDisplay)
+						.font(NurturTypography.caption)
+						.fontWeight(.bold)
+						.foregroundStyle(NurturColors.textFaint)
+				}
+				Text(summary)
+					.font(NurturTypography.caption)
+					.foregroundStyle(NurturColors.textSecondary)
+			}
+			.padding(.horizontal, 14)
+			.padding(.vertical, 11)
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
+		}
+	}
+
+	private var title: String {
+		switch log.type {
+		case .feed:   return "Feed"
+		case .sleep:  return "Sleep"
+		case .diaper: return "Diaper change"
+		case .mood:   return "Mood"
+		}
+	}
+
+	private var summary: String {
+		switch log.metadata {
+		case .feed(let side, let ml):
+			var parts = [side.rawValue.capitalized]
+			if let ml { parts.append("\(ml) ml") }
+			if let dur = log.durationSeconds { parts.append((dur / 60).hmDisplay) }
+			return parts.joined(separator: " · ")
+		case .sleep:
+			if let dur = log.durationSeconds { return (dur / 60).hmDisplay }
+			return "—"
+		case .diaper(let type):
+			return type.rawValue.capitalized
+		case .mood(let state, _):
+			return "\(state.emoji) \(state.label)"
+		case .none:
+			return "—"
+		}
+	}
+}
+
+private struct TimelineNode: View {
+	let log: BabyLog
+	let isNow: Bool
+	@State private var pulse = false
+
+	private var color: Color {
+		switch log.type {
+		case .feed:   return NurturColors.info
+		case .sleep:  return NurturColors.accent
+		case .diaper: return NurturColors.success
+		case .mood:   return NurturColors.warning
+		}
+	}
+
+	private var icon: String {
+		switch log.type {
+		case .feed:   return "drop.fill"
+		case .sleep:  return "moon.fill"
+		case .diaper: return "bubbles.and.sparkles"
+		case .mood:   return "face.smiling"
+		}
+	}
+
+	var body: some View {
+		ZStack {
+			if isNow {
+				Circle()
+					.stroke(NurturColors.accent.opacity(0.4), lineWidth: 2)
+					.scaleEffect(pulse ? 1.6 : 1.0)
+					.opacity(pulse ? 0 : 1)
+					.animation(.easeOut(duration: 2).repeatForever(autoreverses: false), value: pulse)
+			}
+			RoundedRectangle(cornerRadius: 12)
+				.fill(isNow ? NurturColors.accent : color.opacity(0.18))
+			Image(systemName: icon)
+				.font(.system(size: 14))
+				.foregroundStyle(isNow ? Color.white : color)
+		}
+		.frame(width: 34, height: 34)
+		.onAppear { if isNow { pulse = true } }
+	}
+}
+
+private struct EmptyTimelineCard: View {
+	var body: some View {
+		VStack(spacing: 8) {
+			Text("🌤️")
+				.font(.system(size: 30))
+			Text("A fresh day")
+				.font(NurturTypography.headline)
+				.foregroundStyle(NurturColors.textPrimary)
+			Text("Nothing logged yet. Tap a quick-log button above and the timeline will fill in here.")
+				.font(NurturTypography.caption)
+				.foregroundStyle(NurturColors.textSecondary)
+				.multilineTextAlignment(.center)
+		}
+		.frame(maxWidth: .infinity)
+		.padding(.vertical, 28)
+		.padding(.horizontal, 24)
+		.background(
+			RoundedRectangle(cornerRadius: 26)
+				.stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+				.foregroundStyle(NurturColors.accent.opacity(0.3))
+		)
+		.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
 	}
 }

@@ -14,6 +14,7 @@ final class HomeViewModel {
     // MARK: - State
 
     var patterns: BabyPatterns?
+    var todaysLogs: [BabyLog] = []
     var isLoading: Bool = false
     var error: AppError?
 
@@ -55,6 +56,7 @@ final class HomeViewModel {
             let logs = try logRepository.fetchLogs(for: baby, since: since)
             let computed = patternService.analyze(logs: logs, baby: baby)
             patterns = computed
+            todaysLogs = logs.filter { Calendar.current.isDateInToday($0.timestamp) }
             // Permission ask is idempotent. Scheduling is intentionally NOT
             // done here — see `handleLogSaved` — to avoid resetting pending
             // notification timers every time the Home view opens or refreshes.
@@ -80,6 +82,7 @@ final class HomeViewModel {
             let logs = try logRepository.fetchLogs(for: baby, since: since)
             let computed = patternService.analyze(logs: logs, baby: baby)
             patterns = computed
+            todaysLogs = logs.filter { Calendar.current.isDateInToday($0.timestamp) }
             await notificationService.scheduleNotifications(
                 for: baby,
                 patterns: computed,
