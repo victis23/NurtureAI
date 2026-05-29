@@ -181,8 +181,21 @@ private struct HomeContentView: View {
 							}
 							.padding(.horizontal)
 							.transition(.opacity)
+						} else if viewModel.isLoading {
+							VStack(spacing: 12) {
+								SectionHeader(title: "At a glance")
+								GlassEffectContainer {
+									LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+										ForEach(0..<4, id: \.self) { _ in
+											NurturStatusCardSkeleton()
+										}
+									}
+								}
+							}
+							.padding(.horizontal)
+							.transition(.opacity)
 						}
-						
+
 						// Quick log
 						VStack(spacing: 12) {
 							SectionHeader(title: "Quick log")
@@ -230,7 +243,7 @@ private struct HomeContentView: View {
 						.padding(.horizontal)
 
 						// Today's timeline
-						TodayTimelineSection(logs: viewModel.todaysLogs)
+						TodayTimelineSection(logs: viewModel.todaysLogs, isLoading: viewModel.isLoading)
 							.padding(.horizontal)
 					}
 					.padding(.top, 25)
@@ -355,12 +368,19 @@ private struct SectionHeader: View {
 
 private struct TodayTimelineSection: View {
 	let logs: [BabyLog]
+	let isLoading: Bool
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
 			SectionHeader(title: "Today's timeline")
 
-			if logs.isEmpty {
+			if logs.isEmpty && isLoading {
+				VStack(spacing: 12) {
+					ForEach(0..<3, id: \.self) { _ in
+						NurturTimelineRowSkeleton()
+					}
+				}
+			} else if logs.isEmpty {
 				EmptyTimelineCard()
 			} else {
 				ZStack(alignment: .topLeading) {

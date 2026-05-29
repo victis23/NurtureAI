@@ -15,7 +15,7 @@ final class HomeViewModel {
 
     var patterns: BabyPatterns?
     var todaysLogs: [BabyLog] = []
-    var isLoading: Bool = false
+    var isLoading: Bool = true
     var error: AppError?
 
     // MARK: - Timer state (delegated to service — single source of truth)

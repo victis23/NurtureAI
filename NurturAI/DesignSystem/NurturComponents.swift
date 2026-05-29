@@ -78,6 +78,102 @@ struct NurturStatusCard: View {
     }
 }
 
+// MARK: - Shimmer
+
+/// A sweeping highlight that animates across whatever it's applied to,
+/// giving skeleton placeholders a "loading" feel rather than a static block.
+private struct ShimmerModifier: ViewModifier {
+    @State private var phase: CGFloat = -1
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                GeometryReader { geo in
+                    LinearGradient(
+                        colors: [.clear, Color.white.opacity(0.45), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .frame(width: geo.size.width * 1.5)
+                    .offset(x: geo.size.width * phase)
+                }
+            )
+            .mask(content)
+            .onAppear {
+                withAnimation(.linear(duration: 1.3).repeatForever(autoreverses: false)) {
+                    phase = 1.5
+                }
+            }
+    }
+}
+
+extension View {
+    func nurturShimmer() -> some View {
+        modifier(ShimmerModifier())
+    }
+}
+
+/// A neutral rounded block used as a building element inside skeleton layouts.
+struct NurturSkeletonBlock: View {
+    var width: CGFloat? = nil
+    var height: CGFloat
+    var cornerRadius: CGFloat = 8
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(NurturColors.textFaint.opacity(0.18))
+            .frame(width: width, height: height)
+    }
+}
+
+// MARK: - Status Card Skeleton
+
+/// Placeholder matching `NurturStatusCard`'s footprint (112pt tall, same glass
+/// styling) so the "At a glance" grid reserves its space while data loads.
+struct NurturStatusCardSkeleton: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 7) {
+                NurturSkeletonBlock(width: 24, height: 24, cornerRadius: 8)
+                NurturSkeletonBlock(width: 56, height: 10, cornerRadius: 5)
+            }
+            NurturSkeletonBlock(width: 80, height: 18, cornerRadius: 6)
+            NurturSkeletonBlock(width: 48, height: 10, cornerRadius: 5)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .frame(height: 112, alignment: .topLeading)
+        .glassEffect(.regular, in: .rect(cornerRadius: 22))
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .nurturShimmer()
+    }
+}
+
+// MARK: - Timeline Row Skeleton
+
+/// Placeholder matching `TimelineEventRow`'s layout so the timeline reserves
+/// its space while logs load instead of flashing the empty-state card.
+struct NurturTimelineRowSkeleton: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            NurturSkeletonBlock(width: 34, height: 34, cornerRadius: 12)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    NurturSkeletonBlock(width: 80, height: 12, cornerRadius: 6)
+                    Spacer()
+                    NurturSkeletonBlock(width: 40, height: 10, cornerRadius: 5)
+                }
+                NurturSkeletonBlock(width: 120, height: 10, cornerRadius: 5)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 11)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
+        }
+        .nurturShimmer()
+    }
+}
+
 // MARK: - Timer Display
 
 struct TimerDisplay: View {
