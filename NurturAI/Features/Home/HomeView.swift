@@ -249,11 +249,6 @@ private struct HomeContentView: View {
 					.padding(.top, 25)
 					.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
 			}
-			.background(LinearGradient(
-				colors: [.background, .accentColor.opacity(0.1)],
-				startPoint: .topLeading,
-				endPoint: .bottomTrailing))
-			.padding(.top)
 			.refreshable { await viewModel.refresh(baby: baby) }
 			.onChange(of: viewModel.logVersion) { _, _ in
 				Task { await viewModel.handleLogSaved(baby: baby) }
@@ -263,6 +258,14 @@ private struct HomeContentView: View {
 				AssistView(initialQuery: assistQuery)
 			}
 		}
+		.background(
+			LinearGradient(
+				colors: [.background, .accentColor.opacity(0.1)],
+				startPoint: .topLeading,
+				endPoint: .bottomTrailing
+			)
+			.ignoresSafeArea()
+		)
     }
 }
 
