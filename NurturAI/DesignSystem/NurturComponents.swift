@@ -90,7 +90,11 @@ private struct ShimmerModifier: ViewModifier {
             .overlay(
                 GeometryReader { geo in
                     LinearGradient(
-                        colors: [.clear, Color.white.opacity(0.45), .clear],
+                        stops: [
+                            .init(color: .clear, location: 0.35),
+                            .init(color: NurturColors.accent.opacity(0.85), location: 0.5),
+                            .init(color: .clear, location: 0.65)
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -100,7 +104,7 @@ private struct ShimmerModifier: ViewModifier {
             )
             .mask(content)
             .onAppear {
-                withAnimation(.linear(duration: 1.3).repeatForever(autoreverses: false)) {
+                withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
                     phase = 1.5
                 }
             }
@@ -113,7 +117,9 @@ extension View {
     }
 }
 
-/// A neutral rounded block used as a building element inside skeleton layouts.
+/// A rounded block used as a building element inside skeleton layouts. Filled
+/// with a soft left-to-right gradient and a moving highlight sweep so each one
+/// reads as a shimmering placeholder rather than a flat grey box.
 struct NurturSkeletonBlock: View {
     var width: CGFloat? = nil
     var height: CGFloat
@@ -121,8 +127,19 @@ struct NurturSkeletonBlock: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(NurturColors.textFaint.opacity(0.18))
+            .fill(
+                LinearGradient(
+                    colors: [
+                        NurturColors.accent.opacity(0.15),
+                        NurturColors.accent.opacity(0.38),
+                        NurturColors.accent.opacity(0.15)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
             .frame(width: width, height: height)
+            .nurturShimmer()
     }
 }
 
@@ -145,7 +162,6 @@ struct NurturStatusCardSkeleton: View {
         .frame(height: 112, alignment: .topLeading)
         .glassEffect(.regular, in: .rect(cornerRadius: 22))
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .nurturShimmer()
     }
 }
 
@@ -170,7 +186,6 @@ struct NurturTimelineRowSkeleton: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
         }
-        .nurturShimmer()
     }
 }
 
