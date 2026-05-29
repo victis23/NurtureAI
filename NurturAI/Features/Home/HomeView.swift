@@ -77,52 +77,54 @@ private struct HomeContentView: View {
 			
 			ScrollView {
 					VStack(spacing: 20) {
-						// Header
-						HStack(spacing: 12) {
-							BabyAvatar(name: baby.name, size: 56)
-								.glassEffect(.regular, in: Circle())
-							VStack(alignment: .leading, spacing: 2) {
-								Text(baby.name)
-									.font(NurturTypography.title3)
-									.foregroundStyle(NurturColors.textPrimary)
-								Text(baby.displayAge)
-									.font(NurturTypography.subheadline)
-									.foregroundStyle(NurturColors.textSecondary)
-									.padding(.horizontal, 10)
-									.padding(.vertical, 4)
-									.background(NurturColors.accentSoft, in: Capsule())
-							}
-							Spacer()
-							if let score = parentingScore {
-								HStack(spacing: 6) {
-									ScoreGauge(score: score.value, size: 30, lineWidth: 3, showSubtitle: false)
-									Image(systemName: "chevron.down")
-										.font(.caption2)
-										.fontWeight(.bold)
-										.foregroundStyle(NurturColors.textFaint)
-										.rotationEffect(.degrees(scoreExpanded ? 180 : 0))
+						// Header drawer
+						VStack(spacing: 0) {
+							HStack(spacing: 12) {
+								BabyAvatar(name: baby.name, size: 56)
+								VStack(alignment: .leading, spacing: 2) {
+									Text(baby.name)
+										.font(NurturTypography.title3)
+										.foregroundStyle(NurturColors.textPrimary)
+									Text(baby.displayAge)
+										.font(NurturTypography.subheadline)
+										.foregroundStyle(NurturColors.textSecondary)
+										.padding(.horizontal, 10)
+										.padding(.vertical, 4)
+										.background(NurturColors.accentSoft, in: Capsule())
 								}
-								.padding(.horizontal, 10)
-								.padding(.vertical, 5)
-								.background(score.pillTone.soft, in: Capsule())
+								Spacer()
+								if let score = parentingScore {
+									HStack(spacing: 6) {
+										ScoreGauge(score: score.value, size: 30, lineWidth: 3, showSubtitle: false)
+										Image(systemName: "chevron.down")
+											.font(.caption2)
+											.fontWeight(.bold)
+											.foregroundStyle(NurturColors.textFaint)
+											.rotationEffect(.degrees(scoreExpanded ? 180 : 0))
+									}
+									.padding(.horizontal, 10)
+									.padding(.vertical, 5)
+									.background(score.pillTone.soft, in: Capsule())
+								}
+							}
+							.padding(16)
+							.contentShape(Rectangle())
+							.onTapGesture {
+								withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+									scoreExpanded.toggle()
+								}
+							}
+							if scoreExpanded, let score = parentingScore {
+								VStack(spacing: 0) {
+									Divider().opacity(0.3)
+									ParentingScoreCard(score: score, showBackground: false)
+								}
+								.transition(.move(edge: .top).combined(with: .opacity))
 							}
 						}
+						.glassEffect(.regular, in: .rect(cornerRadius: 22))
+						.clipShape(RoundedRectangle(cornerRadius: 22))
 						.padding(.horizontal)
-						.contentShape(Rectangle())
-						.onTapGesture {
-							withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-								scoreExpanded.toggle()
-							}
-						}
-
-						if scoreExpanded, let score = parentingScore {
-							VStack(spacing: 12) {
-								SectionHeader(title: "Parenting score")
-								ParentingScoreCard(score: score)
-							}
-							.padding(.horizontal)
-							.transition(.move(edge: .top).combined(with: .opacity))
-						}
 						
 						// Active timer widget
 						if let session = viewModel.activeTimerSession {

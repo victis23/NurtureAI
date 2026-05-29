@@ -425,8 +425,19 @@ struct ScoreGauge: View {
 
 struct ParentingScoreCard: View {
     let score: ParentingScore
+    var showBackground: Bool = true
 
     var body: some View {
+        if showBackground {
+            cardContent
+                .glassEffect(.regular, in: .rect(cornerRadius: 22))
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        } else {
+            cardContent
+        }
+    }
+
+    private var cardContent: some View {
         VStack(spacing: 14) {
             ScoreGauge(score: score.value)
 
@@ -461,7 +472,5 @@ struct ParentingScoreCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(20)
-        .glassEffect(.regular, in: .rect(cornerRadius: 22))
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
