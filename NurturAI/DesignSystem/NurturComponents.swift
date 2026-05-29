@@ -32,17 +32,22 @@ struct NurturStatusCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+            HStack(spacing: 7) {
                 Image(systemName: icon)
-                    .font(.caption)
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(iconColor)
+                    .frame(width: 24, height: 24)
+                    .background(iconColor.opacity(0.18), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 Text(title)
                     .font(NurturTypography.caption)
+                    .fontWeight(.semibold)
                     .foregroundStyle(NurturColors.textSecondary)
             }
             Text(value)
                 .font(NurturTypography.title3)
                 .foregroundStyle(NurturColors.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             if let subtitle {
                 Text(subtitle)
                     .font(NurturTypography.caption)
@@ -51,7 +56,8 @@ struct NurturStatusCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 		.padding(16)
-		.glassEffect(.regular, in: .rect(cornerRadius: 16))
+		.frame(height: 112, alignment: .topLeading)
+		.glassEffect(.regular, in: .rect(cornerRadius: 22))
 		.shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         .scaleEffect(pulseScale)
         .shadow(color: isUrgent ? Color.red.opacity(0.35) : .clear, radius: 8)
@@ -125,20 +131,20 @@ struct LargeActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(.system(size: 24, weight: .semibold))
 
                 Text(title)
                     .font(NurturTypography.caption)
-                    .fontWeight(.medium)
+                    .fontWeight(.bold)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(color.opacity(0.20), in: RoundedRectangle(cornerRadius: 14))
+            .padding(.vertical, 18)
+            .background(color.opacity(0.18), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .foregroundStyle(color)
-			.overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
-				.strokeBorder(.white, lineWidth: 2).opacity(0.6))
+			.overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+				.strokeBorder(.white, lineWidth: 1.5).opacity(0.6))
         }
     }
 }

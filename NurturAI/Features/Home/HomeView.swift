@@ -26,14 +26,14 @@ struct HomeView: View {
             .navigationTitle(Strings.Home.navigationTitle)
 			.task {
 				guard let baby = babies.first, let container else { return }
-				let vm = HomeViewModel(
+				viewModel = HomeViewModel(
 					logRepository: container.logRepository,
 					patternService: container.patternService,
 					timerService: container.timerService,
 					notificationService: container.notificationService
 				)
-				viewModel = vm
-				await vm.load(baby: baby)
+
+				await viewModel?.load(baby: baby)
 			}
 			.onChange(of: scenePhase, { _, newPhase in
 				if newPhase == .active && !appState.permissionsGranted {
@@ -123,56 +123,59 @@ private struct HomeContentView: View {
 						// automatically suspends the timeline when the view is off
 						// screen, so this is battery-friendly.
 						if let patterns = viewModel.patterns {
-							TimelineView(.periodic(from: .now, by: 60)) { context in
-								let nextState: CharacterAnimation = {
-									switch viewModel.activeTimerSession?.type {
-									case .sleep: return .sleeping
-									case .feed:  return .feeding
-									default:     break
-									}
-									let urgent = viewModel.isFeedUrgent(at: context.date)
-									|| viewModel.isAwakeUrgent(at: context.date)
-									|| viewModel.isDiaperUrgent(baby: baby, at: context.date)
-									return urgent ? .crying : .relaxing
-								}()
+							VStack(spacing: 12) {
+								SectionHeader(title: "At a glance")
+								TimelineView(.periodic(from: .now, by: 60)) { context in
+									let nextState: CharacterAnimation = {
+										switch viewModel.activeTimerSession?.type {
+										case .sleep: return .sleeping
+										case .feed:  return .feeding
+										default:     break
+										}
+										let urgent = viewModel.isFeedUrgent(at: context.date)
+										|| viewModel.isAwakeUrgent(at: context.date)
+										|| viewModel.isDiaperUrgent(baby: baby, at: context.date)
+										return urgent ? .crying : .relaxing
+									}()
 
-								GlassEffectContainer {
-									LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-										NurturStatusCard(
-											title: Strings.Home.Status.lastFed,
-											value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
-											subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
-											icon: "drop.fill",
-											iconColor: NurturColors.info,
-											isUrgent: viewModel.isFeedUrgent(at: context.date)
-										)
-										
-										NurturStatusCard(
-											title: Strings.Home.Status.awake,
-											value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
-											subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
-											icon: "sun.max.fill",
-											iconColor: NurturColors.warning,
-											isUrgent: viewModel.isAwakeUrgent(at: context.date)
-										)
-										
-										NurturStatusCard(
-											title: Strings.Home.Status.sleepToday,
-											value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
-											icon: "moon.fill",
-											iconColor: NurturColors.accent
-										)
-										
-										NurturStatusCard(
-											title: Strings.Home.Status.lastDiaper,
-											value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
-											icon: "bubbles.and.sparkles",
-											iconColor: NurturColors.success,
-											isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
-										)
-									}
-									.onChange(of: nextState, initial: true) { _, new in
-										babyState = new
+									GlassEffectContainer {
+										LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+											NurturStatusCard(
+												title: Strings.Home.Status.lastFed,
+												value: viewModel.lastFedDisplay(at: context.date) ?? Strings.Home.notLogged,
+												subtitle: patterns.feedingsToday > 0 ? "\(patterns.feedingsToday) \(Strings.Home.feedingsToday)" : nil,
+												icon: "drop.fill",
+												iconColor: NurturColors.info,
+												isUrgent: viewModel.isFeedUrgent(at: context.date)
+											)
+											
+											NurturStatusCard(
+												title: Strings.Home.Status.awake,
+												value: viewModel.awakeDisplay(at: context.date) ?? Strings.Home.notLogged,
+												subtitle: Strings.Home.Status.maxAwake("\(patterns.ageAppropriateMaxAwakeMinutes)"),
+												icon: "sun.max.fill",
+												iconColor: NurturColors.warning,
+												isUrgent: viewModel.isAwakeUrgent(at: context.date)
+											)
+											
+											NurturStatusCard(
+												title: Strings.Home.Status.sleepToday,
+												value: viewModel.sleepTodayDisplay(at: context.date) ?? Strings.Home.notLogged,
+												icon: "moon.fill",
+												iconColor: NurturColors.accent
+											)
+											
+											NurturStatusCard(
+												title: Strings.Home.Status.lastDiaper,
+												value: viewModel.lastDiaperDisplay(at: context.date) ?? Strings.Home.notLogged,
+												icon: "bubbles.and.sparkles",
+												iconColor: NurturColors.success,
+												isUrgent: viewModel.isDiaperUrgent(baby: baby, at: context.date)
+											)
+										}
+										.onChange(of: nextState, initial: true) { _, new in
+											babyState = new
+										}
 									}
 								}
 							}
@@ -180,46 +183,49 @@ private struct HomeContentView: View {
 							.transition(.opacity)
 						}
 						
-						// Quick-action row
-						HStack(spacing: 12) {
-							LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
-								buttonTap?.toggle()
-								Task {
-									if let session = viewModel.activeTimerSession {
-										await viewModel.stopActiveTimer(baby: baby)
-										if session.type != .feed {
+						// Quick log
+						VStack(spacing: 12) {
+							SectionHeader(title: "Quick log")
+							HStack(spacing: 12) {
+								LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
+									buttonTap?.toggle()
+									Task {
+										if let session = viewModel.activeTimerSession {
+											await viewModel.stopActiveTimer(baby: baby)
+											if session.type != .feed {
+												viewModel.startFeed()
+											}
+										} else {
 											viewModel.startFeed()
 										}
-									} else {
-										viewModel.startFeed()
 									}
-								}
-							}.sensoryFeedback(.impact, trigger: buttonTap)
+								}.sensoryFeedback(.impact, trigger: buttonTap)
 
-							LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
-								buttonTap?.toggle()
-								Task {
-									if let session = viewModel.activeTimerSession {
-										await viewModel.stopActiveTimer(baby: baby)
-										if session.type != .sleep {
+								LargeActionButton(title: Strings.Home.sleep, icon: "moon.fill", color: NurturColors.accent) {
+									buttonTap?.toggle()
+									Task {
+										if let session = viewModel.activeTimerSession {
+											await viewModel.stopActiveTimer(baby: baby)
+											if session.type != .sleep {
+												viewModel.startSleep()
+											}
+										} else {
 											viewModel.startSleep()
 										}
-									} else {
-										viewModel.startSleep()
 									}
-								}
-							}.sensoryFeedback(.impact, trigger: buttonTap)
-	
-							LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
-								viewModel.logDiaperFor(baby: baby)
-								buttonTap?.toggle()
-							}.sensoryFeedback(.impact, trigger: buttonTap)
+								}.sensoryFeedback(.impact, trigger: buttonTap)
+		
+								LargeActionButton(title: Strings.Home.diaper, icon: "bubbles.and.sparkles", color: NurturColors.success) {
+									viewModel.logDiaperFor(baby: baby)
+									buttonTap?.toggle()
+								}.sensoryFeedback(.impact, trigger: buttonTap)
 
-							LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
-								assistQuery = nil
-								showAssist = true
-								buttonTap?.toggle()
-							}.sensoryFeedback(.impact, trigger: buttonTap)
+								LargeActionButton(title: Strings.Home.askAI, icon: "bubble.left.and.bubble.right.fill", color: NurturColors.warning) {
+									assistQuery = nil
+									showAssist = true
+									buttonTap?.toggle()
+								}.sensoryFeedback(.impact, trigger: buttonTap)
+							}
 						}
 						.padding(.horizontal)
 
@@ -327,23 +333,32 @@ private struct ActiveTimerWidget: View {
 
 // MARK: - Today's timeline
 
+private struct SectionHeader: View {
+	let title: String
+
+	var body: some View {
+		HStack(spacing: 8) {
+			Circle()
+				.fill(NurturColors.accent)
+				.frame(width: 6, height: 6)
+			Text(title)
+				.font(NurturTypography.caption)
+				.fontWeight(.bold)
+				.textCase(.uppercase)
+				.kerning(0.8)
+				.foregroundStyle(NurturColors.textSecondary)
+			Spacer()
+		}
+		.padding(.leading, 4)
+	}
+}
+
 private struct TodayTimelineSection: View {
 	let logs: [BabyLog]
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
-			HStack(spacing: 8) {
-				Circle()
-					.fill(NurturColors.accent)
-					.frame(width: 6, height: 6)
-				Text("Today's timeline")
-					.font(NurturTypography.caption)
-					.fontWeight(.bold)
-					.textCase(.uppercase)
-					.kerning(0.8)
-					.foregroundStyle(NurturColors.textSecondary)
-			}
-			.padding(.leading, 4)
+			SectionHeader(title: "Today's timeline")
 
 			if logs.isEmpty {
 				EmptyTimelineCard()
