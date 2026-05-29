@@ -55,6 +55,11 @@ private struct HomeContentView: View {
     @State private var assistQuery: String? = nil
 	@State private var babyState: CharacterAnimation = .relaxing
 	@State private var buttonTap: Bool? = false
+	@State private var scoreExpanded: Bool = false
+
+	private var parentingScore: ParentingScore? {
+		viewModel.parentingScore(baby: baby, at: Date())
+	}
 
     var body: some View {
 		ZStack {
@@ -88,8 +93,43 @@ private struct HomeContentView: View {
 									.background(NurturColors.accentSoft, in: Capsule())
 							}
 							Spacer()
+							if let score = parentingScore {
+								HStack(spacing: 6) {
+									Circle()
+										.fill(score.pillTone.solid)
+										.frame(width: 7, height: 7)
+									Text("\(score.value)")
+										.font(NurturTypography.subheadline)
+										.fontWeight(.bold)
+										.foregroundStyle(score.pillTone.solid)
+										.contentTransition(.numericText())
+									Image(systemName: "chevron.down")
+										.font(.caption2)
+										.fontWeight(.bold)
+										.foregroundStyle(NurturColors.textFaint)
+										.rotationEffect(.degrees(scoreExpanded ? 180 : 0))
+								}
+								.padding(.horizontal, 12)
+								.padding(.vertical, 7)
+								.background(score.pillTone.soft, in: Capsule())
+							}
 						}
 						.padding(.horizontal)
+						.contentShape(Rectangle())
+						.onTapGesture {
+							withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+								scoreExpanded.toggle()
+							}
+						}
+
+						if scoreExpanded, let score = parentingScore {
+							VStack(spacing: 12) {
+								SectionHeader(title: "Parenting score")
+								ParentingScoreCard(score: score)
+							}
+							.padding(.horizontal)
+							.transition(.move(edge: .top).combined(with: .opacity))
+						}
 						
 						// Active timer widget
 						if let session = viewModel.activeTimerSession {

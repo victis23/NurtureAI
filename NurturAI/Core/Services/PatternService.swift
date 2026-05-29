@@ -24,6 +24,24 @@ struct BabyPatterns {
     let lastWakeAt:   Date?
 }
 
+/// A lightweight, computed "how's today going" snapshot shown on Home.
+/// Derived from `BabyPatterns` — see `HomeViewModel.parentingScore`.
+struct ParentingScore {
+    let value: Int          // 0...100
+    let pill: String
+    let heading: String
+    let pillTone: Tone
+    let chips: [Chip]
+
+    enum Tone { case good, caution, danger }
+
+    struct Chip: Identifiable {
+        let id = UUID()
+        let label: String
+        let tone: Tone
+    }
+}
+
 struct PatternService {
 
     func analyze(logs: [BabyLog], baby: Baby) -> BabyPatterns {

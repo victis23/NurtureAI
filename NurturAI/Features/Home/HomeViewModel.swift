@@ -228,4 +228,106 @@ final class HomeViewModel {
 		let minutesUntilDue = intervalMinutes - minutesSince
 		return minutesUntilDue <= -NotificationService.diaperSeverelyOverdueMinutes
 	}
+
+	// MARK: - Parenting score
+	//
+	// A composite "how's today going" score (0–100) from three signals —
+	// feeds, naps, hydration (diapers) — using the same overdue thresholds
+	// as the urgency glows above so the number and the cues stay in sync.
+
+	func parentingScore(baby: Baby, at now: Date) -> ParentingScore? {
+		guard let patterns else { return nil }
+
+		let feedTone: ParentingScore.Tone
+		if timerService.activeSessions[.feed] != nil {
+			feedTone = .good
+		} else if let lastFedAt = patterns.lastFeedAt {
+			let untilDue = patterns.avgFeedIntervalMinutes - minutesAgo(lastFedAt, now: now)
+			feedTone = scoreTone(minutesUntilDue: untilDue, severelyOverdue: NotificationService.feedSeverelyOverdueMinutes)
+		} else {
+			feedTone = .danger
+		}
+
+		let napTone: ParentingScore.Tone
+		if timerService.activeSessions[.sleep] != nil {
+			napTone = .good
+		} else if let lastWakeAt = patterns.lastWakeAt {
+			let untilDue = patterns.ageAppropriateMaxAwakeMinutes - minutesAgo(lastWakeAt, now: now)
+			napTone = scoreTone(minutesUntilDue: untilDue, severelyOverdue: NotificationService.sleepSeverelyOverdueMinutes)
+		} else {
+			napTone = .danger
+		}
+
+		let hydrationTone: ParentingScore.Tone
+		if let lastDiaperAt = patterns.lastDiaperAt {
+			let interval = NotificationService.diaperIntervalMinutes(forAgeInWeeks: baby.ageInWeeks)
+			let untilDue = interval - minutesAgo(lastDiaperAt, now: now)
+			hydrationTone = scoreTone(minutesUntilDue: untilDue, severelyOverdue: NotificationService.diaperSeverelyOverdueMinutes)
+		} else {
+			hydrationTone = .danger
+		}
+
+		let hasFeed   = patterns.lastFeedAt   != nil
+		let hasSleep  = patterns.lastWakeAt   != nil
+		let hasDiaper = patterns.lastDiaperAt != nil
+
+		guard hasFeed || hasSleep || hasDiaper else {
+			return ParentingScore(
+				value: 0,
+				pill: "Not started yet",
+				heading: "Log a feed or nap to begin today",
+				pillTone: .danger,
+				chips: [
+					.init(label: "No feeds", tone: .danger),
+					.init(label: "No sleep", tone: .danger),
+					.init(label: "No diapers", tone: .danger)
+				]
+			)
+		}
+
+		let value = (scorePoints(feedTone) + scorePoints(napTone) + scorePoints(hydrationTone)) / 3
+
+		let pill: String
+		let heading: String
+		let pillTone: ParentingScore.Tone
+		if value >= 75 {
+			pill = "Great day"
+			heading = "On track across the board"
+			pillTone = .good
+		} else if value >= 45 {
+			pill = "Going steady"
+			heading = "A few things to keep an eye on"
+			pillTone = .caution
+		} else {
+			pill = "Let's catch up"
+			heading = "Let's get back on track"
+			pillTone = .danger
+		}
+
+		return ParentingScore(
+			value: value,
+			pill: pill,
+			heading: heading,
+			pillTone: pillTone,
+			chips: [
+				.init(label: hasFeed   ? "Feeds"        : "No feeds",   tone: feedTone),
+				.init(label: hasSleep  ? "Naps on time" : "No sleep",   tone: napTone),
+				.init(label: hasDiaper ? "Hydration"    : "No diapers", tone: hydrationTone)
+			]
+		)
+	}
+
+	private func scoreTone(minutesUntilDue: Int, severelyOverdue: Int) -> ParentingScore.Tone {
+		if minutesUntilDue >= 0 { return .good }
+		if minutesUntilDue > -severelyOverdue { return .caution }
+		return .danger
+	}
+
+	private func scorePoints(_ tone: ParentingScore.Tone) -> Int {
+		switch tone {
+		case .good:    return 100
+		case .caution: return 55
+		case .danger:  return 15
+		}
+	}
 }

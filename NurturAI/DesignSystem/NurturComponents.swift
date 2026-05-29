@@ -350,3 +350,118 @@ struct PredictionCard: View {
         }
     }
 }
+
+// MARK: - Parenting Score
+
+extension ParentingScore.Tone {
+    var solid: Color {
+        switch self {
+        case .good:    NurturColors.success
+        case .caution: NurturColors.warning
+        case .danger:  NurturColors.danger
+        }
+    }
+
+    var soft: Color {
+        switch self {
+        case .good:    NurturColors.success.opacity(0.16)
+        case .caution: NurturColors.warning.opacity(0.16)
+        case .danger:  NurturColors.danger.opacity(0.14)
+        }
+    }
+}
+
+/// 270° arc gauge replicating the mockup: a faint full track plus a
+/// terracotta→amber→green fill trimmed to `score/100` of the arc. The 90°
+/// gap sits at the bottom (a 0.75 trim rotated 135°).
+struct ScoreGauge: View {
+    let score: Int
+    var size: CGFloat = 118
+    var lineWidth: CGFloat = 12
+
+    private var fraction: CGFloat { CGFloat(max(0, min(100, score))) / 100 }
+
+    private let arc = Gradient(colors: [
+        Color(red: 0.78, green: 0.29, blue: 0.17),  // terracotta
+        Color(red: 0.88, green: 0.64, blue: 0.24),  // amber
+        Color(red: 0.37, green: 0.63, blue: 0.42)   // green
+    ])
+
+    private var numberColor: Color {
+        if score >= 75 { return NurturColors.success }
+        if score >= 45 { return NurturColors.warning }
+        return NurturColors.danger
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .trim(from: 0, to: 0.75)
+                .stroke(NurturColors.textPrimary.opacity(0.10),
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .rotationEffect(.degrees(135))
+            Circle()
+                .trim(from: 0, to: 0.75 * fraction)
+                .stroke(AngularGradient(gradient: arc,
+                                        center: .center,
+                                        startAngle: .degrees(0),
+                                        endAngle: .degrees(270)),
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .rotationEffect(.degrees(135))
+                .animation(.easeOut(duration: 0.8), value: fraction)
+            VStack(spacing: 0) {
+                Text("\(score)")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .foregroundStyle(numberColor)
+                    .contentTransition(.numericText())
+                Text("/ 100")
+                    .font(NurturTypography.caption)
+                    .foregroundStyle(NurturColors.textFaint)
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+struct ParentingScoreCard: View {
+    let score: ParentingScore
+
+    var body: some View {
+        VStack(spacing: 14) {
+            ScoreGauge(score: score.value)
+
+            Text(score.pill)
+                .font(NurturTypography.caption)
+                .fontWeight(.semibold)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(score.pillTone.soft, in: Capsule())
+                .foregroundStyle(score.pillTone.solid)
+
+            Text(score.heading)
+                .font(NurturTypography.headline)
+                .foregroundStyle(NurturColors.textPrimary)
+                .multilineTextAlignment(.center)
+
+            HStack(spacing: 8) {
+                ForEach(score.chips) { chip in
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(chip.tone.solid)
+                            .frame(width: 7, height: 7)
+                        Text(chip.label)
+                            .font(NurturTypography.caption)
+                            .foregroundStyle(NurturColors.textSecondary)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(chip.tone.soft, in: Capsule())
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .glassEffect(.regular, in: .rect(cornerRadius: 22))
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+}
