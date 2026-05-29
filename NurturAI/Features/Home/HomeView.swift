@@ -137,6 +137,10 @@ private struct HomeContentView: View {
 								Task { await viewModel.stopActiveTimer(baby: baby) }
 							}
 							.padding(.horizontal)
+							// Belt-and-suspenders: don't let an animation transaction
+							// from elsewhere (e.g. the Log screen's timer pulse) drive
+							// this widget's insertion — that produced the perpetual bounce.
+							.transaction { $0.animation = nil }
 						}
 						
 						// Prediction card

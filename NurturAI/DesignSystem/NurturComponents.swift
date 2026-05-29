@@ -61,20 +61,17 @@ struct NurturStatusCard: View {
 		.shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         .scaleEffect(pulseScale)
         .shadow(color: isUrgent ? Color.red.opacity(0.35) : .clear, radius: 8)
-        .onAppear { applyPulseState(isUrgent) }
-        .onChange(of: isUrgent) { _, newValue in applyPulseState(newValue) }
-    }
-
-    private func applyPulseState(_ urgent: Bool) {
-        if urgent {
-            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
-                pulseScale = 1.02
-            }
-        } else {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                pulseScale = 1.0
-            }
-        }
+        // Scoped to `pulseScale` so the urgent breathing can't leak onto a shared
+        // transaction — the same imperative withAnimation(.repeatForever) trap that
+        // made Home's timer widget bounce when feed was started from the Log tab.
+        .animation(
+            isUrgent
+                ? .easeInOut(duration: 1.4).repeatForever(autoreverses: true)
+                : .easeInOut(duration: 0.3),
+            value: pulseScale
+        )
+        .onAppear { pulseScale = isUrgent ? 1.02 : 1.0 }
+        .onChange(of: isUrgent) { _, newValue in pulseScale = newValue ? 1.02 : 1.0 }
     }
 }
 

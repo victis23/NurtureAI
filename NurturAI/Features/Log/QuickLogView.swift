@@ -226,6 +226,13 @@ struct CircularTimerButton: View {
                         .scaleEffect(pulse ? 1.07 : 0.93)
                         .blur(radius: 8)
                         .transition(.opacity)
+                        // Scoped to `pulse` so the repeating breath stays contained
+                        // to this circle. An imperative withAnimation(.repeatForever)
+                        // here leaked onto the shared timer-session transaction and
+                        // animated Home's ActiveTimerWidget on every feed start.
+                        .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: pulse)
+                        .onAppear { pulse = true }
+                        .onDisappear { pulse = false }
                 }
 
                 // Frosted face — static material (not Liquid Glass) so it does
@@ -264,18 +271,6 @@ struct CircularTimerButton: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact, trigger: isRunning)
-        .onAppear { startPulseIfRunning() }
-        .onChange(of: isRunning) { _, _ in startPulseIfRunning() }
-    }
-
-    private func startPulseIfRunning() {
-        if isRunning {
-            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
-                pulse = true
-            }
-        } else {
-            pulse = false
-        }
     }
 
     private func centerContent(elapsed: TimeInterval) -> some View {
