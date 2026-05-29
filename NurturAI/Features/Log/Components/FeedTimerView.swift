@@ -6,8 +6,6 @@ struct FeedTimerView: View {
 	@Environment(\.appContainer) private var container
 
     let baby: Baby
-    @State private var elapsed: TimeInterval = 0
-	let feedTimerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 24) {
@@ -37,28 +35,21 @@ struct FeedTimerView: View {
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.feedSide)
             .sensoryFeedback(.selection, trigger: viewModel.feedSide)
 
-            // Timer display with breathing halo
-            TimerHalo(isRunning: viewModel.isFeedTimerRunning, color: NurturColors.info) {
-                VStack(spacing: 8) {
-                    TimerDisplay(elapsed: elapsed, isRunning: viewModel.isFeedTimerRunning)
-                    Text(viewModel.isFeedTimerRunning ? Strings.Log.Feed.inProgress : Strings.Log.Feed.readyToStart)
-                        .font(NurturTypography.caption)
-                        .foregroundStyle(NurturColors.textFaint)
-                }
-            }
-            .padding(.vertical, 8)
-
-            // Start / Stop button
-            Button {
+            // Tappable circular timer (start / stop)
+            CircularTimerButton(
+                startTime: viewModel.feedStartTime,
+                isRunning: viewModel.isFeedTimerRunning,
+                color: NurturColors.info,
+                runningLabel: Strings.Log.Feed.inProgress,
+                idleLabel: Strings.Log.Feed.readyToStart
+            ) {
                 if viewModel.isFeedTimerRunning {
                     Task { await viewModel.stopFeed(baby: baby) }
                 } else {
                     viewModel.startFeed()
                 }
-            } label: {
-                Text(viewModel.isFeedTimerRunning ? Strings.Log.Feed.stopFeed : Strings.Log.Feed.startFeed)
             }
-            .buttonStyle(PrimaryButtonStyle(tint: viewModel.isFeedTimerRunning ? NurturColors.danger : NurturColors.accent))
+            .padding(.vertical, 8)
 
             // Bottle amount (optional)
             if viewModel.feedSide == .bottle {
@@ -87,15 +78,7 @@ struct FeedTimerView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: viewModel.feedSide == .bottle)
-        .onReceive(feedTimerPublisher) { _ in
-            if let start = viewModel.feedStartTime {
-                elapsed = Date().timeIntervalSince(start)
-            }
-        }
         .onAppear {
-            if let start = viewModel.feedStartTime {
-                elapsed = Date().timeIntervalSince(start)
-            }
 			container?.analyticsService.logPageView("feedTimerView")
         }
     }

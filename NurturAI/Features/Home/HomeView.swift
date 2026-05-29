@@ -122,9 +122,10 @@ private struct HomeContentView: View {
 						// tick every 60 s without a full pattern reload. SwiftUI
 						// automatically suspends the timeline when the view is off
 						// screen, so this is battery-friendly.
-						if let patterns = viewModel.patterns {
+						if viewModel.patterns != nil || viewModel.isLoading {
 							VStack(spacing: 12) {
 								SectionHeader(title: Strings.Home.atAGlance)
+								if let patterns = viewModel.patterns {
 								TimelineView(.periodic(from: .now, by: 60)) { context in
 									let nextState: CharacterAnimation = {
 										switch viewModel.activeTimerSession?.type {
@@ -178,22 +179,17 @@ private struct HomeContentView: View {
 										}
 									}
 								}
-							}
-							.padding(.horizontal)
-							.transition(.opacity)
-						} else if viewModel.isLoading {
-							VStack(spacing: 12) {
-								SectionHeader(title: Strings.Home.atAGlance)
-								GlassEffectContainer {
-									LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-										ForEach(0..<4, id: \.self) { _ in
-											NurturStatusCardSkeleton()
+								} else {
+									GlassEffectContainer {
+										LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+											ForEach(0..<4, id: \.self) { _ in
+												NurturStatusCardSkeleton()
+											}
 										}
 									}
 								}
 							}
 							.padding(.horizontal)
-							.transition(.opacity)
 						}
 
 						// Quick log
@@ -247,7 +243,6 @@ private struct HomeContentView: View {
 							.padding(.horizontal)
 					}
 					.padding(.top, 25)
-					.animation(.easeOut(duration: 0.4), value: viewModel.patterns == nil)
 			}
 			.refreshable { await viewModel.refresh(baby: baby) }
 			.onChange(of: viewModel.logVersion) { _, _ in
