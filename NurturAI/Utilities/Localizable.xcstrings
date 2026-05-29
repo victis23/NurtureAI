@@ -1,0 +1,1146 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "—" : {
+
+    },
+    "·" : {
+
+    },
+    "/mo" : {
+
+    },
+    "%@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@ has been awake for %lld min — approaching the %lld min limit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ has been awake for %2$lld min — approaching the %3$lld min limit."
+          }
+        }
+      }
+    },
+    "%@ is overdue for a feed" : {
+
+    },
+    "%@ is overtired" : {
+
+    },
+    "%@ is past their awake window" : {
+
+    },
+    "%@ may be getting tired" : {
+
+    },
+    "%@ really needs to sleep" : {
+
+    },
+    "%@ still needs to be fed" : {
+
+    },
+    "%@, %@ +%lld more" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@ +%3$lld more"
+          }
+        }
+      }
+    },
+    "%@'s diaper is overdue" : {
+
+    },
+    "%@'s diaper still needs checking" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "%lld day%@ old" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld day%2$@ old"
+          }
+        }
+      }
+    },
+    "%lld lb" : {
+
+    },
+    "%lld lb %lld oz" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld lb %2$lld oz"
+          }
+        }
+      }
+    },
+    "%lld ml" : {
+
+    },
+    "%lld month%@ old" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld month%2$@ old"
+          }
+        }
+      }
+    },
+    "%lld oz" : {
+
+    },
+    "%lld week%@ old" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld week%2$@ old"
+          }
+        }
+      }
+    },
+    "%lld year%@ old" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld year%2$@ old"
+          }
+        }
+      }
+    },
+    "%lld%%" : {
+
+    },
+    "•" : {
+
+    },
+    "≈ %lld g" : {
+
+    },
+    "🌤️" : {
+
+    },
+    "$14.99/mo" : {
+
+    },
+    "$99.00/yr" : {
+
+    },
+    "$149.00/yr" : {
+
+    },
+    "3 AI queries per day" : {
+
+    },
+    "A data error occurred. Please try again." : {
+
+    },
+    "A first taste, just for you" : {
+
+    },
+    "A fresh day" : {
+
+    },
+    "A friend or family member" : {
+
+    },
+    "A network error occurred. Check your connection and try again." : {
+
+    },
+    "A web search" : {
+
+    },
+    "About every 2 hours" : {
+
+    },
+    "About every 3 hours" : {
+
+    },
+    "About every 4 hours" : {
+
+    },
+    "About once a month" : {
+
+    },
+    "About once a week" : {
+
+    },
+    "Account Management" : {
+
+    },
+    "Add Caregiver" : {
+
+    },
+    "AI" : {
+
+    },
+    "AI experience" : {
+
+    },
+    "AI guidance and answers" : {
+
+    },
+    "Almost always" : {
+
+    },
+    "Amount (ml)" : {
+
+    },
+    "An ad" : {
+
+    },
+    "An error occurred." : {
+
+    },
+    "An unexpected error occurred. Please try again." : {
+
+    },
+    "An unknown error occurred." : {
+
+    },
+    "And what was their weight at the last check?" : {
+
+    },
+    "App Preferences" : {
+
+    },
+    "Ask AI" : {
+
+    },
+    "Ask another question" : {
+
+    },
+    "Ask NurturAI" : {
+
+    },
+    "At a glance" : {
+
+    },
+    "auto-renewing" : {
+
+    },
+    "Awake" : {
+
+    },
+    "Baby context could not be loaded. Please try again." : {
+
+    },
+    "Baby Profile" : {
+
+    },
+    "Baby's name" : {
+
+    },
+    "Back" : {
+
+    },
+    "Based on what you shared, here's a personalized first insight from NurturAI." : {
+
+    },
+    "Bathing" : {
+
+    },
+    "Becoming a parent can stir up emotions that are hard to name. Whatever you share stays private — we'll always meet you with care." : {
+
+    },
+    "BEST VALUE" : {
+
+    },
+    "Birth weight" : {
+
+    },
+    "Birthday" : {
+
+    },
+    "born today" : {
+
+    },
+    "Breastfeeding" : {
+
+    },
+    "Browsing the App Store" : {
+
+    },
+    "By continuing, you agree to our Terms of Service and Privacy Policy." : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Caregivers" : {
+
+    },
+    "Check your internet connection or try a different question." : {
+
+    },
+    "Check your internet connection." : {
+
+    },
+    "Close" : {
+
+    },
+    "Co-parenting across two homes" : {
+
+    },
+    "Combo" : {
+
+    },
+    "Coming Soon!" : {
+
+    },
+    "Community and support" : {
+
+    },
+    "Confident parenting,\none moment at a time." : {
+
+    },
+    "Confirm It's You" : {
+
+    },
+    "Consider calling your pediatrician if:" : {
+
+    },
+    "Contact" : {
+
+    },
+    "Content" : {
+
+    },
+    "Continue" : {
+
+    },
+    "Could not save baby profile. Please try again." : {
+
+    },
+    "Could not understand the AI response. Please try again." : {
+
+    },
+    "Couldn't load subscription options. Check your connection and try again." : {
+
+    },
+    "Crying" : {
+
+    },
+    "Current weight" : {
+
+    },
+    "Currently feeding" : {
+
+    },
+    "Currently sleeping" : {
+
+    },
+    "Daily Care" : {
+
+    },
+    "Date of birth" : {
+
+    },
+    "Delete Account" : {
+
+    },
+    "Delete Account?" : {
+
+    },
+    "Describe what's happening right now..." : {
+
+    },
+    "Diaper" : {
+
+    },
+    "Diaper change" : {
+
+    },
+    "Diaper changes" : {
+
+    },
+    "Diaper is being changed" : {
+
+    },
+    "Diaper tracking" : {
+
+    },
+    "Diaper type" : {
+
+    },
+    "Did this help?" : {
+
+    },
+    "Do you have someone you can lean on?" : {
+
+    },
+    "Don't forget to check and log a diaper change." : {
+
+    },
+    "Done" : {
+
+    },
+    "Drawing from what you shared about your little one." : {
+
+    },
+    "due soon" : {
+
+    },
+    "Eating solids regularly" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit %@" : {
+
+    },
+    "End" : {
+
+    },
+    "Every baby has their own rhythm — there's no wrong answer." : {
+
+    },
+    "Every day" : {
+
+    },
+    "Every family looks different, and we want to support yours just as it is." : {
+
+    },
+    "Every few days" : {
+
+    },
+    "Every few months" : {
+
+    },
+    "Every tiny taste is a milestone. We'll meet you wherever you are." : {
+
+    },
+    "Family & Support" : {
+
+    },
+    "Family Annual" : {
+
+    },
+    "Feed" : {
+
+    },
+    "Feeding" : {
+
+    },
+    "Feeding in progress" : {
+
+    },
+    "Feeding issue" : {
+
+    },
+    "Feeding method" : {
+
+    },
+    "Feeding rhythm" : {
+
+    },
+    "Feeding tracking" : {
+
+    },
+    "feedings today" : {
+
+    },
+    "Fever" : {
+
+    },
+    "First child" : {
+
+    },
+    "For your security, please sign in again before deleting your account." : {
+
+    },
+    "For your security, please sign in with Apple again. Nothing will be deleted until this succeeds." : {
+
+    },
+    "Formula" : {
+
+    },
+    "free left" : {
+
+    },
+    "Free Plan" : {
+
+    },
+    "Fussy" : {
+
+    },
+    "Gas/Fussiness" : {
+
+    },
+    "Get instant, personalized answers tailored to your child, powered by AI and grounded in real pediatric research. Because you deserve confidence, not guesswork." : {
+
+    },
+    "Get Started" : {
+
+    },
+    "Getting tired?" : {
+
+    },
+    "Growth tracking" : {
+
+    },
+    "Hardest aspects" : {
+
+    },
+    "Has teething started yet?" : {
+
+    },
+    "Has your little one started exploring solid foods?" : {
+
+    },
+    "Have things felt like a lot lately?" : {
+
+    },
+    "Have you used AI for parenting support before?" : {
+
+    },
+    "Help other parents find us" : {
+
+    },
+    "Helpful features" : {
+
+    },
+    "History" : {
+
+    },
+    "Honestly, all of it" : {
+
+    },
+    "Household" : {
+
+    },
+    "How are you feeding?" : {
+
+    },
+    "How did you find your way to us?" : {
+
+    },
+    "How has your heart been feeling?" : {
+
+    },
+    "How is %@ feeling?" : {
+
+    },
+    "How much did your little one weigh at birth?" : {
+
+    },
+    "How often do you turn to the internet for answers about your little one?" : {
+
+    },
+    "How often do you visit the pediatrician?" : {
+
+    },
+    "How often does bath time happen at your house?" : {
+
+    },
+    "How often does your little one feed in a typical day?" : {
+
+    },
+    "How you found us" : {
+
+    },
+    "How you're feeling" : {
+
+    },
+    "How You're Feeling" : {
+
+    },
+    "I have some hard days" : {
+
+    },
+    "I'd rather not say" : {
+
+    },
+    "I'm doing okay" : {
+
+    },
+    "I'm not sure" : {
+
+    },
+    "I've been struggling" : {
+
+    },
+    "If NurturAI is starting to feel like a helpful corner for you, a quick rating means the world." : {
+
+    },
+    "If the problem persists, please restart the app." : {
+
+    },
+    "Is this your first child?" : {
+
+    },
+    "It varies day to day" : {
+
+    },
+    "It's been %lld min since the last diaper change." : {
+
+    },
+    "It's been %lld min since the last feeding." : {
+
+    },
+    "It's been a long stretch — a check is overdue." : {
+
+    },
+    "It's been a long stretch — log a feed when you can." : {
+
+    },
+    "It's been a while since the last feeding — don't forget to log it." : {
+
+    },
+    "It's mostly on me right now" : {
+
+    },
+    "It's okay if they have. Even the gentlest days of parenthood can feel like a lot — there's no judgement here." : {
+
+    },
+    "Just me, parenting solo" : {
+
+    },
+    "Just once or twice" : {
+
+    },
+    "Just starting to explore" : {
+
+    },
+    "Keep an eye on:" : {
+
+    },
+    "Last Diaper" : {
+
+    },
+    "Last Fed" : {
+
+    },
+    "lb" : {
+
+    },
+    "Leave a rating" : {
+
+    },
+    "Legal" : {
+
+    },
+    "Loading subscription options…" : {
+
+    },
+    "Log" : {
+
+    },
+    "Log Now" : {
+
+    },
+    "Log type" : {
+
+    },
+    "Logged %@ ✓" : {
+
+    },
+    "Long past the awake limit — overtired babies fight sleep harder." : {
+
+    },
+    "Looking into this…" : {
+
+    },
+    "Lower confidence — there may be less information available for this situation." : {
+
+    },
+    "Many times a day" : {
+
+    },
+    "Max %@m recommended" : {
+
+    },
+    "Maybe later" : {
+
+    },
+    "Milestone tracking" : {
+
+    },
+    "Mood" : {
+
+    },
+    "Mood logged" : {
+
+    },
+    "More often than monthly" : {
+
+    },
+    "Most days" : {
+
+    },
+    "Mostly solids now" : {
+
+    },
+    "Mostly when something feels off" : {
+
+    },
+    "Name" : {
+
+    },
+    "No" : {
+
+    },
+    "No baby profile" : {
+
+    },
+    "No logs yet" : {
+
+    },
+    "No previous purchases found." : {
+
+    },
+    "No, this isn't my first kid." : {
+
+    },
+    "None selected" : {
+
+    },
+    "Not logged" : {
+
+    },
+    "Not Now" : {
+
+    },
+    "Not shared" : {
+
+    },
+    "Not yet" : {
+
+    },
+    "Not yet — still milk only" : {
+
+    },
+    "Nothing logged yet. Tap a quick-log button above and the timeline will fill in here." : {
+
+    },
+    "NurturAI" : {
+
+    },
+    "NurturAI Pro" : {
+
+    },
+    "NurturAI tailors feed tracking and AI responses to your method." : {
+
+    },
+    "NurturAI tailors tracking and AI responses to your experience level, stress indicators, and other data points." : {
+
+    },
+    "Occasionally" : {
+
+    },
+    "Often" : {
+
+    },
+    "OK" : {
+
+    },
+    "On demand" : {
+
+    },
+    "Online research habits" : {
+
+    },
+    "or call 911 immediately" : {
+
+    },
+    "Ounces" : {
+
+    },
+    "Our goal is simple: to support you with guidance you can trust, so you can focus on what matters most—your baby." : {
+
+    },
+    "Overtired babies struggle to fall asleep — try winding down soon." : {
+
+    },
+    "Overwhelm" : {
+
+    },
+    "oz" : {
+
+    },
+    "Parenting feels lighter when there's a hand to hold. We'd love to know who's in your corner." : {
+
+    },
+    "Past the awake-window limit — try winding down now." : {
+
+    },
+    "Pediatrician visits" : {
+
+    },
+    "Personalizing your first insight…" : {
+
+    },
+    "Pick anything that catches your eye — we'll personalize the app to you." : {
+
+    },
+    "Please check %@'s diaper" : {
+
+    },
+    "Please check on %@" : {
+
+    },
+    "Pounds" : {
+
+    },
+    "Privacy Policy" : {
+
+    },
+    "Pro Annual" : {
+
+    },
+    "Pro Monthly" : {
+
+    },
+    "Pro Plan" : {
+
+    },
+    "Product not found. Please try again later." : {
+
+    },
+    "Purchase could not be verified." : {
+
+    },
+    "Quick log" : {
+
+    },
+    "Rarely" : {
+
+    },
+    "Rarely — I feel mostly steady" : {
+
+    },
+    "Rash" : {
+
+    },
+    "Ready to start" : {
+
+    },
+    "Real reviews from parents like you help tired families find help when they need it most. It takes about 10 seconds — and every star genuinely counts." : {
+
+    },
+    "Remember your data will always be protected and confidential." : {
+
+    },
+    "Reset" : {
+
+    },
+    "Reset AI Memory" : {
+
+    },
+    "Reset AI Memory?" : {
+
+    },
+    "Restore Purchases" : {
+
+    },
+    "Save" : {
+
+    },
+    "SEEK EMERGENCY CARE" : {
+
+    },
+    "Select all that apply." : {
+
+    },
+    "Settings" : {
+
+    },
+    "Settled" : {
+
+    },
+    "Side" : {
+
+    },
+    "Sign in failed. Please try again." : {
+
+    },
+    "Sign Out" : {
+
+    },
+    "Sleep" : {
+
+    },
+    "Sleep in progress" : {
+
+    },
+    "Sleep Today" : {
+
+    },
+    "Sleep tracking" : {
+
+    },
+    "Sleeping" : {
+
+    },
+    "Social media" : {
+
+    },
+    "Solid foods" : {
+
+    },
+    "Something else" : {
+
+    },
+    "Something went wrong" : {
+
+    },
+    "Sometimes" : {
+
+    },
+    "Sometimes, on the harder days" : {
+
+    },
+    "Sometimes, when I really need it" : {
+
+    },
+    "Somewhere else" : {
+
+    },
+    "Soothing" : {
+
+    },
+    "Splashy and daily or weekly and calm — both are perfect." : {
+
+    },
+    "Start" : {
+
+    },
+    "Start 3-Day Free Trial" : {
+
+    },
+    "Start Feed" : {
+
+    },
+    "Start logging feeds, sleep, and diapers." : {
+
+    },
+    "Start Sleep" : {
+
+    },
+    "Stop" : {
+
+    },
+    "Stop Feed" : {
+
+    },
+    "Subscription" : {
+
+    },
+    "Subscription restored." : {
+
+    },
+    "Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period. Your Apple ID will be charged for renewal within 24 hours prior to the end of the current period. Manage or cancel anytime in Settings → Apple ID → Subscriptions." : {
+
+    },
+    "Support system" : {
+
+    },
+    "Taking care of myself" : {
+
+    },
+    "Tap to set" : {
+
+    },
+    "Teething" : {
+
+    },
+    "Terms of Service" : {
+
+    },
+    "Terms of Use" : {
+
+    },
+    "Thanks for the feedback!" : {
+
+    },
+    "The AI service returned an error (HTTP %lld)." : {
+
+    },
+    "The AI service returned an unexpected response." : {
+
+    },
+    "Their latest weigh-in helps us spot growth patterns. You can update it any time later." : {
+
+    },
+    "There's no right or wrong answer — we'll meet you wherever you are." : {
+
+    },
+    "This clears the current conversation and the AI's memory of past chats. Your logs, saved history, and account stay intact. Future replies will start fresh until you've had more conversations." : {
+
+    },
+    "This question may relate to a condition worth discussing with your pediatrician." : {
+
+    },
+    "Those first little teeth bring big feelings — for everyone." : {
+
+    },
+    "Time to check %@'s diaper" : {
+
+    },
+    "Time to feed %@" : {
+
+    },
+    "Today" : {
+
+    },
+    "Today's timeline" : {
+
+    },
+    "Try again" : {
+
+    },
+    "Try For Free" : {
+
+    },
+    "Try restarting the app." : {
+
+    },
+    "Two parents at home" : {
+
+    },
+    "Unlimited AI queries" : {
+
+    },
+    "Unlimited AI questions, priority responses,\nand caregiver sharing." : {
+
+    },
+    "Upgrade" : {
+
+    },
+    "Upgrade to Pro" : {
+
+    },
+    "View Privacy Policy" : {
+
+    },
+    "Wake Up" : {
+
+    },
+    "We all have those moments. Knowing this helps us focus where you need us most." : {
+
+    },
+    "We know parenting can feel overwhelming—especially when it’s all new. That’s exactly why we created this app." : {
+
+    },
+    "We use this to gently track growth over time." : {
+
+    },
+    "We use this to personalise advice for their age and stage." : {
+
+    },
+    "We'll tailor reminders and tips to fit your rhythm." : {
+
+    },
+    "We're so glad you're here." : {
+
+    },
+    "We've all done it. Knowing this helps us bring trustworthy info closer to you, so you don't have to dig." : {
+
+    },
+    "Welcome to Nurtur" : {
+
+    },
+    "Welcome to NurturAI" : {
+
+    },
+    "Well past the usual change window — please check in." : {
+
+    },
+    "Well past the usual feeding window — please check in." : {
+
+    },
+    "What would feel most helpful right now?" : {
+
+    },
+    "What's been feeling the hardest right now?" : {
+
+    },
+    "What's your baby's name?" : {
+
+    },
+    "When was your baby born?" : {
+
+    },
+    "Whenever it's needed" : {
+
+    },
+    "Who's part of your parenting team at home?" : {
+
+    },
+    "Why your rating matters" : {
+
+    },
+    "With extended family" : {
+
+    },
+    "Won't sleep" : {
+
+    },
+    "Yes" : {
+
+    },
+    "Yes, I have a strong support system" : {
+
+    },
+    "Yes, regularly" : {
+
+    },
+    "Yes, this is my first kid." : {
+
+    },
+    "Yes, we're in it" : {
+
+    },
+    "Yesterday" : {
+
+    },
+    "You can always change this later." : {
+
+    },
+    "You must be signed in to perform this action." : {
+
+    },
+    "You'll be asked to sign in with Apple to confirm. This permanently deletes your account, your baby profile, and all logged data. It cannot be undone." : {
+
+    },
+    "Your ai parenting helper" : {
+
+    },
+    "Your Baby" : {
+
+    },
+    "Your purchase is pending approval." : {
+
+    }
+  },
+  "version" : "1.2"
+}

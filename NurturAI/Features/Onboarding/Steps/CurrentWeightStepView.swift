@@ -55,10 +55,10 @@ struct WeightWheelPicker: View {
         VStack(spacing: 20) {
             VStack(spacing: 6) {
                 HStack(alignment: .firstTextBaseline, spacing: 28) {
-                    readoutColumn(value: pounds, unit: "lb")
-                    readoutColumn(value: ounces, unit: "oz")
+                    readoutColumn(value: pounds, unit: Strings.Common.unitPounds)
+                    readoutColumn(value: ounces, unit: Strings.Common.unitOunces)
                 }
-                Text(grams > 0 ? "≈ \(grams) g" : "Tap to set")
+                Text(grams > 0 ? Strings.Onboarding.Weight.gramsApprox(grams) : Strings.Common.tapToSet)
                     .font(NurturTypography.caption)
                     .foregroundStyle(NurturColors.textFaint)
                     .padding(.top, 2)
@@ -66,9 +66,9 @@ struct WeightWheelPicker: View {
             .frame(maxWidth: .infinity)
 
             HStack(spacing: 0) {
-                Picker("Pounds", selection: $pounds) {
+                Picker(Strings.Onboarding.Weight.poundsPicker, selection: $pounds) {
                     ForEach(0..<41, id: \.self) { value in
-                        Text("\(value) lb")
+                        Text(Strings.Onboarding.Weight.pounds(value))
                             .foregroundStyle(NurturColors.textPrimary)
                             .tag(value)
                     }
@@ -76,9 +76,9 @@ struct WeightWheelPicker: View {
                 .pickerStyle(.wheel)
                 .frame(maxWidth: .infinity)
 
-                Picker("Ounces", selection: $ounces) {
+                Picker(Strings.Onboarding.Weight.ouncesPicker, selection: $ounces) {
                     ForEach(0..<16, id: \.self) { value in
-                        Text("\(value) oz")
+                        Text(Strings.Onboarding.Weight.ounces(value))
                             .foregroundStyle(NurturColors.textPrimary)
                             .tag(value)
                     }

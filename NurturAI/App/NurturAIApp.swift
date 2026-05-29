@@ -143,31 +143,31 @@ struct MainTabView: View {
 			NavigationStack {
 				HomeView()
 			}
-			.tabItem { Label("Today", systemImage: "sun.max") }
+			.tabItem { Label(Strings.TabBar.today, systemImage: "sun.max") }
 			.tag(0)
 
 			NavigationStack {
 				AssistView()
 			}
-			.tabItem { Label("Ask AI", systemImage: "bubble.left.and.bubble.right") }
+			.tabItem { Label(Strings.TabBar.askAI, systemImage: "bubble.left.and.bubble.right") }
 			.tag(1)
 
 			NavigationStack {
 				QuickLogView()
 			}
-			.tabItem { Label("Log", systemImage: "plus.circle.fill") }
+			.tabItem { Label(Strings.TabBar.log, systemImage: "plus.circle.fill") }
 			.tag(2)
 
 			NavigationStack {
 				LogHistoryView()
 			}
-			.tabItem { Label("History", systemImage: "clock") }
+			.tabItem { Label(Strings.TabBar.history, systemImage: "clock") }
 			.tag(3)
 
 			NavigationStack {
 				SettingsView()
 			}
-			.tabItem { Label("Settings", systemImage: "gear") }
+			.tabItem { Label(Strings.TabBar.settings, systemImage: "gear") }
 			.tag(4)
         }
         .tint(NurturColors.accent)

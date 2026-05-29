@@ -124,7 +124,7 @@ private struct HomeContentView: View {
 						// screen, so this is battery-friendly.
 						if let patterns = viewModel.patterns {
 							VStack(spacing: 12) {
-								SectionHeader(title: "At a glance")
+								SectionHeader(title: Strings.Home.atAGlance)
 								TimelineView(.periodic(from: .now, by: 60)) { context in
 									let nextState: CharacterAnimation = {
 										switch viewModel.activeTimerSession?.type {
@@ -183,7 +183,7 @@ private struct HomeContentView: View {
 							.transition(.opacity)
 						} else if viewModel.isLoading {
 							VStack(spacing: 12) {
-								SectionHeader(title: "At a glance")
+								SectionHeader(title: Strings.Home.atAGlance)
 								GlassEffectContainer {
 									LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
 										ForEach(0..<4, id: \.self) { _ in
@@ -198,7 +198,7 @@ private struct HomeContentView: View {
 
 						// Quick log
 						VStack(spacing: 12) {
-							SectionHeader(title: "Quick log")
+							SectionHeader(title: Strings.Home.quickLog)
 							HStack(spacing: 12) {
 								LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
 									buttonTap?.toggle()
@@ -375,7 +375,7 @@ private struct TodayTimelineSection: View {
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
-			SectionHeader(title: "Today's timeline")
+			SectionHeader(title: Strings.Home.timeline)
 
 			if logs.isEmpty && isLoading {
 				VStack(spacing: 12) {
@@ -443,10 +443,10 @@ private struct TimelineEventRow: View {
 
 	private var title: String {
 		switch log.type {
-		case .feed:   return "Feed"
-		case .sleep:  return "Sleep"
-		case .diaper: return "Diaper change"
-		case .mood:   return "Mood"
+		case .feed:   return Strings.Home.TimelineEvent.feed
+		case .sleep:  return Strings.Home.TimelineEvent.sleep
+		case .diaper: return Strings.Home.TimelineEvent.diaperChange
+		case .mood:   return Strings.Home.TimelineEvent.mood
 		}
 	}
 
@@ -518,10 +518,10 @@ private struct EmptyTimelineCard: View {
 		VStack(spacing: 8) {
 			Text("🌤️")
 				.font(.system(size: 30))
-			Text("A fresh day")
+			Text(Strings.Home.EmptyTimeline.title)
 				.font(NurturTypography.headline)
 				.foregroundStyle(NurturColors.textPrimary)
-			Text("Nothing logged yet. Tap a quick-log button above and the timeline will fill in here.")
+			Text(Strings.Home.EmptyTimeline.message)
 				.font(NurturTypography.caption)
 				.foregroundStyle(NurturColors.textSecondary)
 				.multilineTextAlignment(.center)
