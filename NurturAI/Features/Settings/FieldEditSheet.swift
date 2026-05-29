@@ -97,7 +97,7 @@ struct FieldEditSheet: View {
     private var editorContent: some View {
         switch field {
         case .name:
-            TextField("Baby's name", text: $nameDraft)
+            TextField(Strings.Onboarding.Name.placeholder, text: $nameDraft)
                 .font(NurturTypography.headline)
                 .foregroundStyle(NurturColors.textPrimary)
                 .padding(18)

@@ -38,26 +38,26 @@ enum EditableField: Identifiable, Hashable, CaseIterable {
     /// Short label shown in the settings list row (left side).
     var label: String {
         switch self {
-        case .name:               return "Name"
-        case .birthday:           return "Birthday"
-        case .kidCount:           return "First child"
-        case .birthWeight:        return "Birth weight"
-        case .currentWeight:      return "Current weight"
-        case .teething:           return "Teething"
-        case .solidFoods:         return "Solid foods"
-        case .feedingMethod:      return "Feeding method"
-        case .feedingFrequency:   return "Feeding rhythm"
-        case .bathing:            return "Bathing"
-        case .pediatrician:       return "Pediatrician visits"
-        case .household:          return "Household"
-        case .familySupport:      return "Support system"
-        case .challenges:         return "Hardest aspects"
-        case .wellbeing:          return "How you're feeling"
-        case .overwhelm:          return "Overwhelm"
-        case .features:           return "Helpful features"
-        case .internetUsage:      return "Online research habits"
-        case .aiUsage:            return "AI experience"
-        case .appDiscovery:       return "How you found us"
+        case .name:               return Strings.Settings.Fields.name
+        case .birthday:           return Strings.Settings.Fields.birthday
+        case .kidCount:           return Strings.Settings.Fields.firstChild
+        case .birthWeight:        return Strings.Settings.Fields.birthWeight
+        case .currentWeight:      return Strings.Settings.Fields.currentWeight
+        case .teething:           return Strings.Settings.Fields.teething
+        case .solidFoods:         return Strings.Settings.Fields.solidFoods
+        case .feedingMethod:      return Strings.Settings.Fields.feedingMethod
+        case .feedingFrequency:   return Strings.Settings.Fields.feedingRhythm
+        case .bathing:            return Strings.Settings.Fields.bathing
+        case .pediatrician:       return Strings.Settings.Fields.pediatricianVisits
+        case .household:          return Strings.Settings.Fields.household
+        case .familySupport:      return Strings.Settings.Fields.supportSystem
+        case .challenges:         return Strings.Settings.Fields.hardestAspects
+        case .wellbeing:          return Strings.Settings.Fields.howYoureFeeling
+        case .overwhelm:          return Strings.Settings.Fields.overwhelm
+        case .features:           return Strings.Settings.Fields.helpfulFeatures
+        case .internetUsage:      return Strings.Settings.Fields.onlineResearch
+        case .aiUsage:            return Strings.Settings.Fields.aiExperience
+        case .appDiscovery:       return Strings.Settings.Fields.howYouFoundUs
         }
     }
 
@@ -71,7 +71,7 @@ enum EditableField: Identifiable, Hashable, CaseIterable {
         case .birthday:
             return baby.birthDate.formatted(.dateTime.month(.abbreviated).day().year())
         case .kidCount:
-            return baby.isFirstChild ? "Yes" : "No"
+            return baby.isFirstChild ? Strings.Common.yes : Strings.Common.no
         case .birthWeight:
             return weightDescription(grams: baby.birthWeightGrams)
         case .currentWeight:
@@ -110,7 +110,7 @@ enum EditableField: Identifiable, Hashable, CaseIterable {
     }
 
     private func notSharedIfPrivate(_ value: String, isPrivate: Bool) -> String {
-        isPrivate ? "Not shared" : value
+        isPrivate ? Strings.Common.notShared : value
     }
 
     private func weightDescription(grams: Int) -> String {
@@ -118,7 +118,7 @@ enum EditableField: Identifiable, Hashable, CaseIterable {
         let lbsTotal = Double(grams) / 453.592
         let pounds = Int(lbsTotal)
         let ounces = Int(((lbsTotal - Double(pounds)) * 16).rounded())
-        return "\(pounds) lb \(ounces) oz"
+        return Strings.Settings.Fields.weight(pounds: pounds, ounces: ounces)
     }
 
     private func multiSummary<T>(
@@ -127,8 +127,8 @@ enum EditableField: Identifiable, Hashable, CaseIterable {
         name: KeyPath<T, String>
     ) -> String {
         let names = rawValues.compactMap(decode).map { $0[keyPath: name] }
-        if names.isEmpty { return "None selected" }
+        if names.isEmpty { return Strings.Common.noneSelected }
         if names.count <= 2 { return names.joined(separator: ", ") }
-        return "\(names[0]), \(names[1]) +\(names.count - 2) more"
+        return Strings.Settings.Fields.moreSummary(first: names[0], second: names[1], extra: names.count - 2)
     }
 }

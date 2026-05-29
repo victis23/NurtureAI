@@ -107,23 +107,23 @@ struct BabyBirthdayStepView: View {
         let cal = Calendar.current
         let days = cal.dateComponents([.day], from: birthDate, to: .now).day ?? 0
 
-        if days < 0 { return "due soon" }
-        if days == 0 { return "born today" }
+        if days < 0 { return Strings.Onboarding.Birthday.dueSoon }
+        if days == 0 { return Strings.Onboarding.Birthday.bornToday }
         if days < 7 {
-            return "\(days) day\(days == 1 ? "" : "s") old"
+            return Strings.Onboarding.Birthday.daysOld(days)
         }
 
         let weeks = cal.dateComponents([.weekOfYear], from: birthDate, to: .now).weekOfYear ?? 0
         if weeks < 16 {
-            return "\(weeks) week\(weeks == 1 ? "" : "s") old"
+            return Strings.Onboarding.Birthday.weeksOld(weeks)
         }
 
         let months = cal.dateComponents([.month], from: birthDate, to: .now).month ?? 0
         if months < 24 {
-            return "\(months) month\(months == 1 ? "" : "s") old"
+            return Strings.Onboarding.Birthday.monthsOld(months)
         }
 
         let years = cal.dateComponents([.year], from: birthDate, to: .now).year ?? 0
-        return "\(years) year\(years == 1 ? "" : "s") old"
+        return Strings.Onboarding.Birthday.yearsOld(years)
     }
 }
