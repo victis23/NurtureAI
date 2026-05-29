@@ -375,6 +375,7 @@ struct ScoreGauge: View {
     let score: Int
     var size: CGFloat = 118
     var lineWidth: CGFloat = 12
+    var showSubtitle: Bool = true
 
     private var fraction: CGFloat { CGFloat(max(0, min(100, score))) / 100 }
 
@@ -408,12 +409,14 @@ struct ScoreGauge: View {
                 .animation(.easeOut(duration: 0.8), value: fraction)
             VStack(spacing: 0) {
                 Text("\(score)")
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .font(.system(size: size * 0.30, weight: .bold, design: .rounded))
                     .foregroundStyle(numberColor)
                     .contentTransition(.numericText())
-                Text("/ 100")
-                    .font(NurturTypography.caption)
-                    .foregroundStyle(NurturColors.textFaint)
+                if showSubtitle {
+                    Text("/ 100")
+                        .font(NurturTypography.caption)
+                        .foregroundStyle(NurturColors.textFaint)
+                }
             }
         }
         .frame(width: size, height: size)

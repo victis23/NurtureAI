@@ -95,22 +95,15 @@ private struct HomeContentView: View {
 							Spacer()
 							if let score = parentingScore {
 								HStack(spacing: 6) {
-									Circle()
-										.fill(score.pillTone.solid)
-										.frame(width: 7, height: 7)
-									Text("\(score.value)")
-										.font(NurturTypography.subheadline)
-										.fontWeight(.bold)
-										.foregroundStyle(score.pillTone.solid)
-										.contentTransition(.numericText())
+									ScoreGauge(score: score.value, size: 30, lineWidth: 3, showSubtitle: false)
 									Image(systemName: "chevron.down")
 										.font(.caption2)
 										.fontWeight(.bold)
 										.foregroundStyle(NurturColors.textFaint)
 										.rotationEffect(.degrees(scoreExpanded ? 180 : 0))
 								}
-								.padding(.horizontal, 12)
-								.padding(.vertical, 7)
+								.padding(.horizontal, 10)
+								.padding(.vertical, 5)
 								.background(score.pillTone.soft, in: Capsule())
 							}
 						}
