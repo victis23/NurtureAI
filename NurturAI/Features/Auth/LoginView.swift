@@ -87,6 +87,12 @@ struct LoginView: View {
 			if let skipOnboarding = await skipOnBoarding(syncService: syncService, uID: authService.currentUID) {
 				appState.hasCompletedOnboarding = skipOnboarding
 				container?.analyticsService.logEvent("recoveredAccount")
+				// New sign-up (authenticated, no prior account data to restore) →
+				// Meta CompleteRegistration funnel event. Returning users
+				// (skipOnboarding == true) don't fire it.
+				if !skipOnboarding {
+					container?.analyticsService.logFunnelEvent(.completedRegistration)
+				}
 			}
 			
             appState.isAuthenticated = true

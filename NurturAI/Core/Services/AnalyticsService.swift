@@ -32,6 +32,39 @@ class AnalyticsService {
 		logPurchaseEvent(transaction: transaction)
 	}
 
+	/// Meta **standard** funnel events. These map to FBSDK's predefined
+	/// `AppEvents.Name` constants so Meta recognises them as optimisation-eligible
+	/// (powering ad delivery + funnel reporting). Modelled as a NurturAI-owned
+	/// enum so call sites don't need to import FacebookCore. Logged *in addition*
+	/// to the existing custom `logEvent`/`logPageView` calls — never in place of them.
+	enum FunnelEvent {
+		case completedRegistration
+		case completedTutorial
+		case startTrial
+		case subscribe
+
+		var fbName: AppEvents.Name {
+			switch self {
+			case .completedRegistration: return .completedRegistration
+			case .completedTutorial:     return .completedTutorial
+			case .startTrial:            return .startTrial
+			case .subscribe:             return .subscribe
+			}
+		}
+	}
+
+	func logFunnelEvent(_ event: FunnelEvent, valueToSum: Double? = nil, currency: String? = nil) {
+		var parameters: [AppEvents.ParameterName: Any] = [:]
+		if let currency {
+			parameters[AppEvents.ParameterName("fb_currency")] = currency
+		}
+		if let valueToSum {
+			facebookAnalytics.logEvent(event.fbName, valueToSum: valueToSum, parameters: parameters)
+		} else {
+			facebookAnalytics.logEvent(event.fbName, parameters: parameters)
+		}
+	}
+
 	func logPurchaseEvent(transaction: Transaction) {
 		let price = transaction.price as? NSDecimalNumber
 		let currency = transaction.currency

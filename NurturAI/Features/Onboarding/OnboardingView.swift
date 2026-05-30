@@ -188,6 +188,11 @@ struct OnboardingView: View {
 					appState: appState,
 					syncService: syncService
 				)
+				// Onboarding finished (success flips hasCompletedOnboarding) →
+				// Meta CompletedTutorial funnel event. Fires once per install.
+				if appState.hasCompletedOnboarding {
+					container?.analyticsService.logFunnelEvent(.completedTutorial)
+				}
 			}
 		} else {
 			transitionStep {
@@ -212,6 +217,8 @@ struct OnboardingView: View {
 			do {
 				try await service.purchase(product: .proMonthly)
 				container?.analyticsService.logEvent("Onboarding_StartFreeTrial")
+				// Meta StartTrial funnel event (alongside the custom event above).
+				container?.analyticsService.logFunnelEvent(.startTrial)
 			} catch {
 				trialError = error.localizedDescription
 			}

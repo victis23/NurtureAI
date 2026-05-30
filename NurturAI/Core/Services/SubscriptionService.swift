@@ -219,6 +219,14 @@ final class StoreKitSubscriptionService: SubscriptionServiceProtocol {
 				],
 				transaction: transaction
 			)
+			// Meta Subscribe funnel event (alongside the custom event above), with
+			// value + currency for ad-spend optimisation. For an intro/free-trial
+			// offer StoreKit reports the intro price (often 0) here.
+			analyticsService.logFunnelEvent(
+				.subscribe,
+				valueToSum: (transaction.price as? NSDecimalNumber)?.doubleValue ?? 0,
+				currency: "\(transaction.currency ?? "")"
+			)
             // Fire the root-level confetti only on user-initiated success —
             // not on the launch-time `refreshSubscriptionStatus()` path that
             // also flips `isSubscribed` for already-subscribed users.
