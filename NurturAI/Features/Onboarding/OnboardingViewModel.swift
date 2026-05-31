@@ -39,6 +39,7 @@ final class OnboardingViewModel {
 		case appDiscovery
 		case aiPreview
 		case rating
+		case trialInfo
 		case upsale
 
 		var progress: Double {
@@ -93,6 +94,8 @@ final class OnboardingViewModel {
 			    "aiPreview"
 			case .rating:
 			    "rating"
+			case .trialInfo:
+			    "trialInfo"
 			case .upsale:
 			    "upsale"
 			}

@@ -201,6 +201,18 @@ enum Strings {
             static let loadingSubtitle  = String(localized: "Drawing from what you shared about your little one.")
         }
 
+        enum TrialInfo {
+            static let heading          = String(localized: "Try it free — no pressure.")
+            static let subheading       = String(localized: "Here's everything you need to know before we get started.")
+            static let trialTitle       = String(localized: "3 days, completely free")
+            static let trialBody        = String(localized: "Explore everything NurturAI has to offer. No charges until your trial ends.")
+            static let reminderTitle    = String(localized: "We'll remind you before it ends")
+            static let reminderBody     = String(localized: "You'll get a notification before your trial is up — plenty of time to decide.")
+            static let cancelTitle      = String(localized: "Cancel anytime, no questions asked")
+            static let cancelBody       = String(localized: "If it's not the right fit, cancelling takes seconds in your App Store settings.")
+            static let reassurance      = String(localized: "Most parents find exactly what they needed in the very first day.")
+        }
+
         enum Rating {
             static let heading          = String(localized: "Help other parents find us")
             static let subheading       = String(localized: "If NurturAI is starting to feel like a helpful corner for you, a quick rating means the world.")

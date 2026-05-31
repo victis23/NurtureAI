@@ -167,6 +167,8 @@ struct OnboardingView: View {
 			RatingPromptStepView(onSkip: {
 				transitionStep { viewModel.advance() }
 			})
+		case .trialInfo:
+			TrialInfoStepView()
 		case .upsale:
 			PaywallView(isOnboarding: true)
         }
