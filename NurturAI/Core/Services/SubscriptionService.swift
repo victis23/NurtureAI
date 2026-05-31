@@ -233,6 +233,7 @@ final class StoreKitSubscriptionService: SubscriptionServiceProtocol {
             appState.confettiTrigger = UUID()
 
         case .userCancelled:
+			analyticsService.logEvent("inAppSubscription_userCancelled")
             return
 
         case .pending:
