@@ -73,22 +73,24 @@ struct OnboardingView: View {
 							.multilineTextAlignment(.center)
 							.padding(.horizontal, 8)
 					}
-
-					Button(viewModel.currentStep == .upsale ? Strings.Onboarding.tryForFree : Strings.Common.back) {
-						transitionStep {
-							buttonTap.toggle()
-							if viewModel.currentStep == .upsale {
-								container?.analyticsService.logEvent("Onboarding_FreeUse")
-								advanceToNextView()
-							} else {
-								viewModel.back()
+					
+					if viewModel.currentStep != .upsale {
+						Button(Strings.Common.back) {
+							transitionStep {
+								buttonTap.toggle()
+								if viewModel.currentStep == .upsale {
+									container?.analyticsService.logEvent("Onboarding_FreeUse")
+									advanceToNextView()
+								} else {
+									viewModel.back()
+								}
 							}
 						}
+						.font(NurturTypography.subheadline)
+						.foregroundStyle(viewModel.currentStep != .welcome ? NurturColors.textSecondary : .clear)
+						.disabled(viewModel.currentStep == .welcome || isStartingTrial)
+						.sensoryFeedback(.impact, trigger: buttonTap)
 					}
-					.font(NurturTypography.subheadline)
-					.foregroundStyle(viewModel.currentStep != .welcome ? NurturColors.textSecondary : .clear)
-					.disabled(viewModel.currentStep == .welcome || isStartingTrial)
-					.sensoryFeedback(.impact, trigger: buttonTap)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
