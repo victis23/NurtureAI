@@ -26,6 +26,7 @@ struct SelectionCard: View {
             .frame(maxWidth: .infinity, minHeight: 80)
             .padding(.vertical, 10)
             .padding(.horizontal, 10)
+			.contentShape(RoundedRectangle(cornerRadius: 14))
             .glassEffect(
                 isSelected
                     ? .regular.tint(NurturColors.accent).interactive()
@@ -48,4 +49,8 @@ struct SelectionCard: View {
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
     }
+}
+
+#Preview("SelectionCard") {
+	SelectionCard(icon: "moon.zzz.fill", label: "Testing", isSelected: false, action: { print("fired") })
 }
