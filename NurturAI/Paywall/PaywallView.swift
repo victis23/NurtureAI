@@ -82,9 +82,7 @@ struct PaywallView: View {
 			}
 		}
 		.background {
-			if isOnboarding {
-				Color.white
-			} else {
+			if !isOnboarding {
 				NurturAuroraBackground()
 			}
 		}
