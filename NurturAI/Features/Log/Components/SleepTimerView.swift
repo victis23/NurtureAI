@@ -22,7 +22,7 @@ struct SleepTimerView: View {
                     viewModel.startSleep()
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 16)
         }
         .onAppear {
 			container?.analyticsService.logPageView("sleepTimerView")

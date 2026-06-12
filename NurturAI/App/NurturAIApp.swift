@@ -170,6 +170,7 @@ struct MainTabView: View {
 			.tabItem { Label(Strings.TabBar.settings, systemImage: "gear") }
 			.tag(4)
         }
+        .tabBarMinimizeBehavior(.onScrollDown)
         .tint(NurturColors.accent)
 		.sensoryFeedback(.selection, trigger: tabtapped)
     }

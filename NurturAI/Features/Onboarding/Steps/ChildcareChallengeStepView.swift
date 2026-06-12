@@ -9,7 +9,7 @@ struct ChildcareChallengeStepView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Strings.Onboarding.Challenges.heading)
                     .font(NurturTypography.title2)
@@ -17,20 +17,30 @@ struct ChildcareChallengeStepView: View {
                 Text(Strings.Onboarding.Challenges.subheading)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
-                Text(Strings.Onboarding.Challenges.multiSelectHint)
-                    .font(NurturTypography.caption)
-                    .foregroundStyle(NurturColors.textFaint)
-                    .padding(.top, 4)
+                HStack(spacing: 6) {
+                    Image(systemName: "hand.tap.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(NurturColors.accent)
+                    Text(Strings.Onboarding.Challenges.multiSelectHint)
+                        .font(NurturTypography.captionMedium)
+                        .foregroundStyle(NurturColors.textSecondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .nurturGlassPill()
+                .padding(.top, 4)
             }
 
-            LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(ChildcareChallenge.allCases, id: \.self) { challenge in
-                    SelectionCard(
-                        icon: icon(for: challenge),
-                        label: challenge.displayName,
-                        isSelected: selection.contains(challenge)
-                    ) {
-                        toggle(challenge)
+            GlassEffectContainer {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(ChildcareChallenge.allCases, id: \.self) { challenge in
+                        SelectionCard(
+                            icon: icon(for: challenge),
+                            label: challenge.displayName,
+                            isSelected: selection.contains(challenge)
+                        ) {
+                            toggle(challenge)
+                        }
                     }
                 }
             }

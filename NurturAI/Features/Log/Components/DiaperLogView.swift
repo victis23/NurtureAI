@@ -9,9 +9,12 @@ struct DiaperLogView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 14) {
-                Text(Strings.Log.Diaper.typeLabel)
-                    .font(NurturTypography.headline)
-                    .foregroundStyle(NurturColors.textPrimary)
+                HStack(spacing: 10) {
+                    GlassIconBadge(icon: "bubbles.and.sparkles", color: NurturColors.success, size: 30)
+                    Text(Strings.Log.Diaper.typeLabel)
+                        .font(NurturTypography.headline)
+                        .foregroundStyle(NurturColors.textPrimary)
+                }
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(DiaperType.allCases, id: \.self) { type in
@@ -37,7 +40,7 @@ struct DiaperLogView: View {
             }
             .buttonStyle(PrimaryButtonStyle())
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.selectedDiaperType)
+        .animation(NurturMotion.spring, value: viewModel.selectedDiaperType)
         .sensoryFeedback(.selection, trigger: viewModel.selectedDiaperType)
 		.onAppear {
 			container?.analyticsService.logPageView("diaperLogView")

@@ -57,8 +57,7 @@ struct NurturStatusCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
 		.padding(16)
 		.frame(height: 112, alignment: .topLeading)
-		.glassEffect(.regular, in: .rect(cornerRadius: 22))
-		.shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+		.nurturGlassCard(cornerRadius: 22)
         .scaleEffect(pulseScale)
         .shadow(color: isUrgent ? Color.red.opacity(0.35) : .clear, radius: 8)
         // Scoped to `pulseScale` so the urgent breathing can't leak onto a shared
@@ -157,8 +156,7 @@ struct NurturStatusCardSkeleton: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .frame(height: 112, alignment: .topLeading)
-        .glassEffect(.regular, in: .rect(cornerRadius: 22))
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .nurturGlassCard(cornerRadius: 22)
     }
 }
 
@@ -181,7 +179,7 @@ struct NurturTimelineRowSkeleton: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 11)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
+            .nurturGlassRow(cornerRadius: 18)
         }
     }
 }
@@ -218,14 +216,10 @@ struct PillButton: View {
             Text(title)
                 .font(NurturTypography.subheadline)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 11)
-                .background(
-                    isSelected ? NurturColors.accent : NurturColors.surfaceWarm,
-                    in: Capsule()
-                )
-                .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
+                .pillButton(isSelected: isSelected)
         }
+        .buttonStyle(.plain)
+        .animation(NurturMotion.spring, value: isSelected)
     }
 }
 
@@ -249,11 +243,19 @@ struct LargeActionButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
-            .background(color.opacity(0.18), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .foregroundStyle(color)
-			.overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
-				.strokeBorder(.white, lineWidth: 1.5).opacity(0.6))
+            .glassEffect(
+                .regular.tint(color.opacity(0.16)).interactive(),
+                in: .rect(cornerRadius: 22, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(NurturGradients.glassRim, lineWidth: 1)
+            )
+            .shadow(color: color.opacity(0.10), radius: 10, x: 0, y: 5)
         }
+        .buttonStyle(.plain)
+        .nurturPressable()
     }
 }
 
@@ -276,7 +278,9 @@ struct ToastOverlay: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(.regularMaterial, in: Capsule())
+                .glassEffect(.regular, in: .capsule)
+                .overlay(Capsule().strokeBorder(NurturGradients.glassRim, lineWidth: 0.8))
+                .shadow(color: .black.opacity(0.10), radius: 12, x: 0, y: 6)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .padding(.bottom, 20)
             }
@@ -302,12 +306,29 @@ struct BabyAvatar: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(NurturColors.accentSoft)
+                .fill(
+                    LinearGradient(
+                        colors: [NurturColors.accentSoft, NurturColors.accentSoft.opacity(0.6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: size, height: size)
+            Circle()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [NurturColors.accent.opacity(0.55), NurturColors.accent.opacity(0.12)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
                 .frame(width: size, height: size)
             Text(initials)
                 .font(.system(size: size * 0.35, weight: .semibold))
                 .foregroundStyle(NurturColors.accent)
         }
+        .shadow(color: NurturColors.accent.opacity(0.15), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -339,12 +360,10 @@ struct PredictionCard: View {
                     .foregroundStyle(NurturColors.textFaint)
             }
             .padding(14)
-            .background(NurturColors.warning.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(NurturColors.warning.opacity(0.3), lineWidth: 1)
-            )
+            .nurturGlassCardTinted(NurturColors.warning, cornerRadius: 18)
         }
+        .buttonStyle(.plain)
+        .nurturPressable()
     }
 }
 
@@ -430,8 +449,7 @@ struct ParentingScoreCard: View {
     var body: some View {
         if showBackground {
             cardContent
-                .glassEffect(.regular, in: .rect(cornerRadius: 22))
-                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                .nurturGlassCard(cornerRadius: 22)
         } else {
             cardContent
         }

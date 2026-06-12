@@ -38,8 +38,8 @@ struct BabyBirthdayStepView: View {
             .datePickerStyle(.graphical)
             .tint(NurturColors.accent)
             .labelsHidden()
-            .padding(12)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+            .padding(14)
+            .nurturGlassCard(cornerRadius: 24)
             .id(pickerID)
             .onChange(of: monthYearKey) { _, _ in
                 scheduleCollapse()
@@ -88,10 +88,7 @@ struct BabyBirthdayStepView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(16)
-        .glassEffect(
-            .regular.tint(NurturColors.accent.opacity(0.35)),
-            in: RoundedRectangle(cornerRadius: 14)
-        )
+        .nurturGlassCardTinted(NurturColors.accent, cornerRadius: 22)
     }
 
     private var primaryLine: String {

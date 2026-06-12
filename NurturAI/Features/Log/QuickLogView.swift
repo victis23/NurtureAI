@@ -19,6 +19,7 @@ struct QuickLogView: View {
                     ProgressView()
                 }
             }
+            .nurturScreenBackground()
             .navigationTitle(Strings.Log.navigationTitle)
 			.task {
 				guard let container, babies.first != nil else { return }
@@ -72,24 +73,15 @@ private struct QuickLogContentView: View {
                     }
                     .padding(20)
                     .frame(maxWidth: .infinity)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+                    .nurturGlassCard(cornerRadius: 28)
                     .padding(.horizontal)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .id(selectedTab)
                 }
                 .padding(.top, 25)
                 .padding(.bottom, 40)
-                .animation(.spring(response: 0.4, dampingFraction: 0.85), value: selectedTab)
+                .animation(NurturMotion.spring, value: selectedTab)
             }
-            .background(
-                LinearGradient(
-                    colors: [.background, .accentColor.opacity(0.1)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-            )
 
             // Toast confirmation
             ToastOverlay(
@@ -137,8 +129,18 @@ private struct LogTypeSelector: View {
                         .background {
                             if isSelected {
                                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .fill(tab.color)
-                                    .shadow(color: tab.color.opacity(0.4), radius: 6, x: 0, y: 3)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [tab.color, tab.color.opacity(0.84)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                            .strokeBorder(NurturGradients.glassRim, lineWidth: 1)
+                                    )
+                                    .shadow(color: tab.color.opacity(0.35), radius: 7, x: 0, y: 4)
                                     .matchedGeometryEffect(id: "selectedTab", in: namespace)
                             }
                         }
@@ -147,9 +149,9 @@ private struct LogTypeSelector: View {
                 }
             }
             .padding(6)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24))
+            .nurturGlassCard(cornerRadius: 24)
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.78), value: selectedTab)
+        .animation(NurturMotion.spring, value: selectedTab)
         .sensoryFeedback(.selection, trigger: selectedTab)
     }
 }
@@ -161,9 +163,12 @@ private struct MoodLogView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 14) {
-                Text(Strings.Log.moodHeading(baby.name))
-                    .font(NurturTypography.headline)
-                    .foregroundStyle(NurturColors.textPrimary)
+                HStack(spacing: 10) {
+                    GlassIconBadge(icon: "face.smiling", color: NurturColors.warning, size: 30)
+                    Text(Strings.Log.moodHeading(baby.name))
+                        .font(NurturTypography.headline)
+                        .foregroundStyle(NurturColors.textPrimary)
+                }
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(MoodState.allCases, id: \.self) { mood in
@@ -192,7 +197,7 @@ private struct MoodLogView: View {
             }
             .buttonStyle(PrimaryButtonStyle())
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.selectedMood)
+        .animation(NurturMotion.spring, value: viewModel.selectedMood)
         .sensoryFeedback(.selection, trigger: viewModel.selectedMood)
     }
 }
@@ -237,10 +242,17 @@ struct CircularTimerButton: View {
 
                 // Frosted face — static material (not Liquid Glass) so it does
                 // not play the sheen-sweep entrance animation on first appear.
+                // A static lit rim + soft tinted shadow sell the glass-puck look
+                // without introducing any animated surface.
                 Circle()
                     .fill(color.opacity(0.08))
                     .frame(width: diameter - 30, height: diameter - 30)
                     .background(.ultraThinMaterial, in: Circle())
+                    .overlay(
+                        Circle()
+                            .strokeBorder(NurturGradients.glassRim, lineWidth: 1)
+                    )
+                    .shadow(color: color.opacity(0.12), radius: 16, x: 0, y: 8)
 
                 // Per-minute progress track
                 Circle()
@@ -304,12 +316,26 @@ struct SelectionChipBackground: ViewModifier {
             content
                 .background(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(color)
-                        .shadow(color: color.opacity(0.4), radius: 6, x: 0, y: 3)
+                        .fill(
+                            LinearGradient(
+                                colors: [color, color.opacity(0.84)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(color: color.opacity(0.35), radius: 7, x: 0, y: 4)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(NurturGradients.glassRim, lineWidth: 1)
                 )
         } else {
             content
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(NurturGradients.glassRim, lineWidth: 0.8)
+                )
         }
     }
 }

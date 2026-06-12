@@ -3,9 +3,7 @@ import SwiftUI
 extension View {
 
     func nurturCard() -> some View {
-        self
-            .background(NurturColors.surface, in: RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        self.nurturGlassCard(cornerRadius: 20)
     }
 
     func nurturCardPadded() -> some View {
@@ -14,16 +12,22 @@ extension View {
             .nurturCard()
     }
 
+    @ViewBuilder
     func pillButton(isSelected: Bool = false) -> some View {
-        self
+        let label = self
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(
-                isSelected ? NurturColors.accent : NurturColors.surfaceWarm,
-                in: Capsule()
-            )
-            .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
             .font(NurturTypography.subheadline)
+        if isSelected {
+            label
+                .background(NurturGradients.accent, in: Capsule())
+                .foregroundStyle(.white)
+                .shadow(color: NurturColors.accent.opacity(0.3), radius: 8, x: 0, y: 4)
+        } else {
+            label
+                .foregroundStyle(NurturColors.textPrimary)
+                .nurturGlassPill()
+        }
     }
 
     func errorAlert(error: Binding<AppError?>) -> some View {
@@ -49,13 +53,8 @@ extension View {
 				.foregroundStyle(.black.opacity(0.7))
 				.padding(10)
 		}
-		.background(
-			.ultraThinMaterial
-				.opacity(0.5)
-				.shadow(.drop(radius: 3)),
-			in: RoundedRectangle(cornerRadius: 15)
-		)
-		.background(.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
+		.background(.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+		.nurturGlassCard(cornerRadius: 18)
 	}
 }
 
@@ -67,10 +66,26 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-			.background(isEnabled ? tint : .disbledAccentOrange, in: RoundedRectangle(cornerRadius: 14))
+            .background(
+                isEnabled
+                    ? AnyShapeStyle(LinearGradient(
+                        colors: [tint, tint.opacity(0.82)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    : AnyShapeStyle(Color.disbledAccentOrange),
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(NurturGradients.glassRim, lineWidth: 1)
+            )
             .foregroundStyle(.white)
             .font(NurturTypography.headline)
-            .opacity(configuration.isPressed ? 0.85 : 1)
-			.animation(.easeOut, value: isEnabled)
+            .shadow(color: isEnabled ? tint.opacity(0.32) : .clear, radius: 10, x: 0, y: 5)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .animation(NurturMotion.snappy, value: configuration.isPressed)
+            .animation(.easeOut, value: isEnabled)
     }
 }

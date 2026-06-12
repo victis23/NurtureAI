@@ -14,29 +14,28 @@ struct EscalationBannerView: View {
 
     private var emergencyBanner: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.title2)
+            HStack(spacing: 12) {
+                GlassIconBadge(icon: "exclamationmark.triangle.fill", color: NurturColors.danger, size: 38)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(Strings.Assist.Escalation.emergencyHeading)
                         .font(NurturTypography.headline)
                         .fontWeight(.bold)
+                        .foregroundStyle(NurturColors.danger)
                     Text(Strings.Assist.Escalation.emergencySubheading)
                         .font(NurturTypography.subheadline)
+                        .foregroundStyle(NurturColors.textPrimary)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(NurturColors.danger, in: RoundedRectangle(cornerRadius: 14))
-        .foregroundStyle(.white)
+        .nurturGlassCardTinted(NurturColors.danger, cornerRadius: 22)
     }
 
     private var doctorBanner: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "stethoscope")
-                    .foregroundStyle(NurturColors.warning)
+            HStack(spacing: 10) {
+                GlassIconBadge(icon: "stethoscope", color: NurturColors.warning, size: 30)
                 Text(Strings.Assist.Escalation.doctorHeading)
                     .font(NurturTypography.subheadline)
                     .fontWeight(.semibold)
@@ -55,11 +54,7 @@ struct EscalationBannerView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(NurturColors.warning.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(NurturColors.warning.opacity(0.3), lineWidth: 1)
-        )
+        .padding(16)
+        .nurturGlassCardTinted(NurturColors.warning, cornerRadius: 22)
     }
 }

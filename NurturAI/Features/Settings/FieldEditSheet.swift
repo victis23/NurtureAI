@@ -58,13 +58,18 @@ struct FieldEditSheet: View {
                         dismiss()
                     }
                     .fontWeight(.semibold)
+                    .tint(NurturColors.accent)
                     .disabled(!canSave)
                 }
             }
         }
         .onAppear { loadFromBaby() }
         .presentationDetents(presentationDetents)
-        .presentationBackground(.regularMaterial)
+        // Aurora sheet backdrop: opaque cream base keeps pickers legible while
+        // the glass editors below get soft color to refract.
+        .presentationBackground {
+            NurturAuroraBackground(animated: false)
+        }
         .presentationDragIndicator(.visible)
     }
 
@@ -101,7 +106,7 @@ struct FieldEditSheet: View {
                 .font(NurturTypography.headline)
                 .foregroundStyle(NurturColors.textPrimary)
                 .padding(18)
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 14))
+                .nurturGlassRow(cornerRadius: 18)
                 .textInputAutocapitalization(.words)
                 .submitLabel(.done)
 
@@ -116,7 +121,7 @@ struct FieldEditSheet: View {
             .tint(NurturColors.accent)
             .labelsHidden()
             .padding(12)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+            .nurturGlassCard(cornerRadius: 24)
 
         case .birthWeight:
             WeightWheelPicker(
@@ -190,67 +195,92 @@ struct FieldEditSheet: View {
 
     private func singleSelectList<T>(items: [T], selection: Binding<T>) -> some View
     where T: Hashable, T: HasDisplayName {
-        VStack(spacing: 12) {
-            ForEach(items, id: \.self) { item in
-                Button {
-                    selection.wrappedValue = item
-                } label: {
-                    HStack {
-                        Text(item.displayName)
-                            .font(NurturTypography.headline)
-                        Spacer()
-                        if selection.wrappedValue == item {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.white)
+        GlassEffectContainer {
+            VStack(spacing: 12) {
+                ForEach(items, id: \.self) { item in
+                    let isSelected = selection.wrappedValue == item
+                    Button {
+                        selection.wrappedValue = item
+                    } label: {
+                        HStack {
+                            Text(item.displayName)
+                                .font(NurturTypography.headline)
+                            Spacer()
+                            if isSelected {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.white)
+                            }
                         }
+                        .padding(18)
+                        .glassEffect(
+                            isSelected
+                                ? .regular.tint(NurturColors.accent).interactive()
+                                : .regular.interactive(),
+                            in: .rect(cornerRadius: 18, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .strokeBorder(
+                                    isSelected
+                                        ? AnyShapeStyle(Color.white.opacity(0.35))
+                                        : AnyShapeStyle(NurturGradients.glassRim),
+                                    lineWidth: 0.8
+                                )
+                        )
+                        .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
                     }
-                    .padding(18)
-                    .glassEffect(
-                        selection.wrappedValue == item
-                            ? .regular.tint(NurturColors.accent).interactive()
-                            : .regular.interactive(),
-                        in: RoundedRectangle(cornerRadius: 14)
-                    )
-                    .foregroundStyle(selection.wrappedValue == item ? .white : NurturColors.textPrimary)
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            .animation(NurturMotion.spring, value: selection.wrappedValue)
         }
         .sensoryFeedback(.selection, trigger: selection.wrappedValue)
     }
 
     private func multiSelectList<T>(items: [T], selection: Binding<Set<T>>) -> some View
     where T: Hashable, T: HasDisplayName {
-        VStack(spacing: 12) {
-            ForEach(items, id: \.self) { item in
-                let isSelected = selection.wrappedValue.contains(item)
-                Button {
-                    if isSelected {
-                        selection.wrappedValue.remove(item)
-                    } else {
-                        selection.wrappedValue.insert(item)
-                    }
-                } label: {
-                    HStack {
-                        Text(item.displayName)
-                            .font(NurturTypography.headline)
-                        Spacer()
+        GlassEffectContainer {
+            VStack(spacing: 12) {
+                ForEach(items, id: \.self) { item in
+                    let isSelected = selection.wrappedValue.contains(item)
+                    Button {
                         if isSelected {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.white)
+                            selection.wrappedValue.remove(item)
+                        } else {
+                            selection.wrappedValue.insert(item)
                         }
+                    } label: {
+                        HStack {
+                            Text(item.displayName)
+                                .font(NurturTypography.headline)
+                            Spacer()
+                            if isSelected {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .padding(18)
+                        .glassEffect(
+                            isSelected
+                                ? .regular.tint(NurturColors.accent).interactive()
+                                : .regular.interactive(),
+                            in: .rect(cornerRadius: 18, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .strokeBorder(
+                                    isSelected
+                                        ? AnyShapeStyle(Color.white.opacity(0.35))
+                                        : AnyShapeStyle(NurturGradients.glassRim),
+                                    lineWidth: 0.8
+                                )
+                        )
+                        .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
                     }
-                    .padding(18)
-                    .glassEffect(
-                        isSelected
-                            ? .regular.tint(NurturColors.accent).interactive()
-                            : .regular.interactive(),
-                        in: RoundedRectangle(cornerRadius: 14)
-                    )
-                    .foregroundStyle(isSelected ? .white : NurturColors.textPrimary)
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            .animation(NurturMotion.spring, value: selection.wrappedValue)
         }
         .sensoryFeedback(.selection, trigger: selection.wrappedValue)
     }

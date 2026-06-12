@@ -11,9 +11,12 @@ struct FeedTimerView: View {
         VStack(spacing: 24) {
             // Side picker
             VStack(alignment: .leading, spacing: 14) {
-                Text(Strings.Log.Feed.sideLabel)
-                    .font(NurturTypography.headline)
-                    .foregroundStyle(NurturColors.textPrimary)
+                HStack(spacing: 10) {
+                    GlassIconBadge(icon: "drop.fill", color: NurturColors.info, size: 30)
+                    Text(Strings.Log.Feed.sideLabel)
+                        .font(NurturTypography.headline)
+                        .foregroundStyle(NurturColors.textPrimary)
+                }
                 HStack(spacing: 10) {
                     ForEach(FeedSide.allCases, id: \.self) { side in
                         let isSelected = viewModel.feedSide == side
@@ -32,7 +35,7 @@ struct FeedTimerView: View {
                     }
                 }
             }
-            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.feedSide)
+            .animation(NurturMotion.spring, value: viewModel.feedSide)
             .sensoryFeedback(.selection, trigger: viewModel.feedSide)
 
             // Tappable circular timer (start / stop)
@@ -71,13 +74,14 @@ struct FeedTimerView: View {
                             .fontWeight(.semibold)
                             .foregroundStyle(NurturColors.textPrimary)
                     }
+                    .tint(NurturColors.info)
                 }
                 .padding(14)
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+                .nurturGlassRow(cornerRadius: 18)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.feedSide == .bottle)
+        .animation(NurturMotion.spring, value: viewModel.feedSide == .bottle)
         .onAppear {
 			container?.analyticsService.logPageView("feedTimerView")
         }

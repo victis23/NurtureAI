@@ -16,9 +16,11 @@ struct LogHistoryView: View {
                     ContentUnavailableView(Strings.Common.noBabyProfile, systemImage: "clock")
                 } else {
                     ProgressView()
+                        .tint(NurturColors.accent)
                 }
             }
             .navigationTitle(Strings.History.navigationTitle)
+            .nurturScreenBackground()
 			.task {
 				guard let baby = babies.first, let container else { return }
 				let vm = LogHistoryViewModel(logRepository: container.logRepository, timerService: container.timerService)
@@ -39,12 +41,16 @@ private struct HistoryContentView: View {
     var body: some View {
         List {
             if viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .listRowBackground(Color.clear)
+                ForEach(0..<4) { _ in
+                    HistoryLogRowSkeleton()
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 5, leading: 20, bottom: 5, trailing: 20))
+                }
             } else if viewModel.sections.isEmpty {
                 ContentUnavailableView(Strings.History.noLogsTitle, systemImage: "clock", description: Text(Strings.History.noLogsMessage))
                     .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             } else {
                 ForEach(viewModel.sections, id: \.date) { section in
                     Section(header: sectionHeader(for: section.date)) {
@@ -52,6 +58,9 @@ private struct HistoryContentView: View {
                             LogHistoryRow(log: log)
                                 .contentShape(Rectangle())
                                 .onTapGesture { editingLog = log }
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 5, leading: 20, bottom: 5, trailing: 20))
                         }
                         .onDelete { indexSet in
                             for idx in indexSet {
@@ -61,11 +70,12 @@ private struct HistoryContentView: View {
                             }
                         }
                     }
+                    .listSectionSeparator(.hidden)
                 }
             }
         }
-        .listStyle(.insetGrouped)
-		.scrollContentBackground(.automatic)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .refreshable { await viewModel.load(baby: baby) }
         .errorAlert(error: $viewModel.error)
         .sheet(item: $editingLog) { log in
@@ -85,10 +95,18 @@ private struct HistoryContentView: View {
         } else {
             label = date.formatted(date: .abbreviated, time: .omitted)
         }
-        return Text(label)
-            .font(NurturTypography.caption)
-            .foregroundStyle(NurturColors.textSecondary)
-            .textCase(nil)
+        return HStack {
+            Text(label)
+                .font(NurturTypography.captionMedium)
+                .fontWeight(.semibold)
+                .foregroundStyle(NurturColors.textSecondary)
+                .textCase(nil)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .nurturGlassPill()
+            Spacer()
+        }
+        .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 4, trailing: 20))
     }
 }
 
@@ -97,28 +115,32 @@ private struct LogHistoryRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: logIcon)
-                .foregroundStyle(logColor)
-                .font(.title3)
-                .frame(width: 32)
+            GlassIconBadge(icon: logIcon, color: logColor, size: 36)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(logTypeLabel)
                     .font(NurturTypography.subheadline)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
                     .foregroundStyle(NurturColors.textPrimary)
                 Text(log.timestamp.shortDateTimeDisplay)
                     .font(NurturTypography.caption)
                     .foregroundStyle(NurturColors.textSecondary)
             }
 
-            Spacer()
+            Spacer(minLength: 12)
 
             Text(summaryText)
-                .font(NurturTypography.caption)
-                .foregroundStyle(NurturColors.textFaint)
+                .font(NurturTypography.captionMedium)
+                .foregroundStyle(logColor)
+                .lineLimit(1)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(logColor.opacity(0.12), in: Capsule())
         }
-        .padding(.vertical, 4)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .nurturGlassRow(cornerRadius: 18)
     }
 
     private var logIcon: String {
@@ -165,6 +187,26 @@ private struct LogHistoryRow: View {
     }
 }
 
+/// Shimmering placeholder matching `LogHistoryRow`'s footprint so the list
+/// reserves its space while logs load instead of flashing a bare spinner.
+private struct HistoryLogRowSkeleton: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            NurturSkeletonBlock(width: 36, height: 36, cornerRadius: 12)
+            VStack(alignment: .leading, spacing: 6) {
+                NurturSkeletonBlock(width: 76, height: 12, cornerRadius: 6)
+                NurturSkeletonBlock(width: 112, height: 10, cornerRadius: 5)
+            }
+            Spacer()
+            NurturSkeletonBlock(width: 58, height: 20, cornerRadius: 10)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .nurturGlassRow(cornerRadius: 18)
+    }
+}
+
 private struct LogEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     let log: BabyLog
@@ -194,20 +236,35 @@ private struct LogEditSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                DatePicker(
-                    Strings.History.editStartLabel,
-                    selection: $startDate,
-                    in: ...Date()
-                )
-                if hasEndTimestamp {
+            ScrollView {
+                VStack(spacing: 4) {
                     DatePicker(
-                        Strings.History.editEndLabel,
-                        selection: $endDate,
-                        in: startDate...Date()
+                        Strings.History.editStartLabel,
+                        selection: $startDate,
+                        in: ...Date()
                     )
+                    .font(NurturTypography.callout)
+                    .padding(.vertical, 6)
+                    if hasEndTimestamp {
+                        Divider()
+                            .overlay(NurturColors.textFaint.opacity(0.25))
+                        DatePicker(
+                            Strings.History.editEndLabel,
+                            selection: $endDate,
+                            in: startDate...Date()
+                        )
+                        .font(NurturTypography.callout)
+                        .padding(.vertical, 6)
+                    }
                 }
+                .padding(.horizontal, 18)
+                .padding(.vertical, 10)
+                .nurturGlassCard(cornerRadius: 24)
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
             }
+            .nurturScreenBackground()
+            .tint(NurturColors.accent)
             .navigationTitle(Strings.History.editTitle(log.type.rawValue.capitalized))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

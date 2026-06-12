@@ -5,8 +5,9 @@ struct CauseCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header — label + percentage
-            HStack(alignment: .firstTextBaseline) {
+            // Header — icon badge + label + percentage
+            HStack(alignment: .center, spacing: 10) {
+                GlassIconBadge(icon: "lightbulb.max.fill", color: probabilityColor, size: 30)
                 Text(cause.label)
                     .font(NurturTypography.headline)
                     .fontWeight(.semibold)
@@ -58,12 +59,7 @@ struct CauseCardView: View {
             }
         }
         .padding(16)
-        .background(probabilityColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(probabilityColor.opacity(0.18), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+        .nurturGlassCardTinted(probabilityColor, cornerRadius: 22)
     }
 
     private var probabilityColor: Color {

@@ -15,19 +15,21 @@ struct TermsAndConditions: View {
 	var body: some View {
 		NavigationStack {
 			ScrollView {
-				VStack(alignment: .leading, spacing: 28) {
-					header
+				GlassEffectContainer(spacing: 20) {
+					VStack(alignment: .leading, spacing: 20) {
+						header
 
-					ForEach(Strings.TermsString.sections) { section in
-						sectionView(section)
+						ForEach(Strings.TermsString.sections) { section in
+							sectionView(section)
+						}
+
+						contactBlock
 					}
-
-					contactBlock
 				}
 				.padding(.horizontal, 20)
 				.padding(.vertical, 24)
 			}
-			.background(NurturColors.background.ignoresSafeArea())
+			.nurturScreenBackground()
 			.navigationTitle(Strings.Common.termsTitle)
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbar {
@@ -50,17 +52,25 @@ struct TermsAndConditions: View {
 	// MARK: - Header
 
 	private var header: some View {
-		VStack(alignment: .leading, spacing: 6) {
-			Text(Strings.TermsString.documentTitle)
-				.font(NurturTypography.title2)
-				.foregroundStyle(NurturColors.textPrimary)
-				.fixedSize(horizontal: false, vertical: true)
+		HStack(alignment: .top, spacing: 14) {
+			GlassIconBadge(icon: "doc.text.fill", color: NurturColors.accent, size: 40)
 
-			Text(Strings.TermsString.lastUpdated)
-				.font(NurturTypography.caption)
-				.foregroundStyle(NurturColors.textFaint)
+			VStack(alignment: .leading, spacing: 6) {
+				Text(Strings.TermsString.documentTitle)
+					.font(NurturTypography.title2)
+					.foregroundStyle(NurturColors.textPrimary)
+					.fixedSize(horizontal: false, vertical: true)
+
+				Text(Strings.TermsString.lastUpdated)
+					.font(NurturTypography.caption)
+					.foregroundStyle(NurturColors.textFaint)
+			}
+
+			Spacer(minLength: 0)
 		}
-		.padding(.bottom, 4)
+		.padding(20)
+		.frame(maxWidth: .infinity, alignment: .leading)
+		.nurturGlassCard(cornerRadius: 28)
 	}
 
 	// MARK: - Section
@@ -73,7 +83,7 @@ struct TermsAndConditions: View {
 					.foregroundStyle(.white)
 					.padding(.horizontal, 9)
 					.padding(.vertical, 3)
-					.background(NurturColors.accent, in: Capsule())
+					.background(NurturGradients.accent, in: Capsule())
 
 				Text(section.title)
 					.font(NurturTypography.title3)
@@ -100,11 +110,10 @@ struct TermsAndConditions: View {
 			if section.id == "8" {
 				privacyPolicyLink
 			}
-
-			Divider()
-				.background(NurturColors.textFaint.opacity(0.25))
-				.padding(.top, 4)
 		}
+		.padding(18)
+		.frame(maxWidth: .infinity, alignment: .leading)
+		.nurturGlassCard(cornerRadius: 22)
 	}
 
 	// MARK: - Privacy policy link
@@ -113,9 +122,8 @@ struct TermsAndConditions: View {
 		NavigationLink {
 			PrivacyPolicy()
 		} label: {
-			HStack(spacing: 8) {
-				Image(systemName: "lock.shield")
-					.font(.system(size: 14, weight: .semibold))
+			HStack(spacing: 10) {
+				GlassIconBadge(icon: "lock.shield", color: NurturColors.accent, size: 30)
 				Text(Strings.Common.viewPrivacyPolicy)
 					.font(NurturTypography.bodyMedium)
 				Spacer()
@@ -124,17 +132,20 @@ struct TermsAndConditions: View {
 					.foregroundStyle(NurturColors.textFaint)
 			}
 			.foregroundStyle(NurturColors.accent)
-			.padding(14)
+			.padding(.horizontal, 12)
+			.padding(.vertical, 10)
 			.frame(maxWidth: .infinity, alignment: .leading)
 			.background(
-				RoundedRectangle(cornerRadius: 12)
-					.fill(NurturColors.accentSoft)
+				NurturColors.accent.opacity(0.10),
+				in: RoundedRectangle(cornerRadius: 14, style: .continuous)
 			)
 			.overlay(
-				RoundedRectangle(cornerRadius: 12)
-					.strokeBorder(NurturColors.accent.opacity(0.25), lineWidth: 1)
+				RoundedRectangle(cornerRadius: 14, style: .continuous)
+					.strokeBorder(NurturColors.accent.opacity(0.22), lineWidth: 1)
 			)
 		}
+		.buttonStyle(.plain)
+		.nurturPressable()
 		.padding(.top, 4)
 	}
 
@@ -157,12 +168,12 @@ struct TermsAndConditions: View {
 			.padding(14)
 			.frame(maxWidth: .infinity, alignment: .leading)
 			.background(
-				RoundedRectangle(cornerRadius: 12)
-					.fill(NurturColors.danger.opacity(0.08))
+				NurturColors.danger.opacity(0.08),
+				in: RoundedRectangle(cornerRadius: 16, style: .continuous)
 			)
 			.overlay(
-				RoundedRectangle(cornerRadius: 12)
-					.strokeBorder(NurturColors.danger.opacity(0.35), lineWidth: 1)
+				RoundedRectangle(cornerRadius: 16, style: .continuous)
+					.strokeBorder(NurturColors.danger.opacity(0.30), lineWidth: 1)
 			)
 		} else {
 			Text(attributed(text))
@@ -175,29 +186,32 @@ struct TermsAndConditions: View {
 	// MARK: - Contact block
 
 	private var contactBlock: some View {
-		VStack(alignment: .leading, spacing: 6) {
-			Text(Strings.Common.contactHeading)
-				.font(NurturTypography.headline)
-				.foregroundStyle(NurturColors.textPrimary)
+		HStack(alignment: .top, spacing: 14) {
+			GlassIconBadge(icon: "envelope.fill", color: NurturColors.info, size: 34)
 
-			Text(Strings.TermsString.contact.entity)
-				.font(NurturTypography.subheadline)
-				.foregroundStyle(NurturColors.textSecondary)
+			VStack(alignment: .leading, spacing: 6) {
+				Text(Strings.Common.contactHeading)
+					.font(NurturTypography.headline)
+					.foregroundStyle(NurturColors.textPrimary)
 
-			Text(Strings.TermsString.contact.address)
-				.font(NurturTypography.subheadline)
-				.foregroundStyle(NurturColors.textSecondary)
+				Text(Strings.TermsString.contact.entity)
+					.font(NurturTypography.subheadline)
+					.foregroundStyle(NurturColors.textSecondary)
 
-			Text(Strings.TermsString.contact.email)
-				.font(NurturTypography.subheadline)
-				.foregroundStyle(NurturColors.accent)
+				Text(Strings.TermsString.contact.address)
+					.font(NurturTypography.subheadline)
+					.foregroundStyle(NurturColors.textSecondary)
+
+				Text(Strings.TermsString.contact.email)
+					.font(NurturTypography.subheadline)
+					.foregroundStyle(NurturColors.accent)
+			}
+
+			Spacer(minLength: 0)
 		}
-		.padding(16)
+		.padding(18)
 		.frame(maxWidth: .infinity, alignment: .leading)
-		.background(
-			RoundedRectangle(cornerRadius: 12)
-				.fill(NurturColors.surfaceWarm)
-		)
+		.nurturGlassCard(cornerRadius: 22)
 	}
 
 	// MARK: - Markdown

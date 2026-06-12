@@ -25,59 +25,69 @@ struct PaywallView: View {
 	
 	private var contentBody: some View {
 		ScrollView {
-			VStack(spacing: 10) {
-				header
-				
-				// Product cards area — replaced by a loader / error view
-				// while StoreKit is still fetching.
-				if let service = container?.subscriptionService {
-					productsSection(service: service)
-				}
-				
-				if let inlineError {
-					Text(inlineError)
-						.font(NurturTypography.caption)
-						.foregroundStyle(NurturColors.danger)
-						.multilineTextAlignment(.center)
-						.padding(.horizontal)
-				}
-				
-				if let restoreMessage {
-					Text(restoreMessage)
-						.font(NurturTypography.caption)
+			GlassEffectContainer {
+				VStack(spacing: 20) {
+					header
+
+					// Product cards area — replaced by a loader / error view
+					// while StoreKit is still fetching.
+					if let service = container?.subscriptionService {
+						productsSection(service: service)
+					}
+
+					VStack(spacing: 12) {
+						if let inlineError {
+							Text(inlineError)
+								.font(NurturTypography.caption)
+								.foregroundStyle(NurturColors.danger)
+								.multilineTextAlignment(.center)
+								.padding(.horizontal)
+						}
+
+						if let restoreMessage {
+							Text(restoreMessage)
+								.font(NurturTypography.caption)
+								.foregroundStyle(NurturColors.textSecondary)
+								.multilineTextAlignment(.center)
+								.padding(.horizontal)
+						}
+
+						Button(Strings.Paywall.restorePurchases) {
+							Task { await restore() }
+						}
+						.font(NurturTypography.subheadline)
 						.foregroundStyle(NurturColors.textSecondary)
-						.multilineTextAlignment(.center)
-						.padding(.horizontal)
-				}
-				
-				Button(Strings.Paywall.restorePurchases) {
-					Task { await restore() }
-				}
-				.font(NurturTypography.subheadline)
-				.foregroundStyle(NurturColors.textSecondary)
-				.disabled(isPurchasing)
+						.disabled(isPurchasing)
 
-				// Apple Guideline 3.1.2(c): functional Privacy Policy + Terms of
-				// Use links must be reachable from the purchase flow itself, not
-				// just from Settings.
-				HStack(spacing: 12) {
-					Button(Strings.Paywall.privacyPolicy) { showPrivacyPolicy = true }
-					Text("·")
-						.foregroundStyle(NurturColors.textFaint)
-					Button(Strings.Paywall.termsOfUse) { showTermsOfUse = true }
-				}
-				.font(NurturTypography.caption)
-				.foregroundStyle(NurturColors.accent)
+						// Apple Guideline 3.1.2(c): functional Privacy Policy + Terms of
+						// Use links must be reachable from the purchase flow itself, not
+						// just from Settings.
+						HStack(spacing: 12) {
+							Button(Strings.Paywall.privacyPolicy) { showPrivacyPolicy = true }
+							Text("·")
+								.foregroundStyle(NurturColors.textFaint)
+							Button(Strings.Paywall.termsOfUse) { showTermsOfUse = true }
+						}
+						.font(NurturTypography.caption)
+						.foregroundStyle(NurturColors.accent.opacity(0.85))
 
-				Text(Strings.Paywall.footer)
-					.font(NurturTypography.caption2)
-					.foregroundStyle(NurturColors.textFaint)
-					.multilineTextAlignment(.center)
-					.padding(.horizontal, 24)
-					.padding(.bottom, 32)
+						Text(Strings.Paywall.footer)
+							.font(NurturTypography.caption2)
+							.foregroundStyle(NurturColors.textFaint)
+							.multilineTextAlignment(.center)
+							.padding(.horizontal, 24)
+							.padding(.bottom, 32)
+					}
+				}
 			}
 		}
-		.background(isOnboarding ? .white : NurturColors.background)
+		.background {
+			if isOnboarding {
+				Color.white
+			} else {
+				NurturAuroraBackground()
+			}
+		}
 		.navigationBarTitleDisplayMode(.inline)
 		.toolbar {
 			if !isOnboarding {
@@ -109,10 +119,8 @@ struct PaywallView: View {
     // MARK: - Sections
 
     private var header: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 56))
-                .foregroundStyle(NurturColors.accent)
+        VStack(spacing: 14) {
+            GlassIconBadge(icon: "sparkles", color: NurturColors.accent, size: 64)
 
             Text(Strings.Paywall.title)
                 .font(NurturTypography.largeTitle)
@@ -122,8 +130,14 @@ struct PaywallView: View {
                 .font(NurturTypography.subheadline)
                 .foregroundStyle(NurturColors.textSecondary)
                 .multilineTextAlignment(.center)
+                .lineSpacing(3)
         }
-        .padding(.top, 32)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .padding(.horizontal, 20)
+        .nurturGlassCard(cornerRadius: 28)
+        .padding(.horizontal)
+        .padding(.top, 24)
     }
 
     @ViewBuilder
@@ -140,19 +154,20 @@ struct PaywallView: View {
     private var loadingView: some View {
         VStack(spacing: 12) {
             ProgressView()
+                .tint(NurturColors.accent)
             Text(Strings.Paywall.loadingProducts)
                 .font(NurturTypography.subheadline)
                 .foregroundStyle(NurturColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 32)
+        .nurturGlassCard(cornerRadius: 24)
+        .padding(.horizontal)
     }
 
     private func errorView(message: String, service: StoreKitSubscriptionService) -> some View {
         VStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 28))
-                .foregroundStyle(NurturColors.danger)
+            GlassIconBadge(icon: "exclamationmark.triangle", color: NurturColors.danger, size: 44)
 
             Text(message)
                 .font(NurturTypography.subheadline)
@@ -164,11 +179,14 @@ struct PaywallView: View {
                 Task { await service.retryProductLoad() }
             }
             .font(NurturTypography.subheadline)
+            .fontWeight(.semibold)
             .foregroundStyle(NurturColors.accent)
             .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
+        .nurturGlassCardTinted(NurturColors.danger, cornerRadius: 24)
+        .padding(.horizontal)
     }
 
     private func productCards(service: StoreKitSubscriptionService) -> some View {
@@ -282,15 +300,39 @@ private struct ProductCard: View {
         return Self.fallbackPerMonth(for: product)
     }
 
+    /// Per-plan glyph for the leading glass icon chip. Purely decorative.
+    private var iconName: String {
+        switch product {
+        case .proMonthly:   return "calendar"
+        case .proAnnual:    return "crown.fill"
+        case .familyAnnual: return "figure.2.and.child.holdinghands"
+        }
+    }
+
+    /// Accent rim sold as the "selected / best value" treatment.
+    private var accentRim: LinearGradient {
+        LinearGradient(
+            colors: [NurturColors.accent, NurturColors.accent.opacity(0.35)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
     var body: some View {
         Button(action: onTap) {
-            HStack(alignment: .top) {
+            HStack(alignment: .top, spacing: 12) {
+                GlassIconBadge(icon: iconName, color: NurturColors.accent, size: 38)
+
                 VStack(alignment: .leading, spacing: 4) {
                     if isHighlighted {
                         Text(Strings.Paywall.bestValue)
                             .font(NurturTypography.caption2)
-                            .foregroundStyle(NurturColors.accent)
                             .fontWeight(.bold)
+                            .kerning(0.8)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 3.5)
+                            .background(NurturGradients.accent, in: Capsule())
                     }
                     Text(product.displayName)
                         .font(NurturTypography.headline)
@@ -312,14 +354,26 @@ private struct ProductCard: View {
                     }
                 }
             }
-            .padding(16)
-            .background(
-                isHighlighted ? NurturColors.accentSoft : NurturColors.surface,
-                in: RoundedRectangle(cornerRadius: 14)
+            .padding(18)
+            // Keep the whole card tappable, not just its subviews — same
+            // hit-area pitfall as the card-selection fix elsewhere in the app.
+            .contentShape(.rect(cornerRadius: 22, style: .continuous))
+            .glassEffect(
+                isHighlighted
+                    ? .regular.tint(NurturColors.accent.opacity(0.14)).interactive()
+                    : .regular.interactive(),
+                in: .rect(cornerRadius: 22, style: .continuous)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(isHighlighted ? NurturColors.accent : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(
+                        isHighlighted ? AnyShapeStyle(accentRim) : AnyShapeStyle(NurturGradients.glassRim),
+                        lineWidth: isHighlighted ? 1.5 : 1
+                    )
+            )
+            .shadow(
+                color: isHighlighted ? NurturColors.accent.opacity(0.20) : .black.opacity(0.07),
+                radius: 14, x: 0, y: 7
             )
         }
         // Disable taps while a purchase is in flight OR while the product

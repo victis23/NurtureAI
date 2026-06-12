@@ -61,19 +61,22 @@ struct OnboardingPreviewStepView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 48)
+        .nurturGlassCard(cornerRadius: 28)
     }
 
     private func loadedContent(preview: OnboardingPreview) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GreetingCard(text: preview.greeting)
+        GlassEffectContainer {
+            VStack(alignment: .leading, spacing: 16) {
+                GreetingCard(text: preview.greeting)
 
-            VStack(spacing: 12) {
-                ForEach(preview.focuses) { focus in
-                    FocusCard(focus: focus)
+                VStack(spacing: 12) {
+                    ForEach(preview.focuses) { focus in
+                        FocusCard(focus: focus)
+                    }
                 }
-            }
 
-            ReassuranceCard(text: preview.reassurance)
+                ReassuranceCard(text: preview.reassurance)
+            }
         }
         .transition(.opacity.combined(with: .move(edge: .bottom)))
     }
@@ -115,10 +118,7 @@ private struct GreetingCard: View {
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
-            .glassEffect(
-                .regular.tint(NurturColors.accent.opacity(0.6)),
-                in: RoundedRectangle(cornerRadius: 16)
-            )
+            .nurturGlassCardTinted(NurturColors.accent, cornerRadius: 24)
     }
 }
 
@@ -127,10 +127,7 @@ private struct FocusCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "sparkle")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(NurturColors.accent)
-                .padding(.top, 2)
+            GlassIconBadge(icon: "sparkle", color: NurturColors.accent, size: 30)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(focus.title)
@@ -144,7 +141,7 @@ private struct FocusCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 14))
+        .nurturGlassCard(cornerRadius: 22)
     }
 }
 
@@ -165,9 +162,6 @@ private struct ReassuranceCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(
-            .regular.tint(NurturColors.accent.opacity(0.4)),
-            in: RoundedRectangle(cornerRadius: 14)
-        )
+        .nurturGlassCardTinted(NurturColors.accent, cornerRadius: 22)
     }
 }

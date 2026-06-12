@@ -17,18 +17,16 @@ struct AIResponseView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Reassurance — also serves as the off-topic reply.
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "sparkles")
-                    .font(.title3)
-                    .foregroundStyle(NurturColors.accent)
-                    .padding(.top, 1)
+            HStack(alignment: .top, spacing: 12) {
+                GlassIconBadge(icon: "sparkles", color: NurturColors.accent, size: 30)
                 Text(response.reassurance)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 4)
             }
-            .padding(14)
-            .background(NurturColors.accentSoft, in: RoundedRectangle(cornerRadius: 14))
+            .padding(16)
+            .nurturGlassCard(cornerRadius: 22)
 
             if !isOffTopic {
                 // Confidence note
@@ -57,11 +55,14 @@ struct AIResponseView: View {
 
                 // Monitor items
                 if !response.escalation.monitor.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(Strings.Assist.Response.monitorHeading)
-                            .font(NurturTypography.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(NurturColors.textPrimary)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            GlassIconBadge(icon: "eye", color: NurturColors.info, size: 26)
+                            Text(Strings.Assist.Response.monitorHeading)
+                                .font(NurturTypography.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(NurturColors.textPrimary)
+                        }
                         ForEach(response.escalation.monitor, id: \.self) { item in
                             HStack(alignment: .top, spacing: 6) {
                                 Text("•")
@@ -71,8 +72,9 @@ struct AIResponseView: View {
                             .foregroundStyle(NurturColors.textSecondary)
                         }
                     }
-                    .padding(14)
-                    .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 12))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .nurturGlassCardTinted(NurturColors.info, cornerRadius: 18)
                 }
 
                 // Follow-up

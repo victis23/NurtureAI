@@ -9,7 +9,7 @@ struct DesiredFeaturesStepView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Strings.Onboarding.Features.heading)
                     .font(NurturTypography.title2)
@@ -17,20 +17,30 @@ struct DesiredFeaturesStepView: View {
                 Text(Strings.Onboarding.Features.subheading)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.textSecondary)
-                Text(Strings.Onboarding.Features.multiSelectHint)
-                    .font(NurturTypography.caption)
-                    .foregroundStyle(NurturColors.textFaint)
-                    .padding(.top, 4)
+                HStack(spacing: 6) {
+                    Image(systemName: "hand.tap.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(NurturColors.accent)
+                    Text(Strings.Onboarding.Features.multiSelectHint)
+                        .font(NurturTypography.captionMedium)
+                        .foregroundStyle(NurturColors.textSecondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .nurturGlassPill()
+                .padding(.top, 4)
             }
 
-            LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(DesiredFeature.allCases, id: \.self) { feature in
-                    SelectionCard(
-                        icon: icon(for: feature),
-                        label: feature.displayName,
-                        isSelected: selection.contains(feature)
-                    ) {
-                        toggle(feature)
+            GlassEffectContainer {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(DesiredFeature.allCases, id: \.self) { feature in
+                        SelectionCard(
+                            icon: icon(for: feature),
+                            label: feature.displayName,
+                            isSelected: selection.contains(feature)
+                        ) {
+                            toggle(feature)
+                        }
                     }
                 }
             }

@@ -10,7 +10,7 @@ struct CurrentWeightStepView: View {
     private static let gramsPerOunce: Double = 28.3495
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Strings.Onboarding.CurrentWeight.heading)
                     .font(NurturTypography.title2)
@@ -90,7 +90,7 @@ struct WeightWheelPicker: View {
             .tint(NurturColors.accent)
         }
         .padding(20)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
+        .nurturGlassCard(cornerRadius: 24)
         .sensoryFeedback(.selection, trigger: pounds)
         .sensoryFeedback(.selection, trigger: ounces)
     }

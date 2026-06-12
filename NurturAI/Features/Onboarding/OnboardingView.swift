@@ -37,6 +37,9 @@ struct OnboardingView: View {
                     VStack(spacing: 32) {
                         stepContent
                             .opacity(contentOpacity)
+                            // Visual-only drift tied to the same fade state so each
+                            // step settles in gently rather than just cross-fading.
+                            .offset(y: (1 - contentOpacity) * 12)
                             .id(viewModel.currentStep)
 
                         if let error = viewModel.error {
@@ -44,6 +47,9 @@ struct OnboardingView: View {
                                 .font(NurturTypography.caption)
                                 .foregroundStyle(NurturColors.danger)
                                 .multilineTextAlignment(.center)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .nurturGlassCardTinted(NurturColors.danger, cornerRadius: 16)
                         }
                     }
                     .padding(24)
@@ -71,7 +77,9 @@ struct OnboardingView: View {
 							.font(NurturTypography.caption)
 							.foregroundStyle(NurturColors.danger)
 							.multilineTextAlignment(.center)
-							.padding(.horizontal, 8)
+							.padding(.horizontal, 14)
+							.padding(.vertical, 10)
+							.nurturGlassCardTinted(NurturColors.danger, cornerRadius: 16)
 					}
 					
 					if viewModel.currentStep != .upsale {
@@ -107,6 +115,7 @@ struct OnboardingView: View {
 					}
 				}
 			})
+			.nurturScreenBackground()
 			.navigationTitle(viewModel.currentStep != .welcome ? Strings.Onboarding.navigationTitle : "")
             .navigationBarTitleDisplayMode(.inline)
 			.onChange(of: appState.isSubscribed) {
@@ -239,7 +248,10 @@ struct OnboardingView: View {
 			}
 			try? await Task.sleep(for: .seconds(fadeDuration))
 			change()
-			withAnimation(.easeIn(duration: fadeDuration)) {
+			// Entrance uses the shared gentle spring; the fade-out above keeps
+			// its fixed duration so the sleep window — and the double-tap guard
+			// it backs — stays exactly in sync.
+			withAnimation(NurturMotion.gentle) {
 				contentOpacity = 1
 			}
 			isTransitioning = false
@@ -253,14 +265,19 @@ private struct ProgressBar: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                Capsule().fill(NurturColors.surfaceWarm).frame(height: 4)
                 Capsule()
-                    .fill(NurturColors.accent)
-                    .frame(width: geo.size.width * progress, height: 4)
-                    .animation(.easeInOut(duration: 0.3), value: progress)
+                    .fill(.clear)
+                    .glassEffect(.regular, in: .capsule)
+                    .overlay(Capsule().strokeBorder(NurturGradients.glassRim, lineWidth: 0.8))
+                    .frame(height: 6)
+                Capsule()
+                    .fill(NurturGradients.accent)
+                    .frame(width: geo.size.width * progress, height: 6)
+                    .shadow(color: NurturColors.accent.opacity(0.35), radius: 4, x: 0, y: 1)
+                    .animation(NurturMotion.spring, value: progress)
             }
         }
-        .frame(height: 4)
+        .frame(height: 6)
     }
 }
 

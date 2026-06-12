@@ -23,13 +23,16 @@ struct QuickPicksView: View {
                             Text(pick)
                                 .font(NurturTypography.subheadline)
                                 .foregroundStyle(NurturColors.textPrimary)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 9)
+                                .nurturGlassPill()
                         }
-                        .buttonStyle(.glass)
+                        .buttonStyle(.plain)
+                        .nurturPressable()
                     }
                 }
                 .padding(.horizontal)
+                .padding(.vertical, 4)
             }
         }
     }

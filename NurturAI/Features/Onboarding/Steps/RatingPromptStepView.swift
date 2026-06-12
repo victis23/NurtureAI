@@ -30,6 +30,7 @@ struct RatingPromptStepView: View {
                     Image(systemName: "star.fill")
                         .font(.system(size: 36, weight: .semibold))
                         .foregroundStyle(NurturColors.accent)
+                        .shadow(color: NurturColors.accent.opacity(0.30), radius: 8, x: 0, y: 3)
                         .scaleEffect(starsAppeared ? 1.0 : 0.5)
                         .opacity(starsAppeared ? 1.0 : 0)
                         .animation(
@@ -54,9 +55,9 @@ struct RatingPromptStepView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 14))
+            .nurturGlassCard(cornerRadius: 22)
 
-            // Primary action — accent-tinted glass, full-width, success haptic.
+            // Primary action — shared primary CTA style, full-width, success haptic.
             Button {
                 tapped.toggle()
                 requestReview()
@@ -65,16 +66,8 @@ struct RatingPromptStepView: View {
                     Image(systemName: "star.fill")
                     Text(Strings.Onboarding.Rating.actionLabel)
                 }
-                .font(NurturTypography.headline)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .glassEffect(
-                    .regular.tint(NurturColors.accent).interactive(),
-                    in: RoundedRectangle(cornerRadius: 14)
-                )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PrimaryButtonStyle())
             .sensoryFeedback(.success, trigger: tapped)
 
             // Secondary action — explicit skip path. Sits below the primary in

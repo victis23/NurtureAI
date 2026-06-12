@@ -165,19 +165,21 @@ struct PrivacyPolicy: View {
 
 	var body: some View {
 		ScrollView {
-			VStack(alignment: .leading, spacing: 28) {
-				header
+			GlassEffectContainer(spacing: 20) {
+				VStack(alignment: .leading, spacing: 20) {
+					header
 
-				ForEach(Strings.PrivacyString.sections) { section in
-					sectionView(section)
+					ForEach(Strings.PrivacyString.sections) { section in
+						sectionView(section)
+					}
+
+					contactBlock
 				}
-
-				contactBlock
 			}
 			.padding(.horizontal, 20)
 			.padding(.vertical, 24)
 		}
-		.background(NurturColors.background.ignoresSafeArea())
+		.nurturScreenBackground()
 		.navigationTitle(Strings.Common.privacyTitle)
 		.navigationBarTitleDisplayMode(.inline)
 		.onAppear {
@@ -188,17 +190,25 @@ struct PrivacyPolicy: View {
 	// MARK: - Header
 
 	private var header: some View {
-		VStack(alignment: .leading, spacing: 6) {
-			Text(Strings.PrivacyString.documentTitle)
-				.font(NurturTypography.title2)
-				.foregroundStyle(NurturColors.textPrimary)
-				.fixedSize(horizontal: false, vertical: true)
+		HStack(alignment: .top, spacing: 14) {
+			GlassIconBadge(icon: "lock.shield.fill", color: NurturColors.info, size: 40)
 
-			Text(Strings.PrivacyString.lastUpdated)
-				.font(NurturTypography.caption)
-				.foregroundStyle(NurturColors.textFaint)
+			VStack(alignment: .leading, spacing: 6) {
+				Text(Strings.PrivacyString.documentTitle)
+					.font(NurturTypography.title2)
+					.foregroundStyle(NurturColors.textPrimary)
+					.fixedSize(horizontal: false, vertical: true)
+
+				Text(Strings.PrivacyString.lastUpdated)
+					.font(NurturTypography.caption)
+					.foregroundStyle(NurturColors.textFaint)
+			}
+
+			Spacer(minLength: 0)
 		}
-		.padding(.bottom, 4)
+		.padding(20)
+		.frame(maxWidth: .infinity, alignment: .leading)
+		.nurturGlassCard(cornerRadius: 28)
 	}
 
 	// MARK: - Section
@@ -211,7 +221,7 @@ struct PrivacyPolicy: View {
 					.foregroundStyle(.white)
 					.padding(.horizontal, 9)
 					.padding(.vertical, 3)
-					.background(NurturColors.accent, in: Capsule())
+					.background(NurturGradients.accent, in: Capsule())
 
 				Text(section.title)
 					.font(NurturTypography.title3)
@@ -234,43 +244,45 @@ struct PrivacyPolicy: View {
 						.fixedSize(horizontal: false, vertical: true)
 				}
 			}
-
-			Divider()
-				.background(NurturColors.textFaint.opacity(0.25))
-				.padding(.top, 4)
 		}
+		.padding(18)
+		.frame(maxWidth: .infinity, alignment: .leading)
+		.nurturGlassCard(cornerRadius: 22)
 	}
 
 	// MARK: - Contact block (re-uses Terms contact info)
 
 	private var contactBlock: some View {
-		VStack(alignment: .leading, spacing: 6) {
-			Text(Strings.Common.contactHeading)
-				.font(NurturTypography.headline)
-				.foregroundStyle(NurturColors.textPrimary)
+		HStack(alignment: .top, spacing: 14) {
+			GlassIconBadge(icon: "envelope.fill", color: NurturColors.info, size: 34)
 
-			if !Strings.TermsString.contact.entity.isEmpty {
-				Text(Strings.TermsString.contact.entity)
+			VStack(alignment: .leading, spacing: 6) {
+				Text(Strings.Common.contactHeading)
+					.font(NurturTypography.headline)
+					.foregroundStyle(NurturColors.textPrimary)
+
+				if !Strings.TermsString.contact.entity.isEmpty {
+					Text(Strings.TermsString.contact.entity)
+						.font(NurturTypography.subheadline)
+						.foregroundStyle(NurturColors.textSecondary)
+				}
+
+				if !Strings.TermsString.contact.address.isEmpty {
+					Text(Strings.TermsString.contact.address)
+						.font(NurturTypography.subheadline)
+						.foregroundStyle(NurturColors.textSecondary)
+				}
+
+				Text(Strings.TermsString.contact.email)
 					.font(NurturTypography.subheadline)
-					.foregroundStyle(NurturColors.textSecondary)
+					.foregroundStyle(NurturColors.accent)
 			}
 
-			if !Strings.TermsString.contact.address.isEmpty {
-				Text(Strings.TermsString.contact.address)
-					.font(NurturTypography.subheadline)
-					.foregroundStyle(NurturColors.textSecondary)
-			}
-
-			Text(Strings.TermsString.contact.email)
-				.font(NurturTypography.subheadline)
-				.foregroundStyle(NurturColors.accent)
+			Spacer(minLength: 0)
 		}
-		.padding(16)
+		.padding(18)
 		.frame(maxWidth: .infinity, alignment: .leading)
-		.background(
-			RoundedRectangle(cornerRadius: 12)
-				.fill(NurturColors.surfaceWarm)
-		)
+		.nurturGlassCard(cornerRadius: 22)
 	}
 
 	// MARK: - Markdown

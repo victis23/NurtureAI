@@ -10,7 +10,7 @@ struct BirthWeightStepView: View {
     private static let gramsPerOunce: Double = 28.3495
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Strings.Onboarding.BirthWeight.heading)
                     .font(NurturTypography.title2)

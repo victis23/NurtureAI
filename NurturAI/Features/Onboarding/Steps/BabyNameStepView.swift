@@ -5,7 +5,7 @@ struct BabyNameStepView: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Strings.Onboarding.Name.heading)
                     .font(NurturTypography.title2)
@@ -17,11 +17,19 @@ struct BabyNameStepView: View {
 
             TextField(Strings.Onboarding.Name.placeholder, text: $name)
                 .font(NurturTypography.title3)
+                .foregroundStyle(NurturColors.textPrimary)
+                .tint(NurturColors.accent)
                 .textContentType(.name)
                 .submitLabel(.continue)
                 .focused($isFocused)
-                .padding(16)
-                .background(NurturColors.surfaceWarm, in: RoundedRectangle(cornerRadius: 14))
+                .padding(.horizontal, 18)
+                .padding(.vertical, 16)
+                .nurturGlassCard(cornerRadius: 22)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(NurturColors.accent.opacity(isFocused ? 0.45 : 0), lineWidth: 1.5)
+                )
+                .animation(NurturMotion.spring, value: isFocused)
 			
 			Spacer()
 			

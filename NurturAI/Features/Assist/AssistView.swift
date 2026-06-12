@@ -21,6 +21,8 @@ struct AssistView: View {
                     ProgressView()
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .nurturScreenBackground()
             .navigationTitle(Strings.Assist.navigationTitle)
 			.task {
 				guard let _ = babies.first, let container else { return }
@@ -67,23 +69,9 @@ private struct AssistContentView: View {
     }
 
     var body: some View {
+        // Backdrop comes from .nurturScreenBackground() applied by AssistView,
+        // so glass surfaces here have the shared aurora to refract.
         ZStack {
-            // Animated gradient background
-            MeshGradient(
-                width: 3, height: 3,
-                points: [
-                    [0.0, 0.0], [0.5, 0.0], [1.0, 0.0],
-                    [0.0, 0.5], [0.5, 0.5], [1.0, 0.5],
-                    [0.0, 1.0], [0.5, 1.0], [1.0, 1.0]
-                ],
-                colors: [
-                    NurturColors.background, NurturColors.accentSoft.opacity(0.4), NurturColors.background,
-                    NurturColors.accentSoft.opacity(0.3), NurturColors.background, NurturColors.surfaceWarm,
-                    NurturColors.background, NurturColors.surfaceWarm.opacity(0.5), NurturColors.accentSoft.opacity(0.2)
-                ]
-            )
-            .ignoresSafeArea()
-
             VStack(spacing: 0) {
                 // Baby chip bar
                 GlassEffectContainer(spacing: 12) {
@@ -93,7 +81,7 @@ private struct AssistContentView: View {
                             .foregroundStyle(NurturColors.textSecondary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .glassEffect(in: Capsule())
+                            .nurturGlassPill()
 
                         Spacer()
 
@@ -103,7 +91,7 @@ private struct AssistContentView: View {
                                 .foregroundStyle(NurturColors.textFaint)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
-                                .glassEffect(in: Capsule())
+                                .nurturGlassPill()
                         }
                     }
                 }
@@ -190,37 +178,39 @@ private struct AssistContentView: View {
                     }
                 }
 
-                // Input bar
+                // Input bar — glass capsule with a prominent round send button.
                 if !viewModel.emergencyMode {
-                    HStack(spacing: 12) {
+                    HStack(spacing: 10) {
                         TextField(Strings.Assist.inputPlaceholder, text: $viewModel.query, axis: .vertical)
+                            .font(NurturTypography.subheadline)
                             .lineLimit(1...4)
                             .textFieldStyle(.plain)
                             .focused($isInputFocused)
                             .disabled(viewModel.isStreaming)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
 
                         Button {
                             isInputFocused = false
                             Task { await viewModel.ask(baby: baby) }
                         } label: {
-                            Image(systemName: "arrow.up.circle.fill")
-                                .font(.title)
-                                .symbolRenderingMode(.palette)
-                                .foregroundStyle(
-                                    .white,
-                                    sendDisabled ? NurturColors.textFaint.opacity(0.3) : NurturColors.accent
-                                )
-                                .scaleEffect(sendDisabled ? 1.0 : 1.05)
-                                .animation(.easeInOut(duration: 0.2), value: sendDisabled)
+                            Image(systemName: "arrow.up")
+                                .font(.system(size: 15, weight: .bold))
+                                .frame(width: 22, height: 22)
                         }
+                        .buttonStyle(.glassProminent)
+                        .buttonBorderShape(.circle)
+                        .tint(NurturColors.accent)
                         .disabled(sendDisabled)
+                        .animation(.easeInOut(duration: 0.2), value: sendDisabled)
                     }
+                    .padding(.leading, 6)
+                    .padding(.trailing, 8)
+                    .padding(.vertical, 5)
+                    .glassEffect(.regular, in: .capsule)
+                    .overlay(Capsule().strokeBorder(NurturGradients.glassRim, lineWidth: 0.8))
+                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .glassEffect(.regular, in: .rect(cornerRadius: 20))
-                    .padding(.horizontal, 12)
                     .padding(.bottom, 8)
                 }
             }
@@ -250,11 +240,7 @@ private struct AssistTurnView: View {
                     .foregroundStyle(NurturColors.textPrimary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(NurturColors.accentSoft, in: RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(NurturColors.accent.opacity(0.18), lineWidth: 0.5)
-                    )
+                    .nurturGlassCardTinted(NurturColors.accent, cornerRadius: 18)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(.horizontal)
@@ -282,6 +268,9 @@ private struct AssistTurnView: View {
                 Text(errorMessage)
                     .font(NurturTypography.subheadline)
                     .foregroundStyle(NurturColors.danger)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(14)
+                    .nurturGlassCardTinted(NurturColors.danger, cornerRadius: 18)
                     .padding(.horizontal)
                     .transition(.opacity)
             } else if isLatest && isStreaming {
@@ -293,6 +282,9 @@ private struct AssistTurnView: View {
                         .font(NurturTypography.subheadline)
                         .foregroundStyle(NurturColors.textFaint)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .nurturGlassPill()
                 .padding(.horizontal)
                 .transition(.blurReplace)
             }

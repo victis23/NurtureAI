@@ -122,8 +122,11 @@ private struct HomeContentView: View {
 								.transition(.move(edge: .top).combined(with: .opacity))
 							}
 						}
-						.glassEffect(.regular, in: .rect(cornerRadius: 22))
-						.clipShape(RoundedRectangle(cornerRadius: 22))
+						// Clip first so the expanding score drawer stays inside the
+						// rounded shape, then wrap in the glass card (rim + shadow)
+						// so neither gets clipped away.
+						.clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+						.nurturGlassCard(cornerRadius: 22)
 						.padding(.horizontal)
 						
 						// Active timer widget
@@ -163,7 +166,7 @@ private struct HomeContentView: View {
 						// screen, so this is battery-friendly.
 						if viewModel.patterns != nil || viewModel.isLoading {
 							VStack(spacing: 12) {
-								SectionHeader(title: Strings.Home.atAGlance)
+								NurturSectionHeader(title: Strings.Home.atAGlance)
 								if let patterns = viewModel.patterns {
 								TimelineView(.periodic(from: .now, by: 60)) { context in
 									let nextState: CharacterAnimation = {
@@ -233,7 +236,7 @@ private struct HomeContentView: View {
 
 						// Quick log
 						VStack(spacing: 12) {
-							SectionHeader(title: Strings.Home.quickLog)
+							NurturSectionHeader(title: Strings.Home.quickLog)
 							HStack(spacing: 12) {
 								LargeActionButton(title: Strings.Home.feed, icon: "drop.fill", color: NurturColors.info) {
 									buttonTap?.toggle()
@@ -292,14 +295,7 @@ private struct HomeContentView: View {
 				AssistView(initialQuery: assistQuery)
 			}
 		}
-		.background(
-			LinearGradient(
-				colors: [.background, .accentColor.opacity(0.1)],
-				startPoint: .topLeading,
-				endPoint: .bottomTrailing
-			)
-			.ignoresSafeArea()
-		)
+		.nurturScreenBackground()
     }
 }
 
@@ -343,15 +339,12 @@ private struct ActiveTimerWidget: View {
 			}
 			.font(NurturTypography.subheadline)
 			.fontWeight(.semibold)
-			.foregroundStyle(.white)
-			.padding(.horizontal, 16)
-			.padding(.vertical, 8)
-			.background(NurturColors.danger, in: Capsule())
+			.buttonStyle(.glassProminent)
+			.tint(NurturColors.danger)
 			.sensoryFeedback(.impact, trigger: buttonTap)
         }
         .padding(16)
-        .background(NurturColors.surface, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
+        .nurturGlassCardTinted(NurturColors.accent, cornerRadius: 22)
         .onAppear {
             pulseScale = 1.12
             elapsed = session.elapsed
@@ -383,33 +376,13 @@ private struct ActiveTimerWidget: View {
 
 // MARK: - Today's timeline
 
-private struct SectionHeader: View {
-	let title: String
-
-	var body: some View {
-		HStack(spacing: 8) {
-			Circle()
-				.fill(NurturColors.accent)
-				.frame(width: 6, height: 6)
-			Text(title)
-				.font(NurturTypography.caption)
-				.fontWeight(.bold)
-				.textCase(.uppercase)
-				.kerning(0.8)
-				.foregroundStyle(NurturColors.textSecondary)
-			Spacer()
-		}
-		.padding(.leading, 4)
-	}
-}
-
 private struct TodayTimelineSection: View {
 	let logs: [BabyLog]
 	let isLoading: Bool
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
-			SectionHeader(title: Strings.Home.timeline)
+			NurturSectionHeader(title: Strings.Home.timeline)
 
 			if logs.isEmpty && isLoading {
 				VStack(spacing: 12) {
@@ -471,7 +444,7 @@ private struct TimelineEventRow: View {
 			.padding(.horizontal, 14)
 			.padding(.vertical, 11)
 			.frame(maxWidth: .infinity, alignment: .leading)
-			.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18))
+			.nurturGlassRow(cornerRadius: 18)
 		}
 	}
 
@@ -536,7 +509,7 @@ private struct TimelineNode: View {
 					.opacity(pulse ? 0 : 1)
 					.animation(.easeOut(duration: 2).repeatForever(autoreverses: false), value: pulse)
 			}
-			RoundedRectangle(cornerRadius: 12)
+			RoundedRectangle(cornerRadius: 12, style: .continuous)
 				.fill(isNow ? NurturColors.accent : color.opacity(0.18))
 			Image(systemName: icon)
 				.font(.system(size: 14))
@@ -563,11 +536,14 @@ private struct EmptyTimelineCard: View {
 		.frame(maxWidth: .infinity)
 		.padding(.vertical, 28)
 		.padding(.horizontal, 24)
-		.background(
-			RoundedRectangle(cornerRadius: 26)
-				.stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-				.foregroundStyle(NurturColors.accent.opacity(0.3))
+		.nurturGlassCard(cornerRadius: 26)
+		.overlay(
+			// Keep the dashed "nothing here yet" charm as an inset stitch
+			// on top of the glass card.
+			RoundedRectangle(cornerRadius: 20, style: .continuous)
+				.strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
+				.foregroundStyle(NurturColors.accent.opacity(0.35))
+				.padding(6)
 		)
-		.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
 	}
 }
