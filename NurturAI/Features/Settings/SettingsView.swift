@@ -181,7 +181,6 @@ private struct SettingsContentView: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .nurturPressable()
                     }
 
                     // Links
@@ -196,7 +195,6 @@ private struct SettingsContentView: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .nurturPressable()
 
                         NavigationLink {
                             TermsAndConditions(
@@ -215,7 +213,6 @@ private struct SettingsContentView: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .nurturPressable()
                     }
 
                     // AI memory
@@ -250,7 +247,7 @@ private struct SettingsContentView: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .nurturPressable()
+						.nurturPressable()
 
 						Button(role: .destructive) {
 							showDeleteConfirmation = true
@@ -335,7 +332,6 @@ private struct SettingsContentView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .nurturPressable()
 
             if showsDivider {
                 SettingsGlassDivider()
