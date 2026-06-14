@@ -214,8 +214,6 @@ struct CircularTimerButton: View {
     let idleLabel: String
     let action: () -> Void
 
-    @State private var pulse = false
-
     private let diameter: CGFloat = 220
     private let lineWidth: CGFloat = 10
 
@@ -224,21 +222,20 @@ struct CircularTimerButton: View {
             ZStack {
                 // Breathing glow — only rendered while running, so the idle
                 // state stays completely static and centered.
-                if isRunning {
-                    Circle()
-                        .fill(color.opacity(0.16))
-                        .frame(width: diameter, height: diameter)
-                        .scaleEffect(pulse ? 1.07 : 0.93)
-                        .blur(radius: 8)
-                        .transition(.opacity)
-                        // Scoped to `pulse` so the repeating breath stays contained
-                        // to this circle. An imperative withAnimation(.repeatForever)
-                        // here leaked onto the shared timer-session transaction and
-                        // animated Home's ActiveTimerWidget on every feed start.
-//                        .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: pulse)
-                        .onAppear { pulse = true }
-                        .onDisappear { pulse = false }
-                }
+				if isRunning {
+					TimelineView(.animation) { context in
+						let t = context.date.timeIntervalSinceReferenceDate
+						let phase = (sin(t * .pi / 1.6) + 1) / 2   // 0…1, eased at the turns
+						let scale = 0.93 + 0.14 * phase            // 0.93…1.07
+						Circle()
+							.fill(color.opacity(0.16))
+							.frame(width: diameter, height: diameter)
+							.scaleEffect(scale)
+							.blur(radius: 8)
+						// Same guard the live ring uses — never inherit an entrance animation.
+							.transaction { $0.animation = nil }
+					}
+				}
 
                 // Frosted face — static material (not Liquid Glass) so it does
                 // not play the sheen-sweep entrance animation on first appear.
