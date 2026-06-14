@@ -235,7 +235,7 @@ struct CircularTimerButton: View {
                         // to this circle. An imperative withAnimation(.repeatForever)
                         // here leaked onto the shared timer-session transaction and
                         // animated Home's ActiveTimerWidget on every feed start.
-                        .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: pulse)
+//                        .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: pulse)
                         .onAppear { pulse = true }
                         .onDisappear { pulse = false }
                 }

@@ -132,35 +132,42 @@ private struct SettingsContentView: View {
 
                     // Subscription
                     SettingsSectionCard(Strings.Settings.Subscription.sectionTitle) {
-                        HStack(spacing: 12) {
-                            GlassIconBadge(
-                                icon: appState.isSubscribed ? "crown.fill" : "sparkles",
-                                color: NurturColors.warning,
-                                size: 30
-                            )
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(appState.isSubscribed ? Strings.Settings.Subscription.proPlan : Strings.Settings.Subscription.freePlan)
-                                    .font(NurturTypography.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(NurturColors.textPrimary)
-                                Text(appState.isSubscribed ? Strings.Settings.Subscription.proDescription : Strings.Settings.Subscription.freeDescription)
-                                    .font(NurturTypography.caption)
-                                    .foregroundStyle(NurturColors.textSecondary)
-                            }
-                            Spacer()
-                            if !appState.isSubscribed {
-                                Button(Strings.Settings.Subscription.upgradeToPro) { showPaywall = true }
-                                    .font(NurturTypography.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 7)
-                                    .background(NurturGradients.accent, in: Capsule())
-                                    .shadow(color: NurturColors.accent.opacity(0.28), radius: 6, x: 0, y: 3)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
+						Button {
+							if !appState.isSubscribed {
+								showPaywall = true
+							}
+						} label: {
+							HStack(spacing: 12) {
+								GlassIconBadge(
+									icon: appState.isSubscribed ? "crown.fill" : "sparkles",
+									color: NurturColors.warning,
+									size: 30
+								)
+								VStack(alignment: .leading, spacing: 2) {
+									Text(appState.isSubscribed ? Strings.Settings.Subscription.proPlan : Strings.Settings.Subscription.freePlan)
+										.font(NurturTypography.subheadline)
+										.fontWeight(.medium)
+										.foregroundStyle(NurturColors.textPrimary)
+									Text(appState.isSubscribed ? Strings.Settings.Subscription.proDescription : Strings.Settings.Subscription.freeDescription)
+										.font(NurturTypography.caption)
+										.foregroundStyle(NurturColors.textSecondary)
+								}
+								Spacer()
+								if !appState.isSubscribed {
+									Text(Strings.Settings.Subscription.upgradeToPro)
+										.font(NurturTypography.caption)
+										.fontWeight(.semibold)
+										.foregroundStyle(.white)
+										.padding(.horizontal, 14)
+										.padding(.vertical, 7)
+										.background(NurturGradients.accent, in: Capsule())
+										.shadow(color: NurturColors.accent.opacity(0.28), radius: 6, x: 0, y: 3)
+								}
+							}
+							.padding(.horizontal, 16)
+							.padding(.vertical, 13)
+							.buttonStyle(.plain)
+						}
                     }
 
                     // Caregivers
