@@ -17,6 +17,9 @@ class AnalyticsService {
 	}
 
 	func logEvent(_ event: String, parameters: [String: Any] = [:], transaction: Transaction? = nil) {
+		// No analytics outside of App Store builds (skips Xcode + TestFlight).
+		guard BuildEnvironment.isProduction else { return }
+
 		Analytics.logEvent(event, parameters: parameters)
 
 		let eventName = AppEvents.Name(event)
@@ -54,6 +57,8 @@ class AnalyticsService {
 	}
 
 	func logFunnelEvent(_ event: FunnelEvent, valueToSum: Double? = nil, currency: String? = nil) {
+		guard BuildEnvironment.isProduction else { return }
+
 		var parameters: [AppEvents.ParameterName: Any] = [:]
 		if let currency {
 			parameters[AppEvents.ParameterName("fb_currency")] = currency
@@ -66,6 +71,8 @@ class AnalyticsService {
 	}
 
 	func logPurchaseEvent(transaction: Transaction) {
+		guard BuildEnvironment.isProduction else { return }
+
 		let price = transaction.price as? NSDecimalNumber
 		let currency = transaction.currency
 		facebookAnalytics.logPurchase(amount: price?.doubleValue ?? 0, currency: "\(currency ?? "n/a")")

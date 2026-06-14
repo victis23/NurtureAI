@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import FacebookCore
 import FirebaseCore
+import FirebaseAnalytics
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -9,6 +10,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+
+        // Suppress all analytics auto-collection outside of App Store builds so
+        // nothing is reported from Xcode (debug) or TestFlight builds.
+        if !BuildEnvironment.isProduction {
+            Analytics.setAnalyticsCollectionEnabled(false)
+            Settings.shared.isAutoLogAppEventsEnabled = false
+            Settings.shared.isAdvertiserIDCollectionEnabled = false
+        }
+
         ApplicationDelegate.shared.application(
             application,
             didFinishLaunchingWithOptions: launchOptions
@@ -39,7 +49,9 @@ struct NurturAIApp: App {
 		.onChange(of: activityState) { _, state in
 			switch state {
 			case .active:
-				AppEvents.shared.activateApp()
+				if BuildEnvironment.isProduction {
+					AppEvents.shared.activateApp()
+				}
 			default:
 				print("State Change")
 			}
